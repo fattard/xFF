@@ -8,7 +8,7 @@
 
 Hardware Mode | Supported
 ------------- | ---------
-DMG (Game Boy)
+DMG (Game Boy) | :soon:
 MGB/MGL (Game Boy Pocket/Light)
 SGB (Super Game Boy)
 SGB2 (Super Game Boy 2)
@@ -17,25 +17,25 @@ CGB (Game Boy Color)
 
 8-bit Transfers  |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ---------------  | ------------------ | ------------------ | ------------------ | ------------------
-LD r, r'
-LD r, n
-LD r, [HL]
-LD [HL], r
-LD [HL], n
-LD A, [BC]
-LD A, [DE]
-LDH A, [$FF00+C]
-LDH [$FF00+C], A
-LDH A, [$FF00+n]
-LDH [$FF00+n], A
-LD A, [nn]
-LD [nn], A
-LD A, [HL+]
-LD A, [HL-]
-LD [BC], A
-LD [DE], A
-LD [HL+], A
-LD [HL-], A
+LD r, r'         | :heavy_check_mark: |                    |                    |                   
+LD r, n          | :heavy_check_mark: |                    |                    |                   
+LD r, [HL]       | :heavy_check_mark: |                    |                    |                   
+LD [HL], r       | :heavy_check_mark: |                    |                    |                   
+LD [HL], n       | :heavy_check_mark: |                    |                    |                   
+LD A, [BC]       | :heavy_check_mark: |                    |                    |                   
+LD A, [DE]       | :heavy_check_mark: |                    |                    |                   
+LD A, [$FF00+C]  | :heavy_check_mark: |                    |                    |                   
+LD [$FF00+C], A  | :heavy_check_mark: |                    |                    |                   
+LDH A, [$FF00+n] | :heavy_check_mark: |                    |                    |                   
+LDH [$FF00+n], A | :heavy_check_mark: |                    |                    |                   
+LD A, [nn]       | :heavy_check_mark: |                    |                    |                   
+LD [nn], A       | :heavy_check_mark: |                    |                    |                   
+LD A, [HL+]      | :heavy_check_mark: |                    |                    |                   
+LD A, [HL-]      | :heavy_check_mark: |                    |                    |                   
+LD [BC], A       | :heavy_check_mark: |                    |                    |                   
+LD [DE], A       | :heavy_check_mark: |                    |                    |                   
+LD [HL+], A      | :heavy_check_mark: |                    |                    |                   
+LD [HL-], A      | :heavy_check_mark: |                    |                    |                   
 
 16-bit Transfers |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ---------------- | ------------------ | ------------------ | ------------------ | ------------------

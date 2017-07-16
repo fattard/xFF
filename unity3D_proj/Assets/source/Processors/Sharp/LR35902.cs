@@ -137,6 +137,12 @@ namespace xFF
                 {
                     CyclesStep = aClockStep;
                 }
+
+
+                void Decode( )
+                {
+                    m_fetchedInstruction = Read8(m_regs.PC++);
+                }
             }
 
 
