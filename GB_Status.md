@@ -111,10 +111,10 @@ Bit Operations |   Implementation   | Checked Operation  |   Checked Flags    | 
 -------------- | ------------------ | ------------------ | ------------------ | ------------------
 BIT b, r       | :heavy_check_mark: |                    |                    |                   
 BIT b, [HL]    | :heavy_check_mark: |                    |                    |                   
-SET b, r
-SET b, [HL]
-RES b, r
-RES b, [HL]
+SET b, r       | :heavy_check_mark: |                    |                    |                   
+SET b, [HL]    | :heavy_check_mark: |                    |                    |                   
+RES b, r       | :heavy_check_mark: |                    |                    |                   
+RES b, [HL]    | :heavy_check_mark: |                    |                    |                   
 
 Jump Instructions |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ----------------- | ------------------ | ------------------ | ------------------ | ------------------

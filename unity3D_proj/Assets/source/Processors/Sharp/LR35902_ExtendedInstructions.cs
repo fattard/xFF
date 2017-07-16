@@ -270,6 +270,403 @@ namespace xFF
 
 
 
+
+                    /*
+                     * set b, r
+                     * ========
+                     * 
+                     * bit_x <- 1
+                     * 
+                     * 
+                     * Desc: Sets to 1 the specified bit in the specified register r
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region set b, r
+                    {
+                        // set 0, A
+                        m_extendedInstructionHandler[0xC7] = () =>
+                        {
+                            // Extract operands
+                            int b = (0x07 & (m_fetchedInstruction >> 3));
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            m_regs[r] = (m_regs[r] | (1 << b));
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                        // set 1, A
+                        m_extendedInstructionHandler[0xCF] = m_extendedInstructionHandler[0xC7];
+                        // set 2, A
+                        m_extendedInstructionHandler[0xD7] = m_extendedInstructionHandler[0xC7];
+                        // set 3, A
+                        m_extendedInstructionHandler[0xDF] = m_extendedInstructionHandler[0xC7];
+                        // set 4, A
+                        m_extendedInstructionHandler[0xE7] = m_extendedInstructionHandler[0xC7];
+                        // set 5, A
+                        m_extendedInstructionHandler[0xEF] = m_extendedInstructionHandler[0xC7];
+                        // set 6, A
+                        m_extendedInstructionHandler[0xF7] = m_extendedInstructionHandler[0xC7];
+                        // set 7, A
+                        m_extendedInstructionHandler[0xFF] = m_extendedInstructionHandler[0xC7];
+                        // set 0, B
+                        m_extendedInstructionHandler[0xC0] = m_extendedInstructionHandler[0xC7];
+                        // set 1, B
+                        m_extendedInstructionHandler[0xC8] = m_extendedInstructionHandler[0xC7];
+                        // set 2, B
+                        m_extendedInstructionHandler[0xD0] = m_extendedInstructionHandler[0xC7];
+                        // set 3, B
+                        m_extendedInstructionHandler[0xD8] = m_extendedInstructionHandler[0xC7];
+                        // set 4, B
+                        m_extendedInstructionHandler[0xE0] = m_extendedInstructionHandler[0xC7];
+                        // set 5, B
+                        m_extendedInstructionHandler[0xE8] = m_extendedInstructionHandler[0xC7];
+                        // set 6, B
+                        m_extendedInstructionHandler[0xF0] = m_extendedInstructionHandler[0xC7];
+                        // set 7, B
+                        m_extendedInstructionHandler[0xF8] = m_extendedInstructionHandler[0xC7];
+                        // set 0, C
+                        m_extendedInstructionHandler[0xC1] = m_extendedInstructionHandler[0xC7];
+                        // set 1, C
+                        m_extendedInstructionHandler[0xC9] = m_extendedInstructionHandler[0xC7];
+                        // set 2, C
+                        m_extendedInstructionHandler[0xD1] = m_extendedInstructionHandler[0xC7];
+                        // set 3, C
+                        m_extendedInstructionHandler[0xD9] = m_extendedInstructionHandler[0xC7];
+                        // set 4, C
+                        m_extendedInstructionHandler[0xE1] = m_extendedInstructionHandler[0xC7];
+                        // set 5, C
+                        m_extendedInstructionHandler[0xE9] = m_extendedInstructionHandler[0xC7];
+                        // set 6, C
+                        m_extendedInstructionHandler[0xF1] = m_extendedInstructionHandler[0xC7];
+                        // set 7, C
+                        m_extendedInstructionHandler[0xF9] = m_extendedInstructionHandler[0xC7];
+                        // set 0, D
+                        m_extendedInstructionHandler[0xC2] = m_extendedInstructionHandler[0xC7];
+                        // set 1, D
+                        m_extendedInstructionHandler[0xCA] = m_extendedInstructionHandler[0xC7];
+                        // set 2, D
+                        m_extendedInstructionHandler[0xD2] = m_extendedInstructionHandler[0xC7];
+                        // set 3, D
+                        m_extendedInstructionHandler[0xDA] = m_extendedInstructionHandler[0xC7];
+                        // set 4, D
+                        m_extendedInstructionHandler[0xE2] = m_extendedInstructionHandler[0xC7];
+                        // set 5, D
+                        m_extendedInstructionHandler[0xEA] = m_extendedInstructionHandler[0xC7];
+                        // set 6, D
+                        m_extendedInstructionHandler[0xF2] = m_extendedInstructionHandler[0xC7];
+                        // set 7, D
+                        m_extendedInstructionHandler[0xFA] = m_extendedInstructionHandler[0xC7];
+                        // set 0, E
+                        m_extendedInstructionHandler[0xC3] = m_extendedInstructionHandler[0xC7];
+                        // set 1, E
+                        m_extendedInstructionHandler[0xCB] = m_extendedInstructionHandler[0xC7];
+                        // set 2, E
+                        m_extendedInstructionHandler[0xD3] = m_extendedInstructionHandler[0xC7];
+                        // set 3, E
+                        m_extendedInstructionHandler[0xDB] = m_extendedInstructionHandler[0xC7];
+                        // set 4, E
+                        m_extendedInstructionHandler[0xE3] = m_extendedInstructionHandler[0xC7];
+                        // set 5, E
+                        m_extendedInstructionHandler[0xEB] = m_extendedInstructionHandler[0xC7];
+                        // set 6, E
+                        m_extendedInstructionHandler[0xF3] = m_extendedInstructionHandler[0xC7];
+                        // set 7, E
+                        m_extendedInstructionHandler[0xFB] = m_extendedInstructionHandler[0xC7];
+                        // set 0, H
+                        m_extendedInstructionHandler[0xC4] = m_extendedInstructionHandler[0xC7];
+                        // set 1, H
+                        m_extendedInstructionHandler[0xCC] = m_extendedInstructionHandler[0xC7];
+                        // set 2, H
+                        m_extendedInstructionHandler[0xD4] = m_extendedInstructionHandler[0xC7];
+                        // set 3, H
+                        m_extendedInstructionHandler[0xDC] = m_extendedInstructionHandler[0xC7];
+                        // set 4, H
+                        m_extendedInstructionHandler[0xE4] = m_extendedInstructionHandler[0xC7];
+                        // set 5, H
+                        m_extendedInstructionHandler[0xEC] = m_extendedInstructionHandler[0xC7];
+                        // set 6, H
+                        m_extendedInstructionHandler[0xF4] = m_extendedInstructionHandler[0xC7];
+                        // set 7, H
+                        m_extendedInstructionHandler[0xFC] = m_extendedInstructionHandler[0xC7];
+                        // set 0, L
+                        m_extendedInstructionHandler[0xC5] = m_extendedInstructionHandler[0xC7];
+                        // set 1, L
+                        m_extendedInstructionHandler[0xCD] = m_extendedInstructionHandler[0xC7];
+                        // set 2, L
+                        m_extendedInstructionHandler[0xD5] = m_extendedInstructionHandler[0xC7];
+                        // set 3, L
+                        m_extendedInstructionHandler[0xDD] = m_extendedInstructionHandler[0xC7];
+                        // set 4, L
+                        m_extendedInstructionHandler[0xE5] = m_extendedInstructionHandler[0xC7];
+                        // set 5, L
+                        m_extendedInstructionHandler[0xED] = m_extendedInstructionHandler[0xC7];
+                        // set 6, L
+                        m_extendedInstructionHandler[0xF5] = m_extendedInstructionHandler[0xC7];
+                        // set 7, L
+                        m_extendedInstructionHandler[0xFD] = m_extendedInstructionHandler[0xC7];
+                    }
+                    #endregion set b, r
+
+
+
+
+                    /*
+                     * set b, [HL]
+                     * ===========
+                     * 
+                     * bit_x <- 1
+                     * 
+                     * 
+                     * Desc: Sets to 1 the specified bit in the memory contents specified by register pair HL
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region set b, [HL]
+                    {
+                        // set 0, [HL]
+                        m_extendedInstructionHandler[0xC6] = () =>
+                        {
+                            // Extract operand
+                            int b = (0x07 & (m_fetchedInstruction >> 3));
+
+                            int v = Read8(m_regs.HL);
+                            v = (v | (1 << b));
+                            Write8(m_regs.HL, v);
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                        // set 1, [HL]
+                        m_extendedInstructionHandler[0xCE] = m_extendedInstructionHandler[0xC6];
+                        // set 2, [HL]
+                        m_extendedInstructionHandler[0xD6] = m_extendedInstructionHandler[0xC6];
+                        // set 3, [HL]
+                        m_extendedInstructionHandler[0xDE] = m_extendedInstructionHandler[0xC6];
+                        // set 4, [HL]
+                        m_extendedInstructionHandler[0xE6] = m_extendedInstructionHandler[0xC6];
+                        // set 5, [HL]
+                        m_extendedInstructionHandler[0xEE] = m_extendedInstructionHandler[0xC6];
+                        // set 6, [HL]
+                        m_extendedInstructionHandler[0xF6] = m_extendedInstructionHandler[0xC6];
+                        // set 7, [HL]
+                        m_extendedInstructionHandler[0xFE] = m_extendedInstructionHandler[0xC6];
+                    }
+                    #endregion set b, [HL]
+
+
+
+
+                    /*
+                     * res b, r
+                     * ========
+                     * 
+                     * bit_x <- 0
+                     * 
+                     * 
+                     * Desc: Resets to 0 the specified bit in the specified register r
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region res b, r
+                    {
+                        // res 0, A
+                        m_extendedInstructionHandler[0x87] = () =>
+                        {
+                            // Extract operands
+                            int b = (0x07 & (m_fetchedInstruction >> 3));
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            m_regs[r] = (m_regs[r] & (~(1 << b)));
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                        // res 1, A
+                        m_extendedInstructionHandler[0x8F] = m_extendedInstructionHandler[0x87];
+                        // res 2, A
+                        m_extendedInstructionHandler[0x97] = m_extendedInstructionHandler[0x87];
+                        // res 3, A
+                        m_extendedInstructionHandler[0x9F] = m_extendedInstructionHandler[0x87];
+                        // res 4, A
+                        m_extendedInstructionHandler[0xA7] = m_extendedInstructionHandler[0x87];
+                        // res 5, A
+                        m_extendedInstructionHandler[0xAF] = m_extendedInstructionHandler[0x87];
+                        // res 6, A
+                        m_extendedInstructionHandler[0xB7] = m_extendedInstructionHandler[0x87];
+                        // res 7, A
+                        m_extendedInstructionHandler[0xBF] = m_extendedInstructionHandler[0x87];
+                        // res 0, B
+                        m_extendedInstructionHandler[0x80] = m_extendedInstructionHandler[0x87];
+                        // res 1, B
+                        m_extendedInstructionHandler[0x88] = m_extendedInstructionHandler[0x87];
+                        // res 2, B
+                        m_extendedInstructionHandler[0x90] = m_extendedInstructionHandler[0x87];
+                        // res 3, B
+                        m_extendedInstructionHandler[0x98] = m_extendedInstructionHandler[0x87];
+                        // res 4, B
+                        m_extendedInstructionHandler[0xA0] = m_extendedInstructionHandler[0x87];
+                        // res 5, B
+                        m_extendedInstructionHandler[0xA8] = m_extendedInstructionHandler[0x87];
+                        // res 6, B
+                        m_extendedInstructionHandler[0xB0] = m_extendedInstructionHandler[0x87];
+                        // res 7, B
+                        m_extendedInstructionHandler[0xB8] = m_extendedInstructionHandler[0x87];
+                        // res 0, C
+                        m_extendedInstructionHandler[0x81] = m_extendedInstructionHandler[0x87];
+                        // res 1, C
+                        m_extendedInstructionHandler[0x89] = m_extendedInstructionHandler[0x87];
+                        // res 2, C
+                        m_extendedInstructionHandler[0x91] = m_extendedInstructionHandler[0x87];
+                        // res 3, C
+                        m_extendedInstructionHandler[0x99] = m_extendedInstructionHandler[0x87];
+                        // res 4, C
+                        m_extendedInstructionHandler[0xA1] = m_extendedInstructionHandler[0x87];
+                        // res 5, C
+                        m_extendedInstructionHandler[0xA9] = m_extendedInstructionHandler[0x87];
+                        // res 6, C
+                        m_extendedInstructionHandler[0xB1] = m_extendedInstructionHandler[0x87];
+                        // res 7, C
+                        m_extendedInstructionHandler[0xB9] = m_extendedInstructionHandler[0x87];
+                        // res 0, D
+                        m_extendedInstructionHandler[0x82] = m_extendedInstructionHandler[0x87];
+                        // res 1, D
+                        m_extendedInstructionHandler[0x8A] = m_extendedInstructionHandler[0x87];
+                        // res 2, D
+                        m_extendedInstructionHandler[0x92] = m_extendedInstructionHandler[0x87];
+                        // res 3, D
+                        m_extendedInstructionHandler[0x9A] = m_extendedInstructionHandler[0x87];
+                        // res 4, D
+                        m_extendedInstructionHandler[0xA2] = m_extendedInstructionHandler[0x87];
+                        // res 5, D
+                        m_extendedInstructionHandler[0xAA] = m_extendedInstructionHandler[0x87];
+                        // res 6, D
+                        m_extendedInstructionHandler[0xB2] = m_extendedInstructionHandler[0x87];
+                        // res 7, D
+                        m_extendedInstructionHandler[0xBA] = m_extendedInstructionHandler[0x87];
+                        // res 0, E
+                        m_extendedInstructionHandler[0x83] = m_extendedInstructionHandler[0x87];
+                        // res 1, E
+                        m_extendedInstructionHandler[0x8B] = m_extendedInstructionHandler[0x87];
+                        // res 2, E
+                        m_extendedInstructionHandler[0x93] = m_extendedInstructionHandler[0x87];
+                        // res 3, E
+                        m_extendedInstructionHandler[0x9B] = m_extendedInstructionHandler[0x87];
+                        // res 4, E
+                        m_extendedInstructionHandler[0xA3] = m_extendedInstructionHandler[0x87];
+                        // res 5, E
+                        m_extendedInstructionHandler[0xAB] = m_extendedInstructionHandler[0x87];
+                        // res 6, E
+                        m_extendedInstructionHandler[0xB3] = m_extendedInstructionHandler[0x87];
+                        // res 7, E
+                        m_extendedInstructionHandler[0xBB] = m_extendedInstructionHandler[0x87];
+                        // res 0, H
+                        m_extendedInstructionHandler[0x84] = m_extendedInstructionHandler[0x87];
+                        // res 1, H
+                        m_extendedInstructionHandler[0x8C] = m_extendedInstructionHandler[0x87];
+                        // res 2, H
+                        m_extendedInstructionHandler[0x94] = m_extendedInstructionHandler[0x87];
+                        // res 3, H
+                        m_extendedInstructionHandler[0x9C] = m_extendedInstructionHandler[0x87];
+                        // res 4, H
+                        m_extendedInstructionHandler[0xA4] = m_extendedInstructionHandler[0x87];
+                        // res 5, H
+                        m_extendedInstructionHandler[0xAC] = m_extendedInstructionHandler[0x87];
+                        // res 6, H
+                        m_extendedInstructionHandler[0xB4] = m_extendedInstructionHandler[0x87];
+                        // res 7, H
+                        m_extendedInstructionHandler[0xBC] = m_extendedInstructionHandler[0x87];
+                        // res 0, L
+                        m_extendedInstructionHandler[0x85] = m_extendedInstructionHandler[0x87];
+                        // res 1, L
+                        m_extendedInstructionHandler[0x8D] = m_extendedInstructionHandler[0x87];
+                        // res 2, L
+                        m_extendedInstructionHandler[0x95] = m_extendedInstructionHandler[0x87];
+                        // res 3, L
+                        m_extendedInstructionHandler[0x9D] = m_extendedInstructionHandler[0x87];
+                        // res 4, L
+                        m_extendedInstructionHandler[0xA5] = m_extendedInstructionHandler[0x87];
+                        // res 5, L
+                        m_extendedInstructionHandler[0xAD] = m_extendedInstructionHandler[0x87];
+                        // res 6, L
+                        m_extendedInstructionHandler[0xB5] = m_extendedInstructionHandler[0x87];
+                        // res 7, L
+                        m_extendedInstructionHandler[0xBD] = m_extendedInstructionHandler[0x87];
+                    }
+                    #endregion res b, r
+
+
+
+
+                    /*
+                     * res b, [HL]
+                     * ===========
+                     * 
+                     * bit_x <- 0
+                     * 
+                     * 
+                     * Desc: Resets to 0 the specified bit in the memory contents specified by register pair HL
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region res b, [HL]
+                    {
+                        // res 0, [HL]
+                        m_extendedInstructionHandler[0x86] = () =>
+                        {
+                            // Extract operand
+                            int b = (0x07 & (m_fetchedInstruction >> 3));
+
+                            int v = Read8(m_regs.HL);
+                            v = (v & (~(1 << b)));
+                            Write8(m_regs.HL, v);
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                        // res 1, [HL]
+                        m_extendedInstructionHandler[0x8E] = m_extendedInstructionHandler[0x86];
+                        // res 2, [HL]
+                        m_extendedInstructionHandler[0x96] = m_extendedInstructionHandler[0x86];
+                        // res 3, [HL]
+                        m_extendedInstructionHandler[0x9E] = m_extendedInstructionHandler[0x86];
+                        // res 4, [HL]
+                        m_extendedInstructionHandler[0xA6] = m_extendedInstructionHandler[0x86];
+                        // res 5, [HL]
+                        m_extendedInstructionHandler[0xAE] = m_extendedInstructionHandler[0x86];
+                        // res 6, [HL]
+                        m_extendedInstructionHandler[0xB6] = m_extendedInstructionHandler[0x86];
+                        // res 7, [HL]
+                        m_extendedInstructionHandler[0xBE] = m_extendedInstructionHandler[0x86];
+                    }
+                    #endregion res b, [HL]
+
+
                     #endregion Bit Operations
                 }
 
