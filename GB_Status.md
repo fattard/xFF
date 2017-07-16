@@ -86,26 +86,26 @@ DEC ss            | :heavy_check_mark: |                    |                   
 
 Rotate / Shift |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 -------------- | ------------------ | ------------------ | ------------------ | ------------------
-RLCA
-RLA
-RRCA
-RRA
-RLC r
-RLC [HL]
-RL r
-RL [HL]
-RRC r
-RRC [HL]
-RR r
-RR [HL]
-SLA r
-SLA [HL]
-SRA r
-SRA [HL]
-SRL r
-SRL [HL]
-SWAP r
-SWAP [HL]
+RLCA           | :heavy_check_mark: |                    |                    |                   
+RLA            | :heavy_check_mark: |                    |                    |                   
+RRCA           | :heavy_check_mark: |                    |                    |                   
+RRA            | :heavy_check_mark: |                    |                    |                   
+RLC r          | :heavy_check_mark: |                    |                    |                   
+RLC [HL]       | :heavy_check_mark: |                    |                    |                   
+RL r           | :heavy_check_mark: |                    |                    |                   
+RL [HL]        | :heavy_check_mark: |                    |                    |                   
+RRC r          | :heavy_check_mark: |                    |                    |                   
+RRC [HL]       | :heavy_check_mark: |                    |                    |                   
+RR r           | :heavy_check_mark: |                    |                    |                   
+RR [HL]        | :heavy_check_mark: |                    |                    |                   
+SLA r          | :heavy_check_mark: |                    |                    |                   
+SLA [HL]       | :heavy_check_mark: |                    |                    |                   
+SRA r          | :heavy_check_mark: |                    |                    |                   
+SRA [HL]       | :heavy_check_mark: |                    |                    |                   
+SRL r          | :heavy_check_mark: |                    |                    |                   
+SRL [HL]       | :heavy_check_mark: |                    |                    |                   
+SWAP r         | :heavy_check_mark: |                    |                    |                   
+SWAP [HL]      | :heavy_check_mark: |                    |                    |                   
 
 Bit Operations |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 -------------- | ------------------ | ------------------ | ------------------ | ------------------

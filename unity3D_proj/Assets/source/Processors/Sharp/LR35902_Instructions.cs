@@ -1383,6 +1383,187 @@ namespace xFF
 
 
 
+                    #region Rotate & Shift Instructions
+
+
+                    /*
+                     * rlca
+                     * ====
+                     * 
+                     *     _____________
+                     *     |           |
+                     * CY <- A << A <---
+                     * 
+                     * Desc: Rotates the contents of register A to the left. That is, the contents of bit 0 are copied to bit 1
+                     * and the previous content of bit 1 (the contents before the copy operation) are copied to bit 2.
+                     * The same operation is repeated in sequence for the rest of the register.
+                     * The contents of bit 7 are placed in both carry and bit 0 of register A.
+                     * 
+                     * Flags: Z N H C
+                     *        0 0 0 *
+                     *        
+                     *        Z: Reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Old bit 7 data
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region rlca
+                    {
+                        // rlca
+                        m_instructionHandler[0x07] = () =>
+                        {
+                            m_regs.F.C = (m_regs.A >> 7);
+                            m_regs.A = (m_regs.A << 1) | (m_regs.F.C << 0);
+                            m_regs.F.Z = 0;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion rlca
+
+
+
+
+                    /*
+                     * rla
+                     * ===
+                     * 
+                     *  ________________
+                     *  |              |
+                     * CY <- A << A <---
+                     * 
+                     * Desc: Rotates the contents of register A to the left.
+                     * 
+                     * Flags: Z N H C
+                     *        0 0 0 *
+                     *        
+                     *        Z: Reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Old bit 7 data
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region rla
+                    {
+                        // rla
+                        m_instructionHandler[0x17] = () =>
+                        {
+                            int bit7 = (m_regs.A >> 7);
+                            m_regs.A = (m_regs.A << 1) | (m_regs.F.C << 0);
+                            m_regs.F.C = bit7;
+                            m_regs.F.Z = 0;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion rla
+
+
+
+
+                    /*
+                     * rrca
+                     * ====
+                     * 
+                     *     ____________
+                     *     |          |
+                     *     --> A >> A -> CY
+                     * 
+                     * Desc: Rotates the contents of register A to the right. That is, the contents of bit 7 are copied to bit 6
+                     * and the previous content of bit 6 (the contents before the copy operation) are copied to bit 5.
+                     * The same operation is repeated in sequence for the rest of the register.
+                     * The contents of bit 0 are placed in both carry and bit 7 of register A.
+                     * 
+                     * Flags: Z N H C
+                     *        0 0 0 *
+                     *        
+                     *        Z: Reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Old bit 0 data
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region rrca
+                    {
+                        // rrca
+                        m_instructionHandler[0x0F] = () =>
+                        {
+                            m_regs.F.C = (m_regs.A & 0x01);
+                            m_regs.A = (m_regs.A >> 1) | (m_regs.F.C << 7);
+                            m_regs.F.Z = 0;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion rrca
+
+
+
+
+                    /*
+                     * rra
+                     * ===
+                     * 
+                     *  ________________
+                     *  |              |
+                     *  ---> A >> A -> CY
+                     * 
+                     * Desc: Rotates the contents of register A to the right.
+                     * 
+                     * Flags: Z N H C
+                     *        0 0 0 *
+                     *        
+                     *        Z: Reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Old bit 0 data
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region rra
+                    {
+                        // rra
+                        m_instructionHandler[0x1F] = () =>
+                        {
+                            int bit0 = (m_regs.A & 0x01);
+                            m_regs.A = (m_regs.A >> 1) | (m_regs.F.C << 7);
+                            m_regs.F.C = bit0;
+                            m_regs.F.Z = 0;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion rra
+
+
+                    #endregion Rotate & Shift Instructions
+
+
+
                     #region Jump Instructions
 
 
