@@ -79,10 +79,10 @@ DEC [HL]
 
 16-bit Arithmetic |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ----------------- | ------------------ | ------------------ | ------------------ | ------------------
-ADD HL, ss
-ADD SP, e
-INC ss
-DEC ss
+ADD HL, ss        | :heavy_check_mark: |                    |                    |                   
+ADD SP, e         | :heavy_check_mark: |                    |                    |                   
+INC ss            | :heavy_check_mark: |                    |                    |                   
+DEC ss            | :heavy_check_mark: |                    |                    |                   
 
 Rotate / Shift |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 -------------- | ------------------ | ------------------ | ------------------ | ------------------

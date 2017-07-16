@@ -1102,12 +1102,13 @@ namespace xFF
                         {
                             sbyte e = (sbyte)Read8(m_regs.PC++);
                             int v = m_regs.SP + e;
-                            m_regs.HL = v;
 
                             m_regs.F.Z = 0;
                             m_regs.F.N = 0;
                             m_regs.F.H = HasHalfCarry16(v, m_regs.SP);
                             m_regs.F.C = HasCarry16(v, m_regs.SP);
+
+                            m_regs.HL = v;
 
                             //TODO: increase accuracy
                             CyclesStep(12);
@@ -1154,6 +1155,231 @@ namespace xFF
 
                     #endregion 16-bit Transfers
 
+
+
+                    #region 16-bit Arithmetic
+
+
+                    /*
+                     * add HL, ss
+                     * ==========
+                     * 
+                     * HL <- HL + ss
+                     * 
+                     * Desc: Adds the content of register pair ss to the contents of register pair HL and stores the results in HL
+                     * 
+                     * Flags: Z N H C
+                     *        - 0 * *
+                     *        
+                     *        Z: Not affected
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 11; otherwise reset
+                     *        C: Set if there is a carry from bit 15; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region add HL, ss
+                    {
+                        // add HL, BC
+                        m_instructionHandler[0x09] = () =>
+                        {
+                            int ss = 0;
+
+                            switch (0x03 & (m_fetchedInstruction >> 4))
+                            {
+                                case 0x00: // BC
+                                    ss = m_regs.BC;
+                                    break;
+
+                                case 0x01: // DE
+                                    ss = m_regs.DE;
+                                    break;
+
+                                case 0x02: // HL
+                                    ss = m_regs.HL;
+                                    break;
+
+                                case 0x03: // SP
+                                    ss = m_regs.SP;
+                                    break;
+                            }
+
+                            int v = (m_regs.HL + ss);
+
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry16(v, m_regs.HL);
+                            m_regs.F.C = HasCarry16(v, m_regs.HL);
+
+                            m_regs.HL = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                        // add HL, DE
+                        m_instructionHandler[0x19] = m_instructionHandler[0x09];
+                        // add HL, HL
+                        m_instructionHandler[0x29] = m_instructionHandler[0x09];
+                        // add HL, SP
+                        m_instructionHandler[0x39] = m_instructionHandler[0x09];
+                    }
+                    #endregion add HL, ss
+
+
+
+
+                    /*
+                     * add SP, e
+                     * =========
+                     * 
+                     * SP <- SP + e
+                     * 
+                     * Desc: Adds the contents of the 8 bit immediate operand e and SP and stores the result in SP
+                     * 
+                     * Flags: Z N H C
+                     *        0 0 * *
+                     *        
+                     *        Z: Reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 11; otherwise reset
+                     *        C: Set if there is a carry from bit 15; otherwise reset
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region add SP, e
+                    {
+                        // add SP, e
+                        m_instructionHandler[0xE8] = () =>
+                        {
+                            sbyte e = (sbyte)Read8(m_regs.PC++);
+                            int v = m_regs.SP + e;
+
+                            m_regs.F.Z = 0;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry16(v, m_regs.SP);
+                            m_regs.F.C = HasCarry16(v, m_regs.SP);
+
+                            m_regs.SP = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                    }
+                    #endregion add SP, e
+
+
+
+
+                    /*
+                     * inc ss
+                     * ======
+                     * 
+                     * ss <- ss + 1
+                     * 
+                     * Desc: Increments the contents of register pair ss by 1
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region inc ss
+                    {
+                        // inc BC
+                        m_instructionHandler[0x03] = () =>
+                        {
+                            switch (0x03 & (m_fetchedInstruction >> 4))
+                            {
+                                case 0x00: // BC
+                                    ++m_regs.BC;
+                                    break;
+
+                                case 0x01: // DE
+                                    ++m_regs.DE;
+                                    break;
+
+                                case 0x02: // HL
+                                    ++m_regs.HL;
+                                    break;
+
+                                case 0x03: // SP
+                                    ++m_regs.SP;
+                                    break;
+                            }
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                        // inc DE
+                        m_instructionHandler[0x13] = m_instructionHandler[0x03];
+                        // inc HL
+                        m_instructionHandler[0x23] = m_instructionHandler[0x03];
+                        // inc SP
+                        m_instructionHandler[0x33] = m_instructionHandler[0x03];
+                    }
+                    #endregion inc ss
+
+
+
+
+                    /*
+                     * dec ss
+                     * ======
+                     * 
+                     * ss <- ss - 1
+                     * 
+                     * Desc: Decrements the contents of register pair ss by 1
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region dec ss
+                    {
+                        // dec BC
+                        m_instructionHandler[0x0B] = () =>
+                        {
+                            switch (0x03 & (m_fetchedInstruction >> 4))
+                            {
+                                case 0x00: // BC
+                                    --m_regs.BC;
+                                    break;
+
+                                case 0x01: // DE
+                                    --m_regs.DE;
+                                    break;
+
+                                case 0x02: // HL
+                                    --m_regs.HL;
+                                    break;
+
+                                case 0x03: // SP
+                                    --m_regs.SP;
+                                    break;
+                            }
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                        // dec DE
+                        m_instructionHandler[0x1B] = m_instructionHandler[0x0B];
+                        // dec HL
+                        m_instructionHandler[0x2B] = m_instructionHandler[0x0B];
+                        // dec SP
+                        m_instructionHandler[0x3B] = m_instructionHandler[0x0B];
+                    }
+                    #endregion dec ss
+
+
+                    #endregion 16- bit Arithmetic
 
 
 
