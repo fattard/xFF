@@ -109,8 +109,8 @@ SWAP [HL]
 
 Bit Operations |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 -------------- | ------------------ | ------------------ | ------------------ | ------------------
-BIT b, r
-BIT b, [HL]
+BIT b, r       | :heavy_check_mark: |                    |                    |                   
+BIT b, [HL]    | :heavy_check_mark: |                    |                    |                   
 SET b, r
 SET b, [HL]
 RES b, r
@@ -171,6 +171,7 @@ Graphics   | Status
 ---------- | ------
 Backgrounds
 Sprites
+GBC Palettes
 
 Audio | Status
 ----- | ------
@@ -196,6 +197,7 @@ Devices | Status
 ------- | ------
 Link Cable
 Pocket Printer
+Infrared
 GB Mobile
 GB Camera
 Barcode

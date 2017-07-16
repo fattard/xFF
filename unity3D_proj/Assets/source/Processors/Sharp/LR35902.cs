@@ -148,6 +148,17 @@ namespace xFF
 
 
                 /// <summary>
+                /// Check for value zero
+                /// </summary>
+                /// <param name="aValue">The value</param>
+                /// <returns>Returns 1 if the value is 0</returns>
+                public static int IsZero(int aValue)
+                {
+                    return ((0xFF & aValue) == 0) ? 1 : 0;
+                }
+
+
+                /// <summary>
                 /// Check for 16-bits carry
                 /// </summary>
                 /// <param name="newValue">The new value</param>
