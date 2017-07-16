@@ -119,18 +119,16 @@ RES b, [HL]
 Jump Instructions |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ----------------- | ------------------ | ------------------ | ------------------ | ------------------
 JP nn             | :heavy_check_mark: |                    |                    |                   
-JP NZ, nn
-JP Z, nn
-JP NC, nn
-JP C, nn
-JR e
-JR NZ, e
-JR Z, e
-JR NC, e
-JR C, e
-JP HL
-
-
+JP NZ, nn         | :heavy_check_mark: |                    |                    |                   
+JP Z, nn          | :heavy_check_mark: |                    |                    |                   
+JP NC, nn         | :heavy_check_mark: |                    |                    |                   
+JP C, nn          | :heavy_check_mark: |                    |                    |                   
+JR e              | :heavy_check_mark: |                    |                    |                   
+JR NZ, e          | :heavy_check_mark: |                    |                    |                   
+JR Z, e           | :heavy_check_mark: |                    |                    |                   
+JR NC, e          | :heavy_check_mark: |                    |                    |                   
+JR C, e           | :heavy_check_mark: |                    |                    |                   
+JP HL             | :heavy_check_mark: |                    |                    |                   
 
 Call / Return |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ------------- | ------------------ | ------------------ | ------------------ | ------------------
