@@ -132,18 +132,18 @@ JP HL             | :heavy_check_mark: |                    |                   
 
 Call / Return |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ------------- | ------------------ | ------------------ | ------------------ | ------------------
-CALL nn
-CALL NZ, nn
-CALL Z, nn
-CALL NC, nn
-CALL C, nn
-RET
-RETI
-RET NZ
-RET Z
-RET NC
-RET C
-RST t
+CALL nn       | :heavy_check_mark: |                    |                    |                   
+CALL NZ, nn   | :heavy_check_mark: |                    |                    |                   
+CALL Z, nn    | :heavy_check_mark: |                    |                    |                   
+CALL NC, nn   | :heavy_check_mark: |                    |                    |                   
+CALL C, nn    | :heavy_check_mark: |                    |                    |                   
+RET           | :heavy_check_mark: |                    |                    |                   
+RETI          | :heavy_check_mark: |                    |                    |                   
+RET NZ        | :heavy_check_mark: |                    |                    |                   
+RET Z         | :heavy_check_mark: |                    |                    |                   
+RET NC        | :heavy_check_mark: |                    |                    |                   
+RET C         | :heavy_check_mark: |                    |                    |                   
+RST t         | :heavy_check_mark: |                    |                    |                   
 
 Misc             |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ---------------- | ------------------ | ------------------ | ------------------ | ------------------

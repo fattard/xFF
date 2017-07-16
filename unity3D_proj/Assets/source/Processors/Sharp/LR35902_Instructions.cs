@@ -1635,6 +1635,362 @@ namespace xFF
 
 
 
+                    #region Call and Return Instructions
+
+
+                    /*
+                     * call nn
+                     * =======
+                     * 
+                     * [SP - 1] <- PC_h
+                     * [SP - 2] <- PC_l
+                     * PC <- nn
+                     * SP <- SP - 2
+                     * 
+                     * Desc: In memory, pushes the PC value corresponding to the instruction at the address following that of the
+                     * 'Call' instruction to the 2 bytes following the byte specified by the current SP. Operand nn is then loaded in the PC.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   24
+                     * Machine Cycles:  6
+                     * 
+                     */
+                    #region call nn
+                    {
+                        // call nn
+                        m_instructionHandler[0xCD] = () =>
+                        {
+                            int j = Read8(m_regs.PC++);
+                            j |= (Read8(m_regs.PC++) << 8);
+                            Write8(--m_regs.SP, ((m_regs.PC >> 8) & 0xFF));
+                            Write8(--m_regs.SP, (m_regs.PC & 0xFF));
+                            m_regs.PC = j;
+
+                            //TODO: increase accuracy
+                            CyclesStep(24);
+                        };
+                    }
+                    #endregion call nn
+
+
+
+
+                    /*
+                     * call cc, nn
+                     * =======
+                     * 
+                     * if (cc == true)
+                     *   [SP - 1] <- PC_h
+                     *   [SP - 2] <- PC_l
+                     *   PC <- nn
+                     *   SP <- SP - 2
+                     * 
+                     * Desc: If condition cc matches the flag, the PC value corresponding to the instruction at the address following that of the
+                     * 'Call' instruction to the 2 bytes following the byte specified by the current SP. Operand nn is then loaded in the PC.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   24/12
+                     * Machine Cycles:  6/3
+                     * 
+                     */
+                    #region call cc, nn
+                    {
+                        // call NZ, nn
+                        m_instructionHandler[0xC4] = () =>
+                        {
+                            bool shouldJump = false;
+
+                            switch (0x03 & (m_fetchedInstruction >> 3))
+                            {
+                                case 0x00: // NZ
+                                    shouldJump = (m_regs.F.Z == 0);
+                                    break;
+
+                                case 0x01: // Z
+                                    shouldJump = (m_regs.F.Z == 1);
+                                    break;
+
+                                case 0x02: // NC
+                                    shouldJump = (m_regs.F.C == 0);
+                                    break;
+
+                                case 0x03: // C
+                                    shouldJump = (m_regs.F.C == 1);
+                                    break;
+                            }
+
+                            int j = Read8(m_regs.PC++);
+                            j |= (Read8(m_regs.PC++) << 8);
+
+                            if (shouldJump)
+                            {
+                                Write8(--m_regs.SP, ((m_regs.PC >> 8) & 0xFF));
+                                Write8(--m_regs.SP, (m_regs.PC & 0xFF));
+                                m_regs.PC = j;
+
+                                //TODO: increase accuracy
+                                CyclesStep(24);
+                            }
+
+                            else
+                            {
+                                //TODO: increase accuracy
+                                CyclesStep(12);
+                            }
+                        };
+                        // call Z, nn
+                        m_instructionHandler[0xCC] = m_instructionHandler[0xC4];
+                        // call NC, nn
+                        m_instructionHandler[0xD4] = m_instructionHandler[0xC4];
+                        // call C, nn
+                        m_instructionHandler[0xDC] = m_instructionHandler[0xC4];
+                    }
+                    #endregion call cc, nn
+
+
+
+
+                    /*
+                     * ret
+                     * ===
+                     * 
+                     * PC_l <- [SP]
+                     * PC_h <- [SP + 1]
+                     * SP <- SP + 2
+                     * 
+                     * Desc: Pops from memory stack the PC value pushed when the subroutine was called, returning control to the source program.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region ret
+                    {
+                        // ret
+                        m_instructionHandler[0xC9] = () =>
+                        {
+                            int j = Read8(m_regs.SP++);
+                            j |= (Read8(m_regs.SP++) << 8);
+                            m_regs.PC = j;
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                    }
+                    #endregion ret
+
+
+
+
+                    /*
+                     * reti
+                     * ====
+                     * 
+                     * PC_l <- [SP]
+                     * PC_h <- [SP + 1]
+                     * SP <- SP + 2
+                     * 
+                     * Desc: Used when an interrupt-service routine finishes.
+                     * The execution of this return is as follow.
+                     * 
+                     * The address for the return from the interrupt is loaded in program counter PC.
+                     * The master interrupt enable flag is returned to its pre-interrupt status.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region reti
+                    {
+                        // reti
+                        m_instructionHandler[0xD9] = () =>
+                        {
+                            int j = Read8(m_regs.SP++);
+                            j |= (Read8(m_regs.SP++) << 8);
+                            m_regs.PC = j;
+                            m_interruptsMasterFlagEnabled = true;
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                    }
+                    #endregion reti
+
+
+
+
+                    /*
+                     * ret cc
+                     * ======
+                     * 
+                     * if (cc == true)
+                     *   PC_l <- [SP]
+                     *   PC_h <- [SP + 1]
+                     *   SP <- SP + 2
+                     * 
+                     * Desc: If condition cc and the flag match, control is returned to the source program by popping from the memory
+                     * stack the PC value pushed to the stack when the subroutine was called.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   20/8
+                     * Machine Cycles:  5/2
+                     * 
+                     */
+                    #region ret cc
+                    {
+                        // ret NZ
+                        m_instructionHandler[0xC0] = () =>
+                        {
+                            bool shouldJump = false;
+
+                            switch (0x03 & (m_fetchedInstruction >> 3))
+                            {
+                                case 0x00: // NZ
+                                    shouldJump = (m_regs.F.Z == 0);
+                                    break;
+
+                                case 0x01: // Z
+                                    shouldJump = (m_regs.F.Z == 1);
+                                    break;
+
+                                case 0x02: // NC
+                                    shouldJump = (m_regs.F.C == 0);
+                                    break;
+
+                                case 0x03: // C
+                                    shouldJump = (m_regs.F.C == 1);
+                                    break;
+                            }
+
+                            if (shouldJump)
+                            {
+                                int j = Read8(m_regs.SP++);
+                                j |= (Read8(m_regs.SP++) << 8);
+                                m_regs.PC = j;
+
+                                //TODO: increase accuracy
+                                CyclesStep(20);
+                            }
+
+                            else
+                            {
+                                //TODO: increase accuracy
+                                CyclesStep(8);
+                            }
+                        };
+                        // ret Z
+                        m_instructionHandler[0xC8] = m_instructionHandler[0xC0];
+                        // ret NC
+                        m_instructionHandler[0xD0] = m_instructionHandler[0xC0];
+                        // ret C
+                        m_instructionHandler[0xD8] = m_instructionHandler[0xC0];
+                    }
+                    #endregion ret cc
+
+
+
+
+                    /*
+                     * rst t
+                     * =====
+                     * 
+                     * [SP - 1] <- PC_h
+                     * [SP - 2] <- PC_l
+                     * SP <- SP - 2
+                     * PC_h <- 0  PC_l <- P
+                     * 
+                     * Desc: Pushes the current value of the PC to the memory stack and loads to the PC the page 0 memory
+                     * addresses provided by operand t.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region rst t
+                    {
+                        // rst $00
+                        m_instructionHandler[0xC7] = () =>
+                        {
+                            int j = 0;
+
+                            switch (0x07 & (m_fetchedInstruction >> 3))
+                            {
+                                case 0x00: // $00
+                                    j = 0x0000;
+                                    break;
+
+                                case 0x01: // $08
+                                    j = 0x0008;
+                                    break;
+
+                                case 0x02: // $10
+                                    j = 0x0010;
+                                    break;
+
+                                case 0x03: // $18
+                                    j = 0x0018;
+                                    break;
+
+                                case 0x04: // $20
+                                    j = 0x0020;
+                                    break;
+
+                                case 0x05: // $28
+                                    j = 0x0028;
+                                    break;
+
+                                case 0x06: // $30
+                                    j = 0x0030;
+                                    break;
+
+                                case 0x07: // $38
+                                    j = 0x0038;
+                                    break;
+                            }
+
+                            Write8(--m_regs.SP, ((m_regs.PC >> 8) & 0xFF));
+                            Write8(--m_regs.SP, (m_regs.PC & 0xFF));
+                            m_regs.PC = j;
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                        // rst $08
+                        m_instructionHandler[0xCF] = m_instructionHandler[0xC7];
+                        // rst $10
+                        m_instructionHandler[0xD7] = m_instructionHandler[0xC7];
+                        // rst $18
+                        m_instructionHandler[0xDF] = m_instructionHandler[0xC7];
+                        // rst $20
+                        m_instructionHandler[0xE7] = m_instructionHandler[0xC7];
+                        // rst $28
+                        m_instructionHandler[0xEF] = m_instructionHandler[0xC7];
+                        // rst $30
+                        m_instructionHandler[0xF7] = m_instructionHandler[0xC7];
+                        // rst $38
+                        m_instructionHandler[0xFF] = m_instructionHandler[0xC7];
+                    }
+                    #endregion rst t
+
+
+                    #endregion Call and Return Instructions
+
+
 
                     #region Misc Instructions
 
@@ -1675,7 +2031,6 @@ namespace xFF
                         m_instructionHandler[0xCB] = () =>
                         {
                             m_fetchedInstruction = Read8(m_regs.PC++);
-                            CyclesStep(4);
 
                             // Decode Extended Instruction
                             m_extendedInstructionHandler[m_fetchedInstruction]();

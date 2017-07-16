@@ -57,6 +57,7 @@ namespace xFF
                 int m_fetchedInstruction;
 
                 bool m_trappedState;
+                bool m_interruptsMasterFlagEnabled;
 
                 InstructionHandler[] m_instructionHandler;
                 InstructionHandler[] m_extendedInstructionHandler;
@@ -109,6 +110,7 @@ namespace xFF
                     m_fetchedInstruction = 0;
 
                     m_trappedState = false;
+                    m_interruptsMasterFlagEnabled = false;
 
                     if (Log != null)
                     {
