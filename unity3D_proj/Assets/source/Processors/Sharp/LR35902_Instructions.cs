@@ -120,10 +120,31 @@ namespace xFF
                         // jp NZ, nn
                         m_instructionHandler[0xC2] = () =>
                         {
+                            bool shouldJump = false;
+
+                            switch (0x03 & (m_fetchedInstruction >> 3))
+                            {
+                                case 0x00: // NZ
+                                    shouldJump = (m_regs.F.Z == 0);
+                                    break;
+
+                                case 0x01: // Z
+                                    shouldJump = (m_regs.F.Z == 1);
+                                    break;
+
+                                case 0x02: // NC
+                                    shouldJump = (m_regs.F.C == 0);
+                                    break;
+
+                                case 0x03: // C
+                                    shouldJump = (m_regs.F.C == 1);
+                                    break;
+                            }
+
                             int j = Read8(m_regs.PC++);
                             j |= (Read8(m_regs.PC++) << 8);
 
-                            if (m_regs.F.Z == 0)
+                            if (shouldJump)
                             {
                                 m_regs.PC = j;
 
@@ -137,72 +158,12 @@ namespace xFF
                                 CyclesStep(12);
                             }
                         };
-
-
                         // jp Z, nn
-                        m_instructionHandler[0xCA] = () =>
-                        {
-                            int j = Read8(m_regs.PC++);
-                            j |= (Read8(m_regs.PC++) << 8);
-
-                            if (m_regs.F.Z == 1)
-                            {
-                                m_regs.PC = j;
-
-                                //TODO: increase accuracy
-                                CyclesStep(16);
-                            }
-
-                            else
-                            {
-                                //TODO: increase accuracy
-                                CyclesStep(12);
-                            }
-                        };
-
-
+                        m_instructionHandler[0xCA] = m_instructionHandler[0xC2];
                         // jp NC, nn
-                        m_instructionHandler[0xD2] = () =>
-                        {
-                            int j = Read8(m_regs.PC++);
-                            j |= (Read8(m_regs.PC++) << 8);
-
-                            if (m_regs.F.C == 0)
-                            {
-                                m_regs.PC = j;
-
-                                //TODO: increase accuracy
-                                CyclesStep(16);
-                            }
-
-                            else
-                            {
-                                //TODO: increase accuracy
-                                CyclesStep(12);
-                            }
-                        };
-
-
+                        m_instructionHandler[0xD2] = m_instructionHandler[0xC2];
                         // jp C, nn
-                        m_instructionHandler[0xDA] = () =>
-                        {
-                            int j = Read8(m_regs.PC++);
-                            j |= (Read8(m_regs.PC++) << 8);
-
-                            if (m_regs.F.C == 1)
-                            {
-                                m_regs.PC = j;
-
-                                //TODO: increase accuracy
-                                CyclesStep(16);
-                            }
-
-                            else
-                            {
-                                //TODO: increase accuracy
-                                CyclesStep(12);
-                            }
-                        };
+                        m_instructionHandler[0xDA] = m_instructionHandler[0xC2];
                     }
                     #endregion jp cc, nn
 
@@ -260,13 +221,33 @@ namespace xFF
                      */
                     #region jr cc, e
                     {
-
                         // jr NZ, e
                         m_instructionHandler[0x20] = () =>
                         {
+                            bool shouldJump = false;
+
+                            switch (0x03 & (m_fetchedInstruction >> 3))
+                            {
+                                case 0x00: // NZ
+                                    shouldJump = (m_regs.F.Z == 0);
+                                    break;
+
+                                case 0x01: // Z
+                                    shouldJump = (m_regs.F.Z == 1);
+                                    break;
+
+                                case 0x02: // NC
+                                    shouldJump = (m_regs.F.C == 0);
+                                    break;
+
+                                case 0x03: // C
+                                    shouldJump = (m_regs.F.C == 1);
+                                    break;
+                            }
+
                             sbyte e = (sbyte)Read8(m_regs.PC++);
 
-                            if (m_regs.F.Z == 0)
+                            if (shouldJump)
                             {
                                 m_regs.PC = (m_regs.PC + e);
 
@@ -280,69 +261,12 @@ namespace xFF
                                 CyclesStep(8);
                             }
                         };
-
-
                         // jr Z, e
-                        m_instructionHandler[0x28] = () =>
-                        {
-                            sbyte e = (sbyte)Read8(m_regs.PC++);
-
-                            if (m_regs.F.Z == 1)
-                            {
-                                m_regs.PC = (m_regs.PC + e);
-
-                                //TODO: increase accuracy
-                                CyclesStep(12);
-                            }
-
-                            else
-                            {
-                                //TODO: increase accuracy
-                                CyclesStep(8);
-                            }
-                        };
-
-
+                        m_instructionHandler[0x28] = m_instructionHandler[0x20];
                         // jr NC, e
-                        m_instructionHandler[0x30] = () =>
-                        {
-                            sbyte e = (sbyte)Read8(m_regs.PC++);
-
-                            if (m_regs.F.C == 0)
-                            {
-                                m_regs.PC = (m_regs.PC + e);
-
-                                //TODO: increase accuracy
-                                CyclesStep(12);
-                            }
-
-                            else
-                            {
-                                //TODO: increase accuracy
-                                CyclesStep(8);
-                            }
-                        };
-
-
+                        m_instructionHandler[0x30] = m_instructionHandler[0x20];
                         // jr C, e
-                        m_instructionHandler[0x38] = () =>
-                        {
-                            sbyte e = (sbyte)Read8(m_regs.PC++);
-
-                            if (m_regs.F.C == 1)
-                            {
-                                m_regs.PC = (m_regs.PC + e);
-
-                                //TODO: increase accuracy
-                                CyclesStep(12);
-                            }
-
-                            else
-                            {
-                                //TODO: increase accuracy
-                                CyclesStep(8);
-                            }
-                        };
+                        m_instructionHandler[0x38] = m_instructionHandler[0x20];
 
                     }
                     #endregion jr cc, e
