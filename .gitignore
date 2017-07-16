@@ -2,3 +2,5 @@
 /unity3D_proj/Temp
 /unity3D_proj/*.csproj
 /unity3D_proj/*.sln
+/unity3D_proj/.vs
+/unity3D_proj/build
