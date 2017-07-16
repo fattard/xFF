@@ -1,5 +1,3 @@
-# xFF
-
 ## GB Emu - Processor Sharp LR35902
 #### Legend:
 - :soon: - in progress
@@ -7,8 +5,18 @@
 - :o: - Implemented but inaccurate
 - :x: - Implemented but incorrect
 
-8-bit Transfers  | Implementation | Checked Operation | Checked Flags | Checked Timing
----------------  | -------------- | ----------------- | ------------- | --------------
+
+Hardware Mode | Supported
+------------- | ---------
+DMG (Game Boy)
+MGB/MGL (Game Boy Pocket/Light)
+SGB (Super Game Boy)
+SGB2 (Super Game Boy 2)
+CGB (Game Boy Color)
+
+
+8-bit Transfers  |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+---------------  | ------------------ | ------------------ | ------------------ | ------------------
 LD r, r'
 LD r, n
 LD r, [HL]
@@ -29,8 +37,8 @@ LD [DE], A
 LD [HL+], A
 LD [HL-], A
 
-16-bit Transfers | Implementation | Checked Operation | Checked Flags | Checked Timing
----------------- | -------------- | ----------------- | ------------- | --------------
+16-bit Transfers |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+---------------- | ------------------ | ------------------ | ------------------ | ------------------
 LD dd, nn
 LD SP, HL
 PUSH qq
@@ -38,8 +46,8 @@ POP qq
 LD HL, SP+e
 LD [nn], SP
 
-8-bit ALU | Implementation | Checked Operation | Checked Flags | Checked Timing
---------- | -------------- | ----------------- | ------------- | --------------
+8-bit ALU |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+--------- | ------------------ | ------------------ | ------------------ | ------------------
 ADD r
 ADD n
 ADD [HL]
@@ -69,15 +77,15 @@ INC [HL]
 DEC r
 DEC [HL]
 
-16-bit Arithmetic | Implementation | Checked Operation | Checked Flags | Checked Timing
------------------ | -------------- | ----------------- | ------------- | --------------
+16-bit Arithmetic |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+----------------- | ------------------ | ------------------ | ------------------ | ------------------
 ADD HL, ss
 ADD SP, e
 INC ss
 DEC ss
 
-Rotate / Shift | Implementation | Checked Operation | Checked Flags | Checked Timing
--------------- | -------------- | ----------------- | ------------- | --------------
+Rotate / Shift |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+-------------- | ------------------ | ------------------ | ------------------ | ------------------
 RLCA
 RLA
 RRCA
@@ -99,8 +107,8 @@ SRL [HL]
 SWAP r
 SWAP [HL]
 
-Bit Operations | Implementation | Checked Operation | Checked Flags | Checked Timing
--------------- | -------------- | ----------------- | ------------- | --------------
+Bit Operations |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+-------------- | ------------------ | ------------------ | ------------------ | ------------------
 BIT b, r
 BIT b, [HL]
 SET b, r
@@ -108,9 +116,9 @@ SET b, [HL]
 RES b, r
 RES b, [HL]
 
-Jump Instructions | Implementation | Checked Operation | Checked Flags | Checked Timing
------------------ | -------------- | ----------------- | ------------- | --------------
-JP nn
+Jump Instructions |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+----------------- | ------------------ | ------------------ | ------------------ | ------------------
+JP nn             | :heavy_check_mark: |                    |                    |                   
 JP NZ, nn
 JP Z, nn
 JP NC, nn
@@ -124,8 +132,8 @@ JP HL
 
 
 
-Call / Return | Implementation | Checked Operation | Checked Flags | Checked Timing
-------------- | -------------- | ----------------- | ------------- | --------------
+Call / Return |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+------------- | ------------------ | ------------------ | ------------------ | ------------------
 CALL nn
 CALL NZ, nn
 CALL Z, nn
@@ -139,11 +147,11 @@ RET NC
 RET C
 RST t
 
-Misc             | Implementation | Checked Operation | Checked Flags | Checked Timing
----------------- | -------------- | ----------------- | ------------- | --------------
+Misc             |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
+---------------- | ------------------ | ------------------ | ------------------ | ------------------
 DAA
 CPL
-NOP
+NOP              | :heavy_check_mark: |                    |                    |                   
 CCF
 SCF
 DI

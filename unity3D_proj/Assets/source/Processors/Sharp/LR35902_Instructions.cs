@@ -56,6 +56,80 @@ namespace xFF
                     }
 
 
+                    #region Jump Instructions
+
+                    /*
+                     * jp nn
+                     * =====
+                     * 
+                     * PC <- nn
+                     * 
+                     * Desc: Loads the operand nn to the program counter (PC). The operand nn specifies the address of the subsequently executed instruction.
+                     * The lower-order byte is placed in byte 2 of the object code and the higher-order byte is placed in byte 3.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region jp nn
+                    {
+                        // jp nn
+                        m_instructionHandler[0xC3] = () =>
+                        {
+                            int j = Read8(m_regs.PC++);
+                            j |= (Read8(m_regs.PC++) << 8);
+
+                            m_regs.PC = j;
+
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                    }
+                    #endregion jp nn
+
+
+                    #endregion Jump Instructions
+
+
+
+
+                    #region Misc Instructions
+
+
+                    /*
+                    * nop
+                    * ===
+                    * 
+                    * N/A
+                    * 
+                    * Desc: Only advances the program counter by 1; performs no other operations that have an effect
+                    * 
+                    * Flags: Z N H C
+                    *        - - - -
+                    *        
+                    * Clock Cycles:   4
+                    * Machine Cycles: 1
+                    * 
+                    */
+                    #region nop
+                    {
+                        // nop
+                        m_instructionHandler[0x00] = () =>
+                        {
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion nop
+
+
+                    #endregion Misc Instructions
+
+
                     // Extended opcode
                     #region Extended opcode 0xCB
                     {
