@@ -77,6 +77,18 @@ public class Test : MonoBehaviour
         }
     }
 
+
+    void Start( )
+    {
+        xFF.Processors.Sharp.LR35902.Log += Debug.Log;
+        xFF.Processors.Sharp.LR35902.LogWarning += Debug.LogWarning;
+        xFF.Processors.Sharp.LR35902.LogError += Debug.LogError;
+
+        xFF.Processors.Sharp.LR35902 gb_core = new xFF.Processors.Sharp.LR35902();
+        
+    }
+
+
     void SetScreenStandard( )
     {
         ChangeResolution(displayWidth, displayHeight, displayZoomFactor);
