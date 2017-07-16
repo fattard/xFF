@@ -39,12 +39,12 @@ LD [HL-], A      | :heavy_check_mark: |                    |                    
 
 16-bit Transfers |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ---------------- | ------------------ | ------------------ | ------------------ | ------------------
-LD dd, nn
-LD SP, HL
-PUSH qq
-POP qq
-LD HL, SP+e
-LD [nn], SP
+LD dd, nn        | :heavy_check_mark: |                    |                    |                   
+LD SP, HL        | :heavy_check_mark: |                    |                    |                   
+PUSH qq          | :heavy_check_mark: |                    |                    |                   
+POP qq           | :heavy_check_mark: |                    |                    |                   
+LD HL, SP+e      | :heavy_check_mark: |                    |                    |                   
+LD [nn], SP      | :heavy_check_mark: |                    |                    |                   
 
 8-bit ALU |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 --------- | ------------------ | ------------------ | ------------------ | ------------------

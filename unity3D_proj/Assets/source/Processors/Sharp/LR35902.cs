@@ -143,6 +143,54 @@ namespace xFF
                 {
                     m_fetchedInstruction = Read8(m_regs.PC++);
                 }
+
+
+                /// <summary>
+                /// Check for 16-bits carry
+                /// </summary>
+                /// <param name="newValue">The new value</param>
+                /// <param name="oldValue">The old value</param>
+                /// <returns>Returns 1 if there is a carry from bit 15</returns>
+                public static int HasCarry16(int newValue, int oldValue)
+                {
+                    return (newValue & 0xFF0000) > (oldValue & 0xFF0000) ? 1 : 0;
+                }
+
+
+                /// <summary>
+                /// Checks for 16-bits half-carry
+                /// </summary>
+                /// <param name="newValue">The new value</param>
+                /// <param name="oldValue">The old value</param>
+                /// <returns>Returns 1 if there is a carry from bit 11</returns>
+                public static int HasHalfCarry16(int newValue, int oldValue)
+                {
+                    return (newValue & 0xF000) > (oldValue & 0xF000) ? 1 : 0;
+                }
+
+
+                /// <summary>
+                /// Checks for 8-bits carry
+                /// </summary>
+                /// <param name="newValue">The new value</param>
+                /// <param name="oldValue">The old value</param>
+                /// <returns>Returns 1 if there is a carry from bit 7</returns>
+                public static int HasCarry8(int newValue, int oldValue)
+                {
+                    return (newValue & 0xFF00) > (oldValue & 0xFF00) ? 1 : 0;
+                }
+
+
+                /// <summary>
+                /// Checks for 8-bits half-carry
+                /// </summary>
+                /// <param name="newValue">The new value</param>
+                /// <param name="oldValue">The old value</param>
+                /// <returns>Returns 1 if there is a carry from bit 3</returns>
+                public static int HasHalfCarry8(int newValue, int oldValue)
+                {
+                    return (newValue & 0xFFF0) > (oldValue & 0xF0) ? 1 : 0;
+                }
             }
 
 

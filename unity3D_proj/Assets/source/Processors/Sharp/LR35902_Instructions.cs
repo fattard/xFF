@@ -831,6 +831,331 @@ namespace xFF
 
 
 
+                    #region 16-bit Transfers
+
+
+                    /*
+                     * ld dd, nn
+                     * =========
+                     * 
+                     * dd <- nn
+                     * 
+                     * Desc: Loads 2 bytes immediate data to register pair dd
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   12
+                     * Machine Cycles:  3
+                     * 
+                     */
+                    #region ld dd, nn
+                    {
+                        // ld BC, nn
+                        m_instructionHandler[0x01] = () =>
+                        {
+                            int rL = 0;
+                            int rH = 0;
+
+                            switch (0x3 & (m_fetchedInstruction >> 4))
+                            {
+                                case 0x00: // BC
+                                    rH = 0x00;
+                                    rL = 0x01;
+                                    break;
+
+                                case 0x01: // DE
+                                    rH = 0x02;
+                                    rL = 0x03;
+                                    break;
+
+                                case 0x02: // HL
+                                    rH = 0x04;
+                                    rL = 0x05;
+                                    break;
+                            }
+
+                            m_regs[rH] = Read8(m_regs.PC++);
+                            m_regs[rL] = Read8(m_regs.PC++);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                        // ld DE, nn
+                        m_instructionHandler[0x11] = m_instructionHandler[0x01];
+                        // ld HL, nn
+                        m_instructionHandler[0x21] = m_instructionHandler[0x01];
+                        // ld SP, nn
+                        m_instructionHandler[0x31] = () =>
+                        {
+                            m_regs.SP = Read8(m_regs.PC++);
+                            m_regs.SP |= (Read8(m_regs.PC++) << 8);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                    }
+                    #endregion ld dd, nn
+
+
+
+
+                    /*
+                     * ld SP, HL
+                     * =========
+                     * 
+                     * SP <- HL
+                     * 
+                     * Desc: Loads the contents of register pair HL in stack pointer SP
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region ld SP, HL
+                    {
+                        // ld SP, HL
+                        m_instructionHandler[0xF9] = () =>
+                        {
+                            m_regs.SP = m_regs.L;
+                            m_regs.SP |= (m_regs.H << 8);
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion ld SP, HL
+
+
+
+
+                    /*
+                     * push qq
+                     * =======
+                     * 
+                     * [SP - 1] <- qqH
+                     * [SP - 2] <- qqL
+                     * SP <- SP - 2
+                     * 
+                     * Desc: Pushes the contents of register pair qq onto the memory stack.
+                     * First 1 is subtracted from SP and the contents of the higher portion of qq are placed on the stack.
+                     * The contents of the lower portion of qq are then placed on the stack. The contents of SP are automatically decremented by 2
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   16
+                     * Machine Cycles:  4
+                     * 
+                     */
+                    #region push qq
+                    {
+                        // push BC
+                        m_instructionHandler[0xC5] = () =>
+                        {
+                            int qqH = 0;
+                            int qqL = 0;
+
+                            switch (0x03 & (m_fetchedInstruction >> 4))
+                            {
+                                case 0x00: // BC
+                                    qqH = 0x00;
+                                    qqL = 0x01;
+                                    break;
+
+                                case 0x01: // DE
+                                    qqH = 0x02;
+                                    qqL = 0x03;
+                                    break;
+
+                                case 0x02: // HL
+                                    qqH = 0x04;
+                                    qqL = 0x05;
+                                    break;
+                            }
+
+                            Write8(--m_regs.SP, m_regs[qqH]);
+                            Write8(--m_regs.SP, m_regs[qqL]);
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                        // push DE
+                        m_instructionHandler[0xD5] = m_instructionHandler[0xC5];
+                        // push HL
+                        m_instructionHandler[0xE5] = m_instructionHandler[0xC5];
+                        // push AF
+                        m_instructionHandler[0xF5] = () =>
+                        {
+                            Write8(--m_regs.SP, m_regs.A);
+                            Write8(--m_regs.SP, m_regs.F.Packed);
+
+                            //TODO: increase accuracy
+                            CyclesStep(16);
+                        };
+                    }
+                    #endregion push qq
+
+
+
+
+                    /*
+                    * pop qq
+                    * ======
+                    * 
+                    * qqL <- [SP]
+                    * qqH <- [SP + 1]
+                    * SP <- SP + 2
+                    * 
+                    * Desc: Pops contents from the memory stack and into register pair qq.
+                    * First the contents of memory specified by the contents of SP are loaded in the lower portion of qq.
+                    * Next, the contents of SP are incremented by 1 and the contents of the memory they specify are loaded
+                    * in the upper portion of qq. The contents of SP are automatically incremented by 2.
+                    * 
+                    * Flags: Z N H C
+                    *        - - - -
+                    * 
+                    * Clock Cycles:   12
+                    * Machine Cycles:  3
+                    * 
+                    */
+                    #region pop qq
+                    {
+                        // pop BC
+                        m_instructionHandler[0xC1] = () =>
+                        {
+                            int qqH = 0;
+                            int qqL = 0;
+
+                            switch (0x03 & (m_fetchedInstruction >> 4))
+                            {
+                                case 0x00: // BC
+                                    qqH = 0x00;
+                                    qqL = 0x01;
+                                    break;
+
+                                case 0x01: // DE
+                                    qqH = 0x02;
+                                    qqL = 0x03;
+                                    break;
+
+                                case 0x02: // HL
+                                    qqH = 0x04;
+                                    qqL = 0x05;
+                                    break;
+                            }
+
+                            m_regs[qqL] = Read8(m_regs.SP++);
+                            m_regs[qqH] = Read8(m_regs.SP++);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                        // pop DE
+                        m_instructionHandler[0xD1] = m_instructionHandler[0xC1];
+                        // pop HL
+                        m_instructionHandler[0xE1] = m_instructionHandler[0xC1];
+                        // pop AF
+                        m_instructionHandler[0xF1] = () =>
+                        {
+                            m_regs.F.Packed = Read8(m_regs.SP++);
+                            m_regs.A = Read8(m_regs.SP++);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                    }
+                    #endregion pop qq
+
+
+
+
+                    /*
+                     * ldHL SP, e
+                     * ld HL, SP+e
+                     * ===========
+                     * 
+                     * HL <- SP + e
+                     * 
+                     * Desc: The 8 bit operand e is added to SP and the result is stored in HL
+                     * 
+                     * Flags: Z N H C
+                     *        0 0 * *
+                     *        
+                     *        Z: Reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 11; otherwise reset
+                     *        C: Set if there is a carry from bit 15; otherwise reset
+                     * 
+                     * Clock Cycles:   12
+                     * Machine Cycles:  3
+                     * 
+                     */
+                    #region ld HL, SP+e
+                    {
+                        // ldHL SP, e
+                        // ld HL, SP+e
+                        m_instructionHandler[0xF8] = () =>
+                        {
+                            sbyte e = (sbyte)Read8(m_regs.PC++);
+                            int v = m_regs.SP + e;
+                            m_regs.HL = v;
+
+                            m_regs.F.Z = 0;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry16(v, m_regs.SP);
+                            m_regs.F.C = HasCarry16(v, m_regs.SP);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                    }
+                    #endregion ld HL, SP+e
+
+
+
+
+                    /*
+                     * ld [nn], SP
+                     * ===========
+                     * 
+                     * [nn] <- SPl
+                     * [nn+1] <- SPh
+                     * 
+                     * Desc: Stores the lower bytes of SP at address nn specified by the 16-bit immediate operand nn
+                     * and the upper byte of SP at address nn + 1
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     * 
+                     * Clock Cycles:   20
+                     * Machine Cycles:  5
+                     * 
+                     */
+                    #region ld [nn], SP
+                    {
+                        // ld BC, nn
+                        m_instructionHandler[0x08] = () =>
+                        {
+                            int nn = Read8(m_regs.PC++);
+                            nn |= (Read8(m_regs.PC++) << 8);
+                            Write8(nn, m_regs.SP);
+                            Write8(nn + 1, (m_regs.SP >> 8));
+
+                            //TODO: increase accuracy
+                            CyclesStep(20);
+                        };
+                    }
+                    #endregion ld [nn], SP
+
+
+                    #endregion 16-bit Transfers
+
+
+
 
                     #region Jump Instructions
 
