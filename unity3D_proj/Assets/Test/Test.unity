@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   screenPivot: {fileID: 1184688992}
-  displayWidth: 320
-  displayHeight: 240
-  displayZoomFactor: 1
+  displayWidth: 160
+  displayHeight: 144
+  displayZoomFactor: 3
   displayRotation: 0
