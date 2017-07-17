@@ -147,13 +147,13 @@ RST t         | :heavy_check_mark: |                    |                    |
 
 Misc             |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ---------------- | ------------------ | ------------------ | ------------------ | ------------------
-DAA
-CPL
+DAA              | :x: |                    |                    |                   
+CPL              | :heavy_check_mark: |                    |                    |                   
 NOP              | :heavy_check_mark: |                    |                    |                   
-CCF
-SCF
-DI
-EI
+CCF              | :heavy_check_mark: |                    |                    |                   
+SCF              | :heavy_check_mark: |                    |                    |                   
+DI               | :o: |                    |                    |                   
+EI               | :o: |                    |                    |                   
 HALT
 STOP
 

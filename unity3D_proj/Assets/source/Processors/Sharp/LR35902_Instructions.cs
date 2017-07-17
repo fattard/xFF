@@ -875,8 +875,8 @@ namespace xFF
                                     break;
                             }
 
-                            m_regs[rH] = Read8(m_regs.PC++);
                             m_regs[rL] = Read8(m_regs.PC++);
+                            m_regs[rH] = Read8(m_regs.PC++);
 
                             //TODO: increase accuracy
                             CyclesStep(12);
@@ -3538,6 +3538,86 @@ namespace xFF
 
 
                     /*
+                     * daa
+                     * ===
+                     * 
+                     * Decimal adjust A
+                     * 
+                     * Desc: When performing addition and subtraction, binary coded decimal representation is used to set the
+                     * contents of register A to a binary coded decimal number (BCD).
+                     * 
+                     * Flags: Z N H C
+                     *        * - 0 *
+                     *        
+                     *        Z: Set if register A is zero
+                     *        N: Not affected
+                     *        H: Reset
+                     *        C: Set or reset according to operation
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region daa
+                    {
+                        // daa
+                        m_instructionHandler[0x27] = () =>
+                        {
+                            //TODO: stub instruction
+                            m_regs.A = (m_regs.A % 100);
+                            m_regs.F.Z = IsZero(m_regs.A);
+                            m_regs.F.H = 0;
+                            m_regs.F.C = m_regs.F.C;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion daa
+
+
+
+
+                    /*
+                     * cpl
+                     * ===
+                     * 
+                     * A <- ~A
+                     * 
+                     * Desc: Takes the one's complement of the contents of register A
+                     * 
+                     * Flags: Z N H C
+                     *        - 1 1 -
+                     *        
+                     *        Z: Not affeted
+                     *        N: Set
+                     *        H: Set
+                     *        C: Not affected
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region cpl
+                    {
+                        // cpl
+                        m_instructionHandler[0x2F] = () =>
+                        {
+                            m_regs.A = (~m_regs.A);
+                            m_regs.F.N = 1;
+                            m_regs.F.H = 1;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion cpl
+
+
+
+
+
+                    /*
                     * nop
                     * ===
                     * 
@@ -3564,9 +3644,149 @@ namespace xFF
                     #endregion nop
 
 
+
+
+                    /*
+                     * ccf
+                     * ===
+                     * 
+                     * CY <- ~CY
+                     * 
+                     * Desc: Takes the one's complement of the contents of carry flag.
+                     * 
+                     * Flags: Z N H C
+                     *        - 0 0 *
+                     *        
+                     *        Z: Not affeted
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Complemented
+                     *        
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region ccf
+                    {
+                        // ccf
+                        m_instructionHandler[0x3F] = () =>
+                        {
+                            m_regs.F.C = ((~m_regs.F.C) & 0x01);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion ccf
+
+
+
+
+                    /*
+                     * scf
+                     * ===
+                     * 
+                     * CY <- 1
+                     * 
+                     * Desc: Sets the carry flag.
+                     * 
+                     * Flags: Z N H C
+                     *        - 0 0 1
+                     *        
+                     *        Z: Not affeted
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Set
+                     *        
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region scf
+                    {
+                        // scf
+                        m_instructionHandler[0x37] = () =>
+                        {
+                            m_regs.F.C = 1;
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion scf
+
+
+
+
+                    /*
+                     * di
+                     * ==
+                     * 
+                     * IME <- 0
+                     * 
+                     * Desc: Disables the interrupt master flag.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     *        
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region di
+                    {
+                        // di
+                        m_instructionHandler[0xF3] = () =>
+                        {
+                            m_interruptsMasterFlagEnabled = false;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion di
+
+
+
+
+                    /*
+                     * ei
+                     * ==
+                     * 
+                     * IME <- 1
+                     * 
+                     * Desc: Enables the interrupt master flag.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     *        
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region ei
+                    {
+                        // ei
+                        m_instructionHandler[0xFB] = () =>
+                        {
+                            m_interruptsMasterFlagEnabled = true;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion ei
+
+
                     #endregion Misc Instructions
 
 
+
+                    
                     // Extended opcode
                     #region Extended opcode 0xCB
                     {
