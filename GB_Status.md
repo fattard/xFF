@@ -48,34 +48,34 @@ LD [nn], SP      | :heavy_check_mark: |                    |                    
 
 8-bit ALU |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 --------- | ------------------ | ------------------ | ------------------ | ------------------
-ADD r
-ADD n
-ADD [HL]
-ADC r
-ADC n
-ADC [HL]
-SUB r
-SUB n
-SUB [HL]
-SBC r
-SBC n
-SBC [HL]
-AND r
-AND n
-AND [HL]
-OR r
-OR n
-OR [HL]
-XOR r
-XOR n
-XOR [HL]
-CP r
-CP n
-CP [HL]
-INC r
-INC [HL]
-DEC r
-DEC [HL]
+ADD r     | :heavy_check_mark: |                    |                    |                   
+ADD n     | :heavy_check_mark: |                    |                    |                   
+ADD [HL]  | :heavy_check_mark: |                    |                    |                   
+ADC r     | :heavy_check_mark: |                    |                    |                   
+ADC n     | :heavy_check_mark: |                    |                    |                   
+ADC [HL]  | :heavy_check_mark: |                    |                    |                   
+SUB r     | :heavy_check_mark: |                    |                    |                   
+SUB n     | :heavy_check_mark: |                    |                    |                   
+SUB [HL]  | :heavy_check_mark: |                    |                    |                   
+SBC r     | :heavy_check_mark: |                    |                    |                   
+SBC n     | :heavy_check_mark: |                    |                    |                   
+SBC [HL]  | :heavy_check_mark: |                    |                    |                   
+AND r     | :heavy_check_mark: |                    |                    |                   
+AND n     | :heavy_check_mark: |                    |                    |                   
+AND [HL]  | :heavy_check_mark: |                    |                    |                   
+OR r      | :heavy_check_mark: |                    |                    |                   
+OR n      | :heavy_check_mark: |                    |                    |                   
+OR [HL]   | :heavy_check_mark: |                    |                    |                   
+XOR r     | :heavy_check_mark: |                    |                    |                   
+XOR n     | :heavy_check_mark: |                    |                    |                   
+XOR [HL]  | :heavy_check_mark: |                    |                    |                   
+CP r      | :heavy_check_mark: |                    |                    |                   
+CP n      | :heavy_check_mark: |                    |                    |                   
+CP [HL]   | :heavy_check_mark: |                    |                    |                   
+INC r     | :heavy_check_mark: |                    |                    |                   
+INC [HL]  | :heavy_check_mark: |                    |                    |                   
+DEC r     | :heavy_check_mark: |                    |                    |                   
+DEC [HL]  | :heavy_check_mark: |                    |                    |                   
 
 16-bit Arithmetic |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ----------------- | ------------------ | ------------------ | ------------------ | ------------------

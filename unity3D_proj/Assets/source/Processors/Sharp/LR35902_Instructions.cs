@@ -1157,6 +1157,1367 @@ namespace xFF
 
 
 
+                    #region 8-bit ALU
+
+
+                    /*
+                     * add A, r
+                     * ========
+                     * 
+                     * A <- A + r
+                     * 
+                     * Desc: Adds the content of register r to those of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region add A, r
+                    {
+                        // add A, A
+                        m_instructionHandler[0x87] = () =>
+                        {
+                            int r = (0x7 & m_fetchedInstruction);
+
+                            int v = (m_regs.A + m_regs[r]);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
+                            m_regs.F.C = HasCarry8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // add A, B
+                        m_instructionHandler[0x80] = m_instructionHandler[0x87];
+                        // add A, C
+                        m_instructionHandler[0x81] = m_instructionHandler[0x87];
+                        // add A, D
+                        m_instructionHandler[0x82] = m_instructionHandler[0x87];
+                        // add A, E
+                        m_instructionHandler[0x83] = m_instructionHandler[0x87];
+                        // add A, H
+                        m_instructionHandler[0x84] = m_instructionHandler[0x87];
+                        // add A, L
+                        m_instructionHandler[0x85] = m_instructionHandler[0x87];
+                    }
+                    #endregion add A, r
+
+
+
+
+                    /*
+                     * add A, n
+                     * ========
+                     * 
+                     * A <- A + n
+                     * 
+                     * Desc: Adds 8-bit immediate operand n to the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region add A, n
+                    {
+                        // add A, n
+                        m_instructionHandler[0xC6] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A + n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
+                            m_regs.F.C = HasCarry8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion add A, n
+
+
+
+
+                    /*
+                     * add A, [HL]
+                     * ===========
+                     * 
+                     * A <- A + [HL]
+                     * 
+                     * Desc: Adds the contents of the memory specified by the contents of register pair HL to the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region add A, [HL]
+                    {
+                        // add A, [HL]
+                        m_instructionHandler[0x86] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A + n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
+                            m_regs.F.C = HasCarry8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion add A, [HL]
+
+
+
+
+                    /*
+                     * adc A, r
+                     * ========
+                     * 
+                     * A <- A + r + carry
+                     * 
+                     * Desc: Adds the content of register r and carry to the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region adc A, r
+                    {
+                        // adc A, A
+                        m_instructionHandler[0x8F] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A + m_regs[r] + m_regs.F.C);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
+                            m_regs.F.C = HasCarry8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // adc A, B
+                        m_instructionHandler[0x88] = m_instructionHandler[0x8F];
+                        // adc A, C
+                        m_instructionHandler[0x89] = m_instructionHandler[0x8F];
+                        // adc A, D
+                        m_instructionHandler[0x8A] = m_instructionHandler[0x8F];
+                        // adc A, E
+                        m_instructionHandler[0x8B] = m_instructionHandler[0x8F];
+                        // adc A, H
+                        m_instructionHandler[0x8C] = m_instructionHandler[0x8F];
+                        // adc A, L
+                        m_instructionHandler[0x8D] = m_instructionHandler[0x8F];
+
+                    }
+                    #endregion adc A, r
+
+
+
+
+                    /*
+                     * adc A, n
+                     * ========
+                     * 
+                     * A <- A + n + carry
+                     * 
+                     * Desc: Adds 8-bit immediate operand n and carry to the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region adc A, n
+                    {
+                        // adc A, n
+                        m_instructionHandler[0xCE] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A + n + m_regs.F.C);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
+                            m_regs.F.C = HasCarry8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion adc A, n
+
+
+
+
+                    /*
+                     * adc A, [HL]
+                     * ===========
+                     * 
+                     * A <- A + [HL] + carry
+                     * 
+                     * Desc: Adds the contents of the memory specified by the contents of register pair HL and carry to the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region adc A, [HL]
+                    {
+                        // adc A, [HL]
+                        m_instructionHandler[0x8E] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A + n + m_regs.F.C);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
+                            m_regs.F.C = HasCarry8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion adc A, [HL]
+
+
+
+
+                    /*
+                     * sub r
+                     * =====
+                     * 
+                     * A <- A - r
+                     * 
+                     * Desc: Subtracts the content of register r from the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region sub r
+                    {
+                        // sub A
+                        m_instructionHandler[0x97] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A - m_regs[r]);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // sub B
+                        m_instructionHandler[0x90] = m_instructionHandler[0x97];
+                        // sub C
+                        m_instructionHandler[0x91] = m_instructionHandler[0x97];
+                        // sub D
+                        m_instructionHandler[0x92] = m_instructionHandler[0x97];
+                        // sub E
+                        m_instructionHandler[0x93] = m_instructionHandler[0x97];
+                        // sub H
+                        m_instructionHandler[0x94] = m_instructionHandler[0x97];
+                        // sub L
+                        m_instructionHandler[0x95] = m_instructionHandler[0x97];
+                    }
+                    #endregion sub r
+
+
+
+
+                    /*
+                     * sub n
+                     * =====
+                     * 
+                     * A <- A - n
+                     * 
+                     * Desc: Subtracts 8-bit immediate operand n from the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region sub n
+                    {
+                        // sub n
+                        m_instructionHandler[0xD6] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A - n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion sub n
+
+
+
+
+                    /*
+                     * sub [HL]
+                     * ========
+                     * 
+                     * A <- A - [HL]
+                     * 
+                     * Desc: Subtracts the contents of the memory specified by the contents of register pair HL from the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region sub [HL]
+                    {
+                        // sub [HL]
+                        m_instructionHandler[0x96] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A - n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion sub [HL]
+
+
+
+
+                    /*
+                     * sbc r
+                     * =====
+                     * 
+                     * A <- A - r - carry
+                     * 
+                     * Desc: Subtracts the content of register r and carry from the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region sbc r
+                    {
+                        // sbc A
+                        m_instructionHandler[0x9F] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A - m_regs[r] - m_regs.F.C);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // sbc B
+                        m_instructionHandler[0x98] = m_instructionHandler[0x9F];
+                        // sbc C
+                        m_instructionHandler[0x99] = m_instructionHandler[0x9F];
+                        // sbc D
+                        m_instructionHandler[0x9A] = m_instructionHandler[0x9F];
+                        // sbc E
+                        m_instructionHandler[0x9B] = m_instructionHandler[0x9F];
+                        // sbc H
+                        m_instructionHandler[0x9C] = m_instructionHandler[0x9F];
+                        // sbc L
+                        m_instructionHandler[0x9D] = m_instructionHandler[0x9F];
+                    }
+                    #endregion sbc r
+
+
+
+
+                    /*
+                     * sbc n
+                     * =====
+                     * 
+                     * A <- A - n - carry
+                     * 
+                     * Desc: Subtracts 8-bit immediate operand n and carry from the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region sbc n
+                    {
+                        // sbc n
+                        m_instructionHandler[0xDE] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A - n - m_regs.F.C);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion sbc n
+
+
+
+
+                    /*
+                     * sbc [HL]
+                     * ========
+                     * 
+                     * A <- A - [HL] - carry
+                     * 
+                     * Desc: Subtracts the contents of the memory specified by the contents of register pair HL and carry from the contents of register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region sbc [HL]
+                    {
+                        // sbc [HL]
+                        m_instructionHandler[0x9E] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A - n - m_regs.F.C);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion sbc [HL]
+
+
+
+
+                    /*
+                     * and r
+                     * =====
+                     * 
+                     * A <- A & r
+                     * 
+                     * Desc: Takes the logical-AND for each bit of the contents of register r and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 1 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region and r
+                    {
+                        // and A
+                        m_instructionHandler[0xA7] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A & m_regs[r]);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 1;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // and B
+                        m_instructionHandler[0xA0] = m_instructionHandler[0xA7];
+                        // and C
+                        m_instructionHandler[0xA1] = m_instructionHandler[0xA7];
+                        // and D
+                        m_instructionHandler[0xA2] = m_instructionHandler[0xA7];
+                        // and E
+                        m_instructionHandler[0xA3] = m_instructionHandler[0xA7];
+                        // and H
+                        m_instructionHandler[0xA4] = m_instructionHandler[0xA7];
+                        // and L
+                        m_instructionHandler[0xA5] = m_instructionHandler[0xA7];
+                    }
+                    #endregion and r
+
+
+
+
+                    /*
+                     * and n
+                     * =====
+                     * 
+                     * A <- A & n
+                     * 
+                     * Desc: Takes the logical-AND for each bit of the contents of the 8-bit immediate operand n and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 1 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region and n
+                    {
+                        // and n
+                        m_instructionHandler[0xE6] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A & n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 1;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion and n
+
+
+
+
+                    /*
+                     * and [HL]
+                     * ========
+                     * 
+                     * A <- A & [HL]
+                     * 
+                     * Desc: Takes the logical-AND for each bit of the contents of the memory specified by the contents of register pair HL
+                     * and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 1 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region and [HL]
+                    {
+                        // and [HL]
+                        m_instructionHandler[0xA6] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A & n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 1;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion and [HL]
+
+
+
+
+                    /*
+                     * or r
+                     * ====
+                     * 
+                     * A <- A | r
+                     * 
+                     * Desc: Takes the logical-OR for each bit of the contents of register r and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 0 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region or r
+                    {
+                        // or A
+                        m_instructionHandler[0xB7] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A | m_regs[r]);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // or B
+                        m_instructionHandler[0xB0] = m_instructionHandler[0xB7];
+                        // or C
+                        m_instructionHandler[0xB1] = m_instructionHandler[0xB7];
+                        // or D
+                        m_instructionHandler[0xB2] = m_instructionHandler[0xB7];
+                        // or E
+                        m_instructionHandler[0xB3] = m_instructionHandler[0xB7];
+                        // or H
+                        m_instructionHandler[0xB4] = m_instructionHandler[0xB7];
+                        // or L
+                        m_instructionHandler[0xB5] = m_instructionHandler[0xB7];
+                    }
+                    #endregion or r
+
+
+
+
+                    /*
+                     * or n
+                     * ====
+                     * 
+                     * A <- A | n
+                     * 
+                     * Desc: Takes the logical-OR for each bit of the contents of the 8-bit immediate operand n and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 0 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region or n
+                    {
+                        // or n
+                        m_instructionHandler[0xF6] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A | n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion or n
+
+
+
+
+                    /*
+                     * or [HL]
+                     * =======
+                     * 
+                     * A <- A | [HL]
+                     * 
+                     * Desc: Takes the logical-OR for each bit of the contents of the memory specified by the contents of register pair HL
+                     * and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 0 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region or [HL]
+                    {
+                        // or [HL]
+                        m_instructionHandler[0xB6] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A | n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion or [HL]
+
+
+
+
+                    /*
+                     * xor r
+                     * =====
+                     * 
+                     * A <- A ^ r
+                     * 
+                     * Desc: Takes the logical-XOR for each bit of the contents of register r and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 0 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region xor r
+                    {
+                        // xor A
+                        m_instructionHandler[0xAF] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A ^ m_regs[r]);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // xor B
+                        m_instructionHandler[0xA8] = m_instructionHandler[0xAF];
+                        // xor C
+                        m_instructionHandler[0xA9] = m_instructionHandler[0xAF];
+                        // xor D
+                        m_instructionHandler[0xAA] = m_instructionHandler[0xAF];
+                        // xor E
+                        m_instructionHandler[0xAB] = m_instructionHandler[0xAF];
+                        // xor H
+                        m_instructionHandler[0xAC] = m_instructionHandler[0xAF];
+                        // xor L
+                        m_instructionHandler[0xAD] = m_instructionHandler[0xAF];
+                    }
+                    #endregion xor r
+
+
+
+
+                    /*
+                     * xor n
+                     * =====
+                     * 
+                     * A <- A ^ n
+                     * 
+                     * Desc: Takes the logical-XOR for each bit of the contents of the 8-bit immediate operand n and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 0 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region xor n
+                    {
+                        // xor n
+                        m_instructionHandler[0xEE] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A ^ n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion xor n
+
+
+
+
+                    /*
+                     * xor [HL]
+                     * ========
+                     * 
+                     * A <- A ^ [HL]
+                     * 
+                     * Desc: Takes the logical-XOR for each bit of the contents of the memory specified by the contents of register pair HL
+                     * and register A and stores the results in register A
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 0 0
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Reset
+                     *        C: Reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region xor [HL]
+                    {
+                        // xor [HL]
+                        m_instructionHandler[0xAE] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A ^ n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = 0;
+                            m_regs.F.C = 0;
+
+                            m_regs.A = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion xor [HL]
+
+
+
+
+                    /*
+                     * cp r
+                     * ====
+                     * 
+                     * A == r
+                     * 
+                     * Desc: Compares the content of register r and register A and sets the flags if they are equal
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region cp r
+                    {
+                        // cp A
+                        m_instructionHandler[0xBF] = () =>
+                        {
+                            int r = (0x07 & m_fetchedInstruction);
+
+                            int v = (m_regs.A - m_regs[r]);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // cp B
+                        m_instructionHandler[0xB8] = m_instructionHandler[0xBF];
+                        // cp C
+                        m_instructionHandler[0xB9] = m_instructionHandler[0xBF];
+                        // cp D
+                        m_instructionHandler[0xBA] = m_instructionHandler[0xBF];
+                        // cp E
+                        m_instructionHandler[0xBB] = m_instructionHandler[0xBF];
+                        // cp H
+                        m_instructionHandler[0xBC] = m_instructionHandler[0xBF];
+                        // cp L
+                        m_instructionHandler[0xBD] = m_instructionHandler[0xBF];
+                    }
+                    #endregion cp r
+
+
+
+
+                    /*
+                     * cp n
+                     * ====
+                     * 
+                     * A == n
+                     * 
+                     * Desc: Compares the 8-bit immediate operand n and register A and sets the flags if they are equal
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region cp n
+                    {
+                        // cp n
+                        m_instructionHandler[0xFE] = () =>
+                        {
+                            int n = Read8(m_regs.PC++);
+                            int v = (m_regs.A - n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion cp n
+
+
+
+
+                    /*
+                     * cp [HL]
+                     * ========
+                     * 
+                     * A == [HL]
+                     * 
+                     * Desc: Compares the contents of the memory specified by the contents of register pair HL and register A and sets the flags if they are equal
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * *
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Set if there is a borrow; otherwise reset
+                     * 
+                     * Clock Cycles:   8
+                     * Machine Cycles: 2
+                     * 
+                     */
+                    #region cp [HL]
+                    {
+                        // cp [HL]
+                        m_instructionHandler[0xBE] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (m_regs.A - n);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.C = (v < 0) ? 1 : 0;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+
+                            //TODO: increase accuracy
+                            CyclesStep(8);
+                        };
+                    }
+                    #endregion cp [HL]
+
+
+
+
+                    /*
+                     * inc r
+                     * =====
+                     * 
+                     * r <- r + 1
+                     * 
+                     * Desc: Increments the contents of register r by 1
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * -
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Not affected
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region inc r
+                    {
+                        // inc A
+                        m_instructionHandler[0x3C] = () =>
+                        {
+                            int r = (0x07 & (m_fetchedInstruction >> 3));
+
+                            int v = m_regs[r] + 1;
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, m_regs[r]);
+
+                            m_regs[r] = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // inc B
+                        m_instructionHandler[0x04] = m_instructionHandler[0x3C];
+                        // inc C
+                        m_instructionHandler[0x0C] = m_instructionHandler[0x3C];
+                        // inc D
+                        m_instructionHandler[0x14] = m_instructionHandler[0x3C];
+                        // inc E
+                        m_instructionHandler[0x1C] = m_instructionHandler[0x3C];
+                        // inc H
+                        m_instructionHandler[0x24] = m_instructionHandler[0x3C];
+                        // inc L
+                        m_instructionHandler[0x2C] = m_instructionHandler[0x3C];
+                    }
+                    #endregion inc r
+
+
+
+
+                    /*
+                     * inc [HL]
+                     * ========
+                     * 
+                     * [HL] <- [HL] + 1
+                     * 
+                     * Desc: Increments by 1 the contents of memory specified register pair HL
+                     * 
+                     * Flags: Z N H C
+                     *        * 0 * -
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Not affected
+                     * 
+                     * Clock Cycles:   12
+                     * Machine Cycles:  3
+                     * 
+                     */
+                    #region inc [HL]
+                    {
+                        // inc [HL]
+                        m_instructionHandler[0x34] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = n + 1;
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 0;
+                            m_regs.F.H = HasHalfCarry8(v, n);
+
+                            Write8(m_regs.HL, v);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                    }
+                    #endregion inc [HL]
+
+
+
+
+                    /*
+                     * dec r
+                     * =====
+                     * 
+                     * r <- r - 1
+                     * 
+                     * Desc: Subtracts 1 from the contents of register r
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * -
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Not affected
+                     * 
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region dec r
+                    {
+                        // dec A
+                        m_instructionHandler[0x3D] = () =>
+                        {
+                            int r = (0x07 & (m_fetchedInstruction >> 3));
+
+                            int v = (m_regs[r] - 1);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.H = HasHalfBorrow8(v, m_regs[r]);
+
+                            m_regs[r] = v;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                        // dec B
+                        m_instructionHandler[0x05] = m_instructionHandler[0x3D];
+                        // dec C
+                        m_instructionHandler[0x0D] = m_instructionHandler[0x3D];
+                        // dec D
+                        m_instructionHandler[0x15] = m_instructionHandler[0x3D];
+                        // dec E
+                        m_instructionHandler[0x1D] = m_instructionHandler[0x3D];
+                        // dec H
+                        m_instructionHandler[0x25] = m_instructionHandler[0x3D];
+                        // dec L
+                        m_instructionHandler[0x2D] = m_instructionHandler[0x3D];
+                    }
+                    #endregion dec r
+
+
+
+
+                    /*
+                     * dec [HL]
+                     * ========
+                     * 
+                     * [HL] <- [HL] - 1
+                     * 
+                     * Subtracts 1 from the contents of memory specified register pair HL
+                     * 
+                     * Flags: Z N H C
+                     *        * 1 * -
+                     *        
+                     *        Z: Set if result is 0; otherwise reset
+                     *        N: Set
+                     *        H: Set if there is a borrow from bit 4; otherwise reset
+                     *        C: Not affected
+                     * 
+                     * Clock Cycles:   12
+                     * Machine Cycles:  3
+                     * 
+                     */
+                    #region dec [HL]
+                    {
+                        // dec [HL]
+                        m_instructionHandler[0x35] = () =>
+                        {
+                            int n = Read8(m_regs.HL);
+                            int v = (n - 1);
+
+                            m_regs.F.Z = IsZero(v);
+                            m_regs.F.N = 1;
+                            m_regs.F.H = HasHalfBorrow8(v, n);
+
+                            Write8(m_regs.HL, v);
+
+                            //TODO: increase accuracy
+                            CyclesStep(12);
+                        };
+                    }
+                    #endregion dec [HL]
+
+
+                    #endregion 8-bit ALU
+
+
+
                     #region 16-bit Arithmetic
 
 

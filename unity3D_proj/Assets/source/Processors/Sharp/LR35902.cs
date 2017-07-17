@@ -204,6 +204,21 @@ namespace xFF
                 {
                     return (newValue & 0xFFF0) > (oldValue & 0xF0) ? 1 : 0;
                 }
+
+
+                /// <summary>
+                /// Checks for 8-bits half-borrow
+                /// </summary>
+                /// <param name="newValue">The new value</param>
+                /// <param name="oldValue">The old value</param>
+                /// <returns>Returns 1 if there is a borrow from bit 4</returns>
+                public static int HasHalfBorrow8(int newValue, int oldValue)
+                {
+                    int p1 = newValue & 0xFFF0;
+                    int p2 = oldValue & 0xFFF0;
+
+                    return (newValue & 0xFFF0) < (oldValue & 0xFFF0) ? 1 : 0;
+                }
             }
 
 
