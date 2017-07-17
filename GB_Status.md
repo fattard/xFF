@@ -154,8 +154,8 @@ CCF              | :heavy_check_mark: |                    |                    
 SCF              | :heavy_check_mark: |                    |                    |                   
 DI               | :o: |                    |                    |                   
 EI               | :o: |                    |                    |                   
-HALT
-STOP
+HALT             | :o: |                    |                    |                   
+STOP             | :o: |                    |                    |                   
 
 
 ## GB Emu - Hardware Emulation

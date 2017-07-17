@@ -3782,11 +3782,100 @@ namespace xFF
                     #endregion ei
 
 
+
+
+                    /*
+                     * halt
+                     * ====
+                     * 
+                     * Halt
+                     * 
+                     * Desc: After a halt instruction is executed, the system clock is stopped and halt mode is entered. Altough
+                     * the system clock is stopped in this status, the oscillator circuit and LCD controller continue to operate.
+                     * 
+                     * In addition, the status of the internal RAM register ports remains unchanged.
+                     * 
+                     * Halt mode is canceled by an interrupt or reset signal.
+                     * 
+                     * The program counter is halted at the step after the halt instruction. If both interrupt request flag and
+                     * the corresponding interrupt enable flag are set, Halt mode is exited, even if the interrupt master enable flag is not set.
+                     * 
+                     * Once halt mode is canceled, the program starts from the address indicated by the program counter.
+                     * 
+                     * If the master enable flag is set, the contents of the program counter are pushed to the stack and control jumps
+                     * to the starting address of the interrupt.
+                     * 
+                     * If the Reset terminal goes LOW in halt mode, the mode becomes that of a normal reset.
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     *        
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region halt
+                    {
+                        // halt
+                        m_instructionHandler[0x76] = () =>
+                        {
+                            m_inHaltMode = true;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion halt
+
+
+
+                    /*
+                     * stop
+                     * ====
+                     * 
+                     * Stop
+                     * 
+                     * Desc: Execution of a Stop instruction stops both the system clock and oscillator circuit. Stop mode is entered,
+                     * and the LCD controller also stops..
+                     * 
+                     * However, the status of the internal RAM register ports remains unchanged.
+                     * 
+                     * Stop mode can be canceled by a reset signal.
+                     * 
+                     * If the Reset terminal goes LOW in stop mode, it becomes that of a normal reset status.
+                     * 
+                     * 
+                     * Flags: Z N H C
+                     *        - - - -
+                     *        
+                     * Clock Cycles:   4
+                     * Machine Cycles: 1
+                     * 
+                     */
+                    #region stop
+                    {
+                        // stop
+                        m_instructionHandler[0x10] = () =>
+                        {
+                            if (Read8(m_regs.PC + 1) != 0 && LogWarning != null)
+                            {
+                                LogWarning("Corrupted STOP instruction at 0x" + (m_regs.PC + 1).ToString("X4"));
+                            }
+
+                            m_inStopMode = true;
+
+                            //TODO: increase accuracy
+                            CyclesStep(4);
+                        };
+                    }
+                    #endregion stop
+
+
                     #endregion Misc Instructions
 
 
 
-                    
+
                     // Extended opcode
                     #region Extended opcode 0xCB
                     {
