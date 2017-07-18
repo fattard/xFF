@@ -24,64 +24,47 @@
 *         reasonable ways as different from the original version.
 */
 
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using xFF.Frontend.Unity3D.GB;
+
 namespace xFF
 {
-    namespace EmuCores
+    namespace Frontend
     {
-        namespace GB
+        namespace Unity3D
         {
-            namespace Defs
+            namespace GB
             {
 
 
-                public enum HardwareModel
+                public class ConfigsGB : MonoBehaviour
                 {
-                    DMG,    // Game Boy
-                    MGB,    // Game Boy Pocket
-                    MGL,    // Game Boy Light
-                    SGB,    // Super Game Boy (SuperNES)
-                    SGB2,   // Super Game Boy 2 (SuperNES)
-                    CGB,    // Game Boy Color
-                }
+                    [Header("DMG Bootrom")]
+                    //public bool bootRomEnabled = true;
+                    public string bootRomPath = "";
 
+                    [Header("Quick ROMS Selector")]
+                    public int selectedRomIndex;
+                    public string[] romsPath = new string[1];
 
-                public enum LinkPortDevices
-                {
-                    None,
-                    GameLink,
-                    PocketPrinter,
-                    MobileAdapterGB,
-                    BarcodeReader,
+                    [Header("DMG Display Colors")]
+                    public Color color0;
+                    public Color color1;
+                    public Color color2;
+                    public Color color3;
 
-                    _EmuDBG,
-                }
-
-
-                public enum CartridgeType
-                {
-                    None = -1,
-
-                    ROM,
-                    MBC1,
-                    MBC2,
-                    MBC3,
-                    MBC5,
-                    MBC5_RUMBLE,
-                    MBC6,
-                    MBC7,
-                    HuC1,  // Hudson Custom 1
-                    HuC3,  // Hudson Custom 3
-                    MMM01,
-                    TAMA5, // Bandai Tamagotchi
-                    POCKET_CAMERA,
+                    [Header("Zoom Factor")]
+                    public int zoomFactor = 1;
                 }
 
 
             }
-            // namespace Defs
+            // namespace GB
         }
-        // namespace GB
+        // namespace Unity3D
     }
-    // namespace EmuCores
+    // namespace Frontend
 }
 // namespace xFF
