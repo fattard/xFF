@@ -24,9 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
-using xFF.EmuCores.BytePusher;
-using xFF.EmuCores.BytePusher.cpu;
-using xFF.EmuCores.BytePusher.mem;
+using xFF.Processors.OISC;
 
 namespace xFF
 {
@@ -34,38 +32,34 @@ namespace xFF
     {
         namespace BytePusher
         {
-
-
-            public class EmuBytePusher
+            namespace mem
             {
-                ConfigsBytePusher m_configs;
-                CPU m_cpu;
-                MMU m_mmu;
 
 
-                public ConfigsBytePusher Configs
+                class MMU
                 {
-                    get { return m_configs; }
+
+                    byte[] m_RAM = new byte[0x1000008]; // 16 MB + 8 bytes padding
+
+
+
+                    public int Read24(int aAddress)
+                    {
+                        return (m_RAM[aAddress] << 16 | m_RAM[aAddress + 1] << 8 + m_RAM[aAddress + 2]);
+                    }
+
+
+                    public void Write24(int aAddress, int aValue)
+                    {
+                        m_RAM[aAddress] = (byte)((0xFF & aValue) >> 16);
+                        m_RAM[aAddress + 1] = (byte)((0xFF & aValue) >> 8);
+                        m_RAM[aAddress + 2] = (byte)(0xFF & aValue);
+                    }
                 }
 
 
-                public EmuBytePusher(ConfigsBytePusher aConfigs)
-                {
-                    m_configs = aConfigs;
-                    m_cpu = new CPU();
-                    m_mmu = new MMU();
-
-                    m_cpu.BindMMU(m_mmu);
-                }
-
-
-                public void EmulateFrame( )
-                {
-                    m_cpu.Run();
-                }
             }
-
-
+            // namespace mem
         }
         // namespace BytePusher
     }

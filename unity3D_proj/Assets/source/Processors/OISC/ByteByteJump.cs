@@ -36,7 +36,7 @@ namespace xFF
                 #region Delegates
 
                 public delegate int MemoryBUSRead24Func(int aAddress);
-                public delegate int MemoryBUSWrite24Func(int aAddress, int aValue);
+                public delegate void MemoryBUSWrite24Func(int aAddress, int aValue);
 
                 #endregion Delegates
 
@@ -44,6 +44,13 @@ namespace xFF
 
                 MemoryBUSRead24Func Read24;
                 MemoryBUSWrite24Func Write24;
+
+
+                public int RegPC
+                {
+                    get { return m_PC; }
+                    set { RegPC = (0xFFFFFF & value); }
+                }
 
 
                 public ByteByteJump( )
@@ -70,6 +77,12 @@ namespace xFF
                 {
                     Read24 = aRead;
                     Write24 = aWrite;
+                }
+
+
+                public void Step( )
+                {
+                    Execute();
                 }
 
 

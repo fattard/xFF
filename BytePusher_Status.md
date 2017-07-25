@@ -7,16 +7,16 @@
 - :o: - Implemented but inaccurate
 - :x: - Implemented but incorrect
 
-Instruction  | Implementation | Checked Operation | Checked Flags | Checked Timing
------------  | -------------- | ----------------- | ------------- | --------------
-A, B, C      |                |                   |               |               
+Instruction  |  Implementation  | Checked Operation | Checked Flags | Checked Timing
+-----------  | ---------------- | ----------------- | ------------- | --------------
+A, B, C      |:heavy_check_mark:|                   |               |               
 
 
 ## BytePusher Emu - [Hardware Emulation](https://esolangs.org/wiki/BytePusher)
 
 Graphics      | Status
 ------------- | ------
-Frame Buffer  |
+Frame Buffer  | :soon:
 
 Audio | Status
 ----- | ------
