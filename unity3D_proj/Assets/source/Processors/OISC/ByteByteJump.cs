@@ -33,7 +33,59 @@ namespace xFF
 
             public class ByteByteJump
             {
+                #region Delegates
 
+                public delegate int MemoryBUSRead24Func(int aAddress);
+                public delegate int MemoryBUSWrite24Func(int aAddress, int aValue);
+
+                #endregion Delegates
+
+                int m_PC;
+
+                MemoryBUSRead24Func Read24;
+                MemoryBUSWrite24Func Write24;
+
+
+                public ByteByteJump( )
+                {
+                    Reset();
+                }
+
+
+                /// <summary>
+                /// Resets the processor state
+                /// </summary>
+                public void Reset( )
+                {
+                    m_PC = 0;
+                }
+
+
+                /// <summary>
+                /// Binds delegates to handle memory access.
+                /// </summary>
+                /// <param name="aRead">A compatible delegate for reading 24 bits (Big Endian) value</param>
+                /// <param name="aWrite">A compatible delegate for writing 24 bits (Big Endian) value</param>
+                public void BindAddressBUS(MemoryBUSRead24Func aRead, MemoryBUSWrite24Func aWrite)
+                {
+                    Read24 = aRead;
+                    Write24 = aWrite;
+                }
+
+
+                void Execute( )
+                {
+                    /* A, B, C
+                     * 
+                     * mem[A] <- mem[B]
+                     * PC <- mem[C]
+                     * 
+                     */
+                    {
+                        Write24(m_PC + 3, Read24(m_PC));
+                        m_PC = Read24(m_PC + 6);
+                    }
+                }
             }
 
         }
