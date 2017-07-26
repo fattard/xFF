@@ -49,7 +49,7 @@ namespace xFF
                 public int RegPC
                 {
                     get { return m_PC; }
-                    set { RegPC = (0xFFFFFF & value); }
+                    set { m_PC = (0xFFFFFF & value); }
                 }
 
 
