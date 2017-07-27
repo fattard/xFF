@@ -40,6 +40,7 @@ namespace xFF
                 class CPU
                 {
                     ByteByteJump m_bbj_core;
+                    MMU m_mmu;
 
                     public const uint kCPUClock = 3932160; // ~3.93 MHz
                     public const uint kCyclesPerFrame = kCPUClock / 60; // 65536 cycles per frame
@@ -59,6 +60,7 @@ namespace xFF
                     public void BindMMU(MMU aMMU)
                     {
                         m_bbj_core.BindAddressBUS(aMMU.Read24, aMMU.Write24);
+                        m_mmu = aMMU;
                     }
 
 
@@ -77,6 +79,9 @@ namespace xFF
                         {
                             m_elapsedCycles = 0;
                         }
+
+                        // Set start frame PC
+                        m_bbj_core.RegPC = m_mmu.Read24(0x02);
 
                         while (m_elapsedCycles < kCyclesPerFrame)
                         {
