@@ -43,6 +43,12 @@ namespace xFF
                 MMU m_mmu;
 
 
+                public delegate void LCDDriverDrawFunc(byte[] aVRAM, int aStartOffset);
+
+
+                public LCDDriverDrawFunc DrawDisplay;
+
+
                 public ConfigsBytePusher Configs
                 {
                     get { return m_configs; }
@@ -56,13 +62,39 @@ namespace xFF
                     m_mmu = new MMU();
 
                     m_cpu.BindMMU(m_mmu);
+
+                    // Temp bind
+                    DrawDisplay = (aVRAM, aStartOffset) => { };
                 }
 
 
                 public void EmulateFrame( )
                 {
                     m_cpu.Run();
+                    DrawDisplay(m_mmu.FullRAM, m_mmu.Read8(0x05) << 16);
                 }
+
+
+                public bool LoadRom(byte[] aRomData)
+                {
+                    if (aRomData == null || aRomData.Length >= 0x1000000)
+                    {
+                        return false;
+                    }
+
+                    // Loads ROM data to RAM
+                    System.Array.Copy(aRomData, 0, m_mmu.FullRAM, 0, aRomData.Length);
+
+                    // Clear remaining RAM data
+                    for (int i = aRomData.Length - 1; i < m_mmu.FullRAM.Length; ++i)
+                    {
+                        m_mmu.FullRAM[i] = 0;
+                    }
+
+                    return true;
+                }
+
+                
             }
 
 

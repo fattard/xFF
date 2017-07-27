@@ -55,6 +55,24 @@ namespace xFF
                         m_RAM[aAddress + 1] = (byte)((0xFF & aValue) >> 8);
                         m_RAM[aAddress + 2] = (byte)(0xFF & aValue);
                     }
+
+
+                    public int Read8(int aAddress)
+                    {
+                        return m_RAM[aAddress];
+                    }
+
+
+                    public void Write8(int aAddress, int aValue)
+                    {
+                        m_RAM[aAddress] = (byte)(0xFF & aValue);
+                    }
+
+
+                    public byte[] FullRAM
+                    {
+                        get { return m_RAM; }
+                    }
                 }
 
 
