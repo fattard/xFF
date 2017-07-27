@@ -86,7 +86,7 @@ namespace xFF
                     System.Array.Copy(aRomData, 0, m_mmu.FullRAM, 0, aRomData.Length);
 
                     // Clear remaining RAM data
-                    for (int i = aRomData.Length - 1; i < m_mmu.FullRAM.Length; ++i)
+                    for (int i = aRomData.Length; i < m_mmu.FullRAM.Length; ++i)
                     {
                         m_mmu.FullRAM[i] = 0;
                     }
