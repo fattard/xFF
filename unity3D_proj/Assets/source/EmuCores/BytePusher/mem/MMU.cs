@@ -45,7 +45,7 @@ namespace xFF
 
                     public int Read24(int aAddress)
                     {
-                        return (m_RAM[aAddress] << 16 | m_RAM[aAddress + 1] << 8 + m_RAM[aAddress + 2]);
+                        return ((m_RAM[aAddress] << 16) | (m_RAM[aAddress + 1] << 8) | (m_RAM[aAddress + 2]));
                     }
 
 

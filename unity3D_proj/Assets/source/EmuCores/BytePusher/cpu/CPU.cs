@@ -59,7 +59,7 @@ namespace xFF
 
                     public void BindMMU(MMU aMMU)
                     {
-                        m_bbj_core.BindAddressBUS(aMMU.Read24, aMMU.Write24);
+                        m_bbj_core.BindAddressBUS(aMMU.Read8, aMMU.Write8, aMMU.Read24, aMMU.Write24);
                         m_mmu = aMMU;
                     }
 

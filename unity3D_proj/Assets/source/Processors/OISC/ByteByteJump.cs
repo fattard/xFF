@@ -35,6 +35,9 @@ namespace xFF
             {
                 #region Delegates
 
+
+                public delegate int MemoryBUSRead8Func(int aAddress);
+                public delegate void MemoryBUSWrite8Func(int aAddress, int aValue);
                 public delegate int MemoryBUSRead24Func(int aAddress);
                 public delegate void MemoryBUSWrite24Func(int aAddress, int aValue);
 
@@ -42,10 +45,15 @@ namespace xFF
 
                 int m_PC;
 
+                MemoryBUSRead8Func Read8;
+                MemoryBUSWrite8Func Write8;
                 MemoryBUSRead24Func Read24;
                 MemoryBUSWrite24Func Write24;
 
 
+                /// <summary>
+                /// Program Counter
+                /// </summary>
                 public int RegPC
                 {
                     get { return m_PC; }
@@ -71,15 +79,23 @@ namespace xFF
                 /// <summary>
                 /// Binds delegates to handle memory access.
                 /// </summary>
-                /// <param name="aRead">A compatible delegate for reading 24 bits (Big Endian) value</param>
-                /// <param name="aWrite">A compatible delegate for writing 24 bits (Big Endian) value</param>
-                public void BindAddressBUS(MemoryBUSRead24Func aRead, MemoryBUSWrite24Func aWrite)
+                /// <param name="aRead8">A compatible delegate for reading 8 bits value</param>
+                /// <param name="aWrite8">A compatible delegate for writing 8 bits value</param>
+                /// <param name="aRead24">A compatible delegate for reading 24 bits (Big Endian) value</param>
+                /// <param name="aWrite24">A compatible delegate for writing 24 bits (Big Endian) value</param>
+                public void BindAddressBUS(MemoryBUSRead8Func aRead8, MemoryBUSWrite8Func aWrite8, MemoryBUSRead24Func aRead24, MemoryBUSWrite24Func aWrite24)
                 {
-                    Read24 = aRead;
-                    Write24 = aWrite;
+                    Read8 = aRead8;
+                    Write8 = aWrite8;
+
+                    Read24 = aRead24;
+                    Write24 = aWrite24;
                 }
 
 
+                /// <summary>
+                /// Process 1 instruction cycle
+                /// </summary>
                 public void Step( )
                 {
                     Execute();
@@ -90,12 +106,26 @@ namespace xFF
                 {
                     /* A, B, C
                      * 
-                     * mem[A] <- mem[B]
-                     * PC <- mem[C]
+                     * mem[B] <- mem[A]
+                     * PC <- C
                      * 
                      */
                     {
-                        Write24(m_PC + 3, Read24(m_PC));
+                        /*
+                         *      // Full Code:
+                         *
+                         *      int A = Read24(m_PC);  
+                         *      int B = Read24(m_PC + 3);
+                         * 
+                         *      // mem[B] = mem[A];
+                         *      Write8(B, Read8(A)); 
+                         * 
+                         *      m_PC = Read24(m_PC + 6); // C
+                         * 
+                         */
+
+
+                        Write8(Read24(m_PC + 3), Read8(Read24(m_PC)));
                         m_PC = Read24(m_PC + 6);
                     }
                 }
