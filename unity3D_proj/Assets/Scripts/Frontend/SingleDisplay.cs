@@ -68,11 +68,18 @@ namespace xFF
 
                 Texture2D m_fbTexture;
                 Color[] m_fbPixels;
+                int m_fbTextureWidth;
 
 
                 public Color[] Pixels
                 {
                     get { return m_fbPixels; }
+                }
+
+
+                public int TextureWidth
+                {
+                    get { return m_fbTextureWidth; }
                 }
 
 
@@ -106,6 +113,7 @@ namespace xFF
                     screenRenderer.material = displayMaterial;
                     m_fbTexture = displayTexture;
                     m_fbPixels = m_fbTexture.GetPixels();
+                    m_fbTextureWidth = displayTexture.width;
                 }
 
 
