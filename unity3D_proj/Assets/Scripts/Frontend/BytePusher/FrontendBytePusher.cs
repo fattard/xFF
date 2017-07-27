@@ -85,6 +85,8 @@ namespace xFF
 
                     void DisplayRenderer(byte[] aVRAM, int aStartOffset)
                     {
+                        int texWidth = emuDisplay.TextureWidth;
+
                         Color[] displayPixels = emuDisplay.Pixels;
                         for (int i = 0; i < 256; ++i)
                         {
@@ -93,7 +95,7 @@ namespace xFF
                                 byte c = aVRAM[aStartOffset + ((i * 256) + j)];
                                 if (c >= 216)
                                 {
-                                    displayPixels[(i * 512) + j] = Color.black;
+                                    displayPixels[(i * texWidth) + j] = Color.black;
                                 }
                                 else
                                 {
@@ -101,7 +103,7 @@ namespace xFF
                                     int green = ((c - blue) / 6) % 6;
                                     int red = ((c - blue - (6 * green)) / 36) % 6;
 
-                                    displayPixels[(i * 512) + j] = new Color((red * 0x33) / 255.0f, (green * 0x33) / 255.0f, (blue * 0x33) / 255.0f);
+                                    displayPixels[(i * texWidth) + j] = new Color((red * 0x33) / 255.0f, (green * 0x33) / 255.0f, (blue * 0x33) / 255.0f);
                                 }
                                 
                             }
