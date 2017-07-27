@@ -90,7 +90,7 @@ namespace xFF
                         {
                             for (int j = 0; j < 256; ++j)
                             {
-                                byte c = aVRAM[aStartOffset + (i * j)];
+                                byte c = aVRAM[aStartOffset + ((i * 256) + j)];
                                 if (c >= 216)
                                 {
                                     displayPixels[(i * 512) + j] = Color.black;
