@@ -9,14 +9,14 @@
 
 Instruction  |  Implementation  | Checked Operation | Checked Timing
 -----------  | ---------------- | ----------------- | --------------
-A, B, C      |:heavy_check_mark:| :heavy_check_mark:|               
+A, B, C      |:heavy_check_mark:| :heavy_check_mark:|:heavy_check_mark:
 
 
 ## BytePusher Emu - [Hardware Emulation](https://esolangs.org/wiki/BytePusher)
 
 Graphics      | Status
 ------------- | ------
-Frame Buffer  | :soon:
+Frame Buffer  | :heavy_check_mark:
 
 Audio | Status
 ----- | ------
