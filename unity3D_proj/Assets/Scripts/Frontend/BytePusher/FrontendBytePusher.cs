@@ -59,13 +59,32 @@ namespace xFF
                         emuDisplay.SetScreenStandard();
 
                         m_emuBytePusher = new EmuCores.BytePusher.EmuBytePusher(configsBytePusher);
+                        m_emuBytePusher.DrawDisplay = DisplayRenderer;
+
+                        try
+                        {
+                            byte[] romData = System.IO.File.ReadAllBytes(frontendConfigs.romsPath[frontendConfigs.selectedRomIndex]);
+
+                            if (!m_emuBytePusher.LoadRom(romData))
+                            {
+                                throw new System.ArgumentException("Invalid ROM format");
+                            }
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogError("Failed loading rom: " + e.Message);
+                        }
                     }
 
 
                     void Update( )
                     {
                         m_emuBytePusher.EmulateFrame();
+                    }
 
+
+                    void DisplayRenderer(byte[] aVRAM, int aStartOffset)
+                    {
                         //TODO: display test
                         Color[] displayPixels = emuDisplay.Pixels;
                         for (int i = 0; i < 256; ++i)
@@ -78,6 +97,8 @@ namespace xFF
 
                         emuDisplay.DrawDisplay(displayPixels);
                     }
+
+
                 }
 
 

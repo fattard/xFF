@@ -7,9 +7,9 @@
 - :o: - Implemented but inaccurate
 - :x: - Implemented but incorrect
 
-Instruction  |  Implementation  | Checked Operation | Checked Flags | Checked Timing
------------  | ---------------- | ----------------- | ------------- | --------------
-A, B, C      |:heavy_check_mark:|                   |               |               
+Instruction  |  Implementation  | Checked Operation | Checked Timing
+-----------  | ---------------- | ----------------- | --------------
+A, B, C      |:heavy_check_mark:| :heavy_check_mark:|               
 
 
 ## BytePusher Emu - [Hardware Emulation](https://esolangs.org/wiki/BytePusher)
