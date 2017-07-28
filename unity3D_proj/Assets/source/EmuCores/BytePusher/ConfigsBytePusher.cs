@@ -47,6 +47,12 @@ namespace xFF
                 {
                     public bool soundChannel_1 = true;
                 }
+
+                [System.Serializable]
+                public class Graphics
+                {
+                    public int displayZoom = 1;
+                }
                                 
 
 
@@ -54,6 +60,7 @@ namespace xFF
 
                 public Paths paths;
                 public Audio audio;
+                public Graphics graphics;
 
                 #endregion Data
 
@@ -62,6 +69,7 @@ namespace xFF
                 {
                     paths = new Paths();
                     audio = new Audio();
+                    graphics = new Graphics();
                 }
             }
 

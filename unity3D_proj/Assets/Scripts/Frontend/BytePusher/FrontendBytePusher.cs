@@ -48,14 +48,22 @@ namespace xFF
                     EmuCores.BytePusher.EmuBytePusher m_emuBytePusher;
 
 
-                    void Start( )
+                    void Start()
                     {
-                        EmuCores.BytePusher.ConfigsBytePusher configsBytePusher = new EmuCores.BytePusher.ConfigsBytePusher();
+                        EmuCores.BytePusher.ConfigsBytePusher configsBytePusher = LoadConfigFile();
 
-                        
+                        // Running direct from scene
+                        if (EmuEnvironment.EmuCore == EmuEnvironment.Cores._Unknown)
+                        {
+                            EmuEnvironment.RomFilePath = frontendConfigs.romsPath[frontendConfigs.selectedRomIndex];
+
+                            OverrideConfigsWithFrontend(configsBytePusher);
+                        }
+
+
                         emuDisplay.displayWidth = 256;
                         emuDisplay.displayHeight = 256;
-                        emuDisplay.displayZoomFactor = frontendConfigs.zoomFactor;
+                        emuDisplay.displayZoomFactor = configsBytePusher.graphics.displayZoom;
                         emuDisplay.SetScreenStandard();
 
                         m_emuBytePusher = new EmuCores.BytePusher.EmuBytePusher(configsBytePusher);
@@ -63,7 +71,7 @@ namespace xFF
 
                         try
                         {
-                            byte[] romData = System.IO.File.ReadAllBytes(frontendConfigs.romsPath[frontendConfigs.selectedRomIndex]);
+                            byte[] romData = System.IO.File.ReadAllBytes(EmuEnvironment.RomFilePath);
 
                             if (!m_emuBytePusher.LoadRom(romData))
                             {
@@ -74,10 +82,12 @@ namespace xFF
                         {
                             Debug.LogError("Failed loading rom: " + e.Message);
                         }
+
+                        SaveConfigFile(configsBytePusher);
                     }
 
 
-                    void Update( )
+                    void Update()
                     {
                         m_emuBytePusher.EmulateFrame();
                     }
@@ -105,7 +115,7 @@ namespace xFF
 
                                     displayPixels[(i * texWidth) + j] = new Color((red * 0x33) / 255.0f, (green * 0x33) / 255.0f, (blue * 0x33) / 255.0f);
                                 }
-                                
+
                             }
                         }
 
@@ -113,6 +123,51 @@ namespace xFF
                     }
 
 
+
+                    EmuCores.BytePusher.ConfigsBytePusher LoadConfigFile()
+                    {
+                        try
+                        {
+                            string confFile = System.IO.File.ReadAllText(Application.dataPath + "/../core_BytePusher.cfg");
+
+                            EmuCores.BytePusher.ConfigsBytePusher confData = JsonUtility.FromJson<EmuCores.BytePusher.ConfigsBytePusher>(confFile);
+
+                            return confData;
+                        }
+                        catch (System.Exception e)
+                        {
+                            return new EmuCores.BytePusher.ConfigsBytePusher();
+                        }
+                    }
+
+
+                    void SaveConfigFile(EmuCores.BytePusher.ConfigsBytePusher aConfigs)
+                    {
+                        try
+                        {
+                            string confFile = JsonUtility.ToJson(aConfigs, prettyPrint: true);
+
+                            System.IO.File.WriteAllText(Application.dataPath + "/../core_BytePusher.cfg", confFile);
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogError(e.Message);
+                        }
+                    }
+
+
+                    void OverrideConfigsWithFrontend(EmuCores.BytePusher.ConfigsBytePusher aConf)
+                    {
+                        aConf.graphics.displayZoom = frontendConfigs.zoomFactor;
+                    }
+
+
+
+                    public static void ConfigScene( )
+                    {
+                        GameObject go = Resources.Load<GameObject>("EmuBytePusher");
+                        Instantiate(go);
+                    }
                 }
 
 

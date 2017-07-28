@@ -95,6 +95,15 @@ namespace xFF
                 }
 
                 
+                public static bool IsValidROM(string aFilePath)
+                {
+                    if (aFilePath.ToLower().EndsWith(".bytepusher") || aFilePath.ToLower().EndsWith(".bp"))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
             }
 
 
