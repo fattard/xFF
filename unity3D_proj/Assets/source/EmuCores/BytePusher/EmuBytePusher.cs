@@ -44,10 +44,12 @@ namespace xFF
 
 
                 public delegate void LCDDriverDrawFunc(byte[] aVRAM, int aStartOffset);
+                public delegate void AudioDriverPlayFunc(byte[] aRAM, int aStartOffset);
                 public delegate void InputDriverFunc(byte[] aRAM, int aStartOffset);
 
 
                 public LCDDriverDrawFunc DrawDisplay;
+                public AudioDriverPlayFunc PlayAudio;
                 public InputDriverFunc UpdateInputKeys;
 
                 public ConfigsBytePusher Configs
@@ -66,6 +68,7 @@ namespace xFF
 
                     // Temp bind
                     DrawDisplay = (aVRAM, aStartOffset) => { };
+                    PlayAudio = (aRAM, aStartOffset) => { };
                     UpdateInputKeys = (aRAM, aStartOffset) => { };
                 }
 
@@ -75,6 +78,7 @@ namespace xFF
                     UpdateInputKeys(m_mmu.FullRAM, 0x00);
                     m_cpu.Run();
                     DrawDisplay(m_mmu.FullRAM, m_mmu.Read8(0x05) << 16);
+                    PlayAudio(m_mmu.FullRAM, ((m_mmu.Read8(0x06) << 8) | (m_mmu.Read8(0x07))) << 8);
                 }
 
 

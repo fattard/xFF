@@ -20,7 +20,7 @@ Frame Buffer  | :heavy_check_mark:
 
 Audio | Status
 ----- | ------
-Channel 1 |:soon:
+Channel 1 |:o:
 
 Devices  | Status
 -------  | ------

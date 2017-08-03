@@ -44,6 +44,7 @@ namespace xFF
                 {
                     public ConfigsBytePusher frontendConfigs;
                     public SingleDisplay emuDisplay;
+                    public DSP emuDSP;
 
                     EmuCores.BytePusher.EmuBytePusher m_emuBytePusher;
 
@@ -68,6 +69,7 @@ namespace xFF
 
                         m_emuBytePusher = new EmuCores.BytePusher.EmuBytePusher(configsBytePusher);
                         m_emuBytePusher.DrawDisplay = DisplayRenderer;
+                        m_emuBytePusher.PlayAudio = PlayAudio;
                         m_emuBytePusher.UpdateInputKeys = UpdateKeys;
 
                         try
@@ -121,6 +123,12 @@ namespace xFF
                         }
 
                         emuDisplay.DrawDisplay(displayPixels);
+                    }
+
+
+                    void PlayAudio(byte[] aRAM, int aStartOffset)
+                    {
+                        emuDSP.UpdateBuffer(aRAM, aStartOffset);
                     }
 
 
