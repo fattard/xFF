@@ -20,8 +20,8 @@ Frame Buffer  | :heavy_check_mark:
 
 Audio | Status
 ----- | ------
-Channel 1
+Channel 1 |:soon:
 
-Devices | Status
-------- | ------
-Keyboard
+Devices  | Status
+-------  | ------
+Keyboard | :heavy_check_mark:

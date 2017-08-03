@@ -44,10 +44,11 @@ namespace xFF
 
 
                 public delegate void LCDDriverDrawFunc(byte[] aVRAM, int aStartOffset);
+                public delegate void InputDriverFunc(byte[] aRAM, int aStartOffset);
 
 
                 public LCDDriverDrawFunc DrawDisplay;
-
+                public InputDriverFunc UpdateInputKeys;
 
                 public ConfigsBytePusher Configs
                 {
@@ -65,11 +66,13 @@ namespace xFF
 
                     // Temp bind
                     DrawDisplay = (aVRAM, aStartOffset) => { };
+                    UpdateInputKeys = (aRAM, aStartOffset) => { };
                 }
 
 
                 public void EmulateFrame( )
                 {
+                    UpdateInputKeys(m_mmu.FullRAM, 0x00);
                     m_cpu.Run();
                     DrawDisplay(m_mmu.FullRAM, m_mmu.Read8(0x05) << 16);
                 }

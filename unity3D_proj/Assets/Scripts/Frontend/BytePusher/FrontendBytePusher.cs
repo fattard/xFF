@@ -68,6 +68,7 @@ namespace xFF
 
                         m_emuBytePusher = new EmuCores.BytePusher.EmuBytePusher(configsBytePusher);
                         m_emuBytePusher.DrawDisplay = DisplayRenderer;
+                        m_emuBytePusher.UpdateInputKeys = UpdateKeys;
 
                         try
                         {
@@ -120,6 +121,96 @@ namespace xFF
                         }
 
                         emuDisplay.DrawDisplay(displayPixels);
+                    }
+
+
+                    void UpdateKeys(byte[] aRAM, int aStartOffset)
+                    {
+                        int keys = 0;
+
+                        if (Input.GetKey(KeyCode.Alpha0) || Input.GetKey(KeyCode.Keypad0))
+                        {
+                            keys |= (1 << 0);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha1) || Input.GetKey(KeyCode.Keypad1))
+                        {
+                            keys |= (1 << 1);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha2) || Input.GetKey(KeyCode.Keypad2))
+                        {
+                            keys |= (1 << 2);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha3) || Input.GetKey(KeyCode.Keypad3))
+                        {
+                            keys |= (1 << 3);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha4) || Input.GetKey(KeyCode.Keypad4))
+                        {
+                            keys |= (1 << 4);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha5) || Input.GetKey(KeyCode.Keypad5))
+                        {
+                            keys |= (1 << 5);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha6) || Input.GetKey(KeyCode.Keypad6))
+                        {
+                            keys |= (1 << 6);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha7) || Input.GetKey(KeyCode.Keypad7))
+                        {
+                            keys |= (1 << 7);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha8) || Input.GetKey(KeyCode.Keypad8))
+                        {
+                            keys |= (1 << 8);
+                        }
+
+                        if (Input.GetKey(KeyCode.Alpha9) || Input.GetKey(KeyCode.Keypad9))
+                        {
+                            keys |= (1 << 9);
+                        }
+
+                        if (Input.GetKey(KeyCode.A))
+                        {
+                            keys |= (1 << 10);
+                        }
+
+                        if (Input.GetKey(KeyCode.B))
+                        {
+                            keys |= (1 << 11);
+                        }
+
+                        if (Input.GetKey(KeyCode.C))
+                        {
+                            keys |= (1 << 12);
+                        }
+
+                        if (Input.GetKey(KeyCode.D))
+                        {
+                            keys |= (1 << 13);
+                        }
+
+                        if (Input.GetKey(KeyCode.E))
+                        {
+                            keys |= (1 << 14);
+                        }
+
+                        if (Input.GetKey(KeyCode.F))
+                        {
+                            keys |= (1 << 15);
+                        }
+
+
+                        aRAM[aStartOffset] = (byte)((keys >> 8) & 0xFF);
+                        aRAM[aStartOffset + 1] = (byte)(keys & 0xFF);
                     }
 
 
