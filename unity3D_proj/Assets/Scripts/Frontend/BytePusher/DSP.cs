@@ -53,7 +53,7 @@ namespace xFF
                         var conf = AudioSettings.GetConfiguration();
                         conf.dspBufferSize = 256;
                         conf.speakerMode = AudioSpeakerMode.Mono;
-                        conf.sampleRate = 11025;
+                        conf.sampleRate = 15360;
 
                         AudioSettings.Reset(conf);
 
