@@ -35,8 +35,8 @@ namespace xFF
             public partial class LR35902
             {
                 #region Delegates
-                public delegate int AddressBUSRead8Func(int aAddress);
-                public delegate void AddressBUSWrite8Func(int aAddress, int aValue);
+                public delegate int BUSRead8Func(int aAddress);
+                public delegate void BUSWrite8Func(int aAddress, int aValue);
 
                 public delegate void CyclesStepFunc(int aElapsedCycles);
 
@@ -64,8 +64,8 @@ namespace xFF
                 InstructionHandler[] m_instructionHandler;
                 InstructionHandler[] m_extendedInstructionHandler;
 
-                AddressBUSRead8Func Read8;
-                AddressBUSWrite8Func Write8;
+                BUSRead8Func Read8;
+                BUSWrite8Func Write8;
                 CyclesStepFunc CyclesStep;
 
 
@@ -128,7 +128,7 @@ namespace xFF
                 /// </summary>
                 /// <param name="aRead">A compatible delegate</param>
                 /// <param name="aWrite">A compatible delegate</param>
-                public void BindAddressBUS(AddressBUSRead8Func aRead, AddressBUSWrite8Func aWrite)
+                public void BindBUS(BUSRead8Func aRead, BUSWrite8Func aWrite)
                 {
                     Read8 = aRead;
                     Write8 = aWrite;
@@ -136,18 +136,31 @@ namespace xFF
 
 
                 /// <summary>
-                /// Binds a delegate to handle clocks steps.
+                /// Binds a delegate to handle cycles steps.
                 /// </summary>
-                /// <param name="aClockStep">A compatible delegate</param>
-                public void BindClockStep(CyclesStepFunc aClockStep)
+                /// <param name="aCyclesStep">A compatible delegate</param>
+                public void BindCyclesStep(CyclesStepFunc aCyclesStep)
                 {
-                    CyclesStep = aClockStep;
+                    CyclesStep = aCyclesStep;
+                }
+
+
+                public void Step( )
+                {
+                    Decode();
+                    Execute();
                 }
 
 
                 void Decode( )
                 {
                     m_fetchedInstruction = Read8(m_regs.PC++);
+                }
+
+
+                void Execute( )
+                {
+                    m_instructionHandler[m_fetchedInstruction]();
                 }
 
 
@@ -222,6 +235,12 @@ namespace xFF
                     int p2 = oldValue & 0xFFF0;
 
                     return (newValue & 0xFFF0) < (oldValue & 0xFFF0) ? 1 : 0;
+                }
+
+
+                public override string ToString()
+                {
+                    return ("PC=" + m_regs.PC.ToString("X4") + " - Opcode: 0x" + Read8(m_regs.PC).ToString("X2") + string.Format("  AF={0}  BC={1}  DE={2}  HL={3}  SP={4}  [HL]={5}  [SP]={6}", m_regs.AF.ToString("X4"), m_regs.BC.ToString("X4"), m_regs.DE.ToString("X4"), m_regs.HL.ToString("X4"), m_regs.SP.ToString("X4"), Read8(m_regs.HL).ToString("X2"), Read8(m_regs.SP + 1).ToString("X2") + Read8(m_regs.SP).ToString("X2")) + string.Format("   Flags=[Z={0} N={1} H={2} C={3}]\n", m_regs.F.Z, m_regs.F.N, m_regs.F.H, m_regs.F.C));
                 }
             }
 
