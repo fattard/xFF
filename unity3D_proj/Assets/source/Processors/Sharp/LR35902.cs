@@ -78,6 +78,42 @@ namespace xFF
                 }
 
 
+                /// <summary>
+                /// Current fetched instruction opcode that will be decoded and executed
+                /// </summary>
+                public int FetchedInstruction
+                {
+                    get { return m_fetchedInstruction; }
+                }
+
+
+                /// <summary>
+                /// Returns true if the processor is currently in Halt operation mode
+                /// </summary>
+                public bool IsInHaltMode
+                {
+                    get { return m_inHaltMode; }
+                }
+
+
+                /// <summary>
+                /// Returns true if the processor is currently in Stop operation mode
+                /// </summary>
+                public bool IsInStopMode
+                {
+                    get { return m_inStopMode; }
+                }
+
+
+                /// <summary>
+                /// Returns the state of the flag Interrupts Master Enabled (IME)
+                /// </summary>
+                public bool IsInterruptsMasterFlagEnabled
+                {
+                    get { return m_interruptsMasterFlagEnabled; }
+                }
+
+
                 public LR35902( )
                 {
                     m_regs = new Registers();
@@ -145,25 +181,26 @@ namespace xFF
                 }
 
 
-                public void Step( )
-                {
-                    Decode();
-                    Execute();
-                }
-
-
-                void Decode( )
+                /// <summary>
+                /// Fetches next instruction opcode from current PC.
+                /// </summary>
+                public void Fetch( )
                 {
                     m_fetchedInstruction = Read8(m_regs.PC++);
                 }
 
 
-                void Execute( )
+                /// <summary>
+                /// Decodes and Execute the fetched instruction.
+                /// </summary>
+                public void DecodeAndExecute( )
                 {
                     m_instructionHandler[m_fetchedInstruction]();
                 }
 
 
+
+                #region Helpers
                 /// <summary>
                 /// Check for value zero
                 /// </summary>
@@ -236,6 +273,7 @@ namespace xFF
 
                     return (newValue & 0xFFF0) < (oldValue & 0xFFF0) ? 1 : 0;
                 }
+                #endregion Helpers
 
 
                 public override string ToString()
