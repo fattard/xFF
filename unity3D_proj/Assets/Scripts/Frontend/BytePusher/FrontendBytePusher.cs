@@ -83,7 +83,8 @@ namespace xFF
                         }
                         catch (System.Exception e)
                         {
-                            Debug.LogError("Failed loading rom: " + e.Message);
+                            EmuEnvironment.ShowErrorBox("BytePusher Emu Error", "Failed loading rom:\n" + e.Message);
+                            Application.Quit();
                         }
 
                         SaveConfigFile(configsBytePusher);
@@ -250,7 +251,7 @@ namespace xFF
                         }
                         catch (System.Exception e)
                         {
-                            Debug.LogError(e.Message);
+                            EmuEnvironment.ShowErrorBox("BytePusher Emu Error", e.Message);
                         }
                     }
 

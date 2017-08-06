@@ -106,7 +106,8 @@ namespace xFF
                             }
                             catch (System.Exception e)
                             {
-                                Debug.LogError("BootROM error - " + e.Message);
+                                EmuEnvironment.ShowErrorBox("GB Emu Error", "BootROM error:\n" + e.Message);
+                                Application.Quit();
                             }
                         }
                     }
@@ -122,12 +123,13 @@ namespace xFF
 
                             if (!m_emuGB.LoadSimpleRom(romData))
                             {
-                                throw new System.ArgumentException("Invalid ROM format");
+                                throw new System.ArgumentException("MBC mappers are not supported yet.\nPlease, be patient :)");
                             }
                         }
                         catch (System.Exception e)
                         {
-                            Debug.LogError("Failed loading rom: " + e.Message);
+                            EmuEnvironment.ShowErrorBox("GB Emu Error", "Failed loading rom:\n" + e.Message);
+                            Application.Quit();
                         }
                     }
 
@@ -184,7 +186,7 @@ namespace xFF
                         }
                         catch (System.Exception e)
                         {
-                            Debug.LogError(e.Message);
+                            EmuEnvironment.ShowErrorBox("GB Emu Error", e.Message);
                         }
                     }
 

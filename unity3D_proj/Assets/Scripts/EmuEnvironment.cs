@@ -27,6 +27,7 @@
 using UnityEngine;
 using xFF.Frontend.Unity3D.BytePusher;
 using xFF.Frontend.Unity3D.GB;
+using System.Windows.Forms;
 
 namespace xFF
 {
@@ -77,6 +78,34 @@ namespace xFF
                 case Cores.GB:
                     FrontendGB.ConfigScene();
                     break;
+            }
+        }
+
+
+        public static void ShowErrorBox(string aTitle, string aMsg)
+        {
+            if (UnityEngine.Application.isEditor)
+            {
+                Debug.LogError(aMsg);
+            }
+
+            else
+            {
+                MessageBox.Show(aMsg, aTitle, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            }
+        }
+
+
+        public static void ShowWarningBox(string aTitle, string aMsg)
+        {
+            if (UnityEngine.Application.isEditor)
+            {
+                Debug.LogWarning(aMsg);
+            }
+
+            else
+            {
+                MessageBox.Show(aMsg, aTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
             }
         }
     }

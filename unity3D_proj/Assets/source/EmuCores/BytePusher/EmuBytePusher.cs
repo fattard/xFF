@@ -84,7 +84,7 @@ namespace xFF
 
                 public bool LoadRom(byte[] aRomData)
                 {
-                    if (aRomData == null || aRomData.Length >= 0x1000000)
+                    if (aRomData == null || aRomData.Length >= 0x1000000) // 16 MB
                     {
                         return false;
                     }
