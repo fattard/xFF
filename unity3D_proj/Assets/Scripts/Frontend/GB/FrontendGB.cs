@@ -43,7 +43,7 @@ namespace xFF
                 public class FrontendGB : MonoBehaviour
                 {
                     public ConfigsGB frontendConfigs;
-                    public SingleDisplay gbDisplay;
+                    public LCDDisplay lcdDisplay;
 
                     EmuCores.GB.EmuGB m_emuGB;
 
@@ -62,13 +62,10 @@ namespace xFF
                             OverrideConfigsWithFrontend(configsGB);
                         }
 
-                        gbDisplay.displayWidth = 160;
-                        gbDisplay.displayHeight = 144;
-                        gbDisplay.displayZoomFactor = configsGB.graphics.displayZoom;
-                        gbDisplay.SetScreenStandard();
+                        lcdDisplay.SetConfigs(configsGB);
 
                         m_emuGB = new EmuCores.GB.EmuGB(configsGB);
-                        //m_emuGB.DrawDisplay = DisplayRenderer;
+                        m_emuGB.DrawDisplay = lcdDisplay.DrawDisplay;
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
 
@@ -78,6 +75,8 @@ namespace xFF
                         SaveConfigFile(configsGB);
 
                         lastUpdateTick = Time.realtimeSinceStartup;
+
+                        m_emuGB.PowerOn();
                     }
 
 
@@ -136,17 +135,10 @@ namespace xFF
 
                     void Update( )
                     {
-                        //TODO: display test
-                        Color[] displayPixels = gbDisplay.Pixels;
-                        for (int i = 0; i < 144; ++i)
-                        {
-                            for (int j = 0; j < 160; ++j)
-                            {
-                                displayPixels[(i * 512) + j] = frontendConfigs.color0;
-                            }
-                        }
+                        m_emuGB.EmulateFrame();
+                        lcdDisplay.Render();
 
-                        gbDisplay.DrawDisplay(displayPixels);
+                        
 
                         // Prevent DBG unresponsive loops
                         float newTime = Time.realtimeSinceStartup;

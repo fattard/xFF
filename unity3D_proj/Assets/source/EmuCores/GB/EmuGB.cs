@@ -37,6 +37,9 @@ namespace xFF
 
             public class EmuGB
             {
+                public delegate void DrawDisplayFunc(PPU aPPU);
+
+
                 ConfigsGB m_configs;
 
                 CPU m_cpu;
@@ -85,6 +88,9 @@ namespace xFF
                 }
 
 
+                public DrawDisplayFunc DrawDisplay;
+
+
                 public EmuGB(ConfigsGB aConfigs)
                 {
                     m_configs = aConfigs;
@@ -97,6 +103,15 @@ namespace xFF
 
                     // Start paused
                     m_paused = true;
+
+                    // Temp binding
+                    DrawDisplay = (aPPU) => { };
+                }
+
+
+                public void PowerOn( )
+                {
+                    m_paused = false;
                 }
 
 
@@ -109,6 +124,8 @@ namespace xFF
 
 
                     m_cpu.Run();
+
+                    DrawDisplay(m_ppu);
                 }
 
 

@@ -42,6 +42,7 @@ GameObject:
   - 4: {fileID: 437950}
   - 114: {fileID: 11422206}
   - 114: {fileID: 11490940}
+  - 114: {fileID: 11463768}
   m_Layer: 0
   m_Name: EmuGB
   m_TagString: Untagged
@@ -243,6 +244,18 @@ MonoBehaviour:
   color2: {r: 0.20392157, g: 0.40784314, b: 0.3372549, a: 1}
   color3: {r: 0.03137255, g: 0.09411765, b: 0.1254902, a: 1}
   zoomFactor: 1
+--- !u!114 &11463768
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 150848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92735f35250df3a4381679daad941a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gbDisplay: {fileID: 11412080}
 --- !u!114 &11490940
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -255,7 +268,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frontendConfigs: {fileID: 11422206}
-  gbDisplay: {fileID: 11412080}
+  lcdDisplay: {fileID: 11463768}
 --- !u!124 &12487392
 Behaviour:
   m_ObjectHideFlags: 1
