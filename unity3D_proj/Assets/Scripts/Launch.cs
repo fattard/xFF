@@ -73,6 +73,10 @@ namespace xFF
                             case "bytepusher":
                                 EmuEnvironment.EmuCore = EmuEnvironment.Cores.BytePusher;
                                 break;
+
+                            case "gb":
+                                EmuEnvironment.EmuCore = EmuEnvironment.Cores.GB;
+                                break;
                         }
                     }
                 }
@@ -84,6 +88,11 @@ namespace xFF
 
                     if (EmuEnvironment.EmuCore == EmuEnvironment.Cores._Unknown)
                     {
+                        if (EmuCores.GB.EmuGB.IsValidROM(EmuEnvironment.RomFilePath))
+                        {
+                            EmuEnvironment.EmuCore = EmuEnvironment.Cores.GB;
+                        }
+
                         if (EmuCores.BytePusher.EmuBytePusher.IsValidROM(EmuEnvironment.RomFilePath))
                         {
                             EmuEnvironment.EmuCore = EmuEnvironment.Cores.BytePusher;

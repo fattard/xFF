@@ -26,6 +26,7 @@
 
 using UnityEngine;
 using xFF.Frontend.Unity3D.BytePusher;
+using xFF.Frontend.Unity3D.GB;
 
 namespace xFF
 {
@@ -71,6 +72,10 @@ namespace xFF
             {
                 case Cores.BytePusher:
                     FrontendBytePusher.ConfigScene();
+                    break;
+
+                case Cores.GB:
+                    FrontendGB.ConfigScene();
                     break;
             }
         }
