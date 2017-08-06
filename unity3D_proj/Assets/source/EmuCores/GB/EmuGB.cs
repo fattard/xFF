@@ -24,6 +24,9 @@
 *         reasonable ways as different from the original version.
 */
 
+using xFF.EmuCores.GB.HW;
+
+
 namespace xFF
 {
     namespace EmuCores
@@ -36,14 +39,76 @@ namespace xFF
             {
                 ConfigsGB m_configs;
 
+                CPU m_cpu;
+                PPU m_ppu;
+                APU m_apu;
+
+                MEM m_mem;
+
+
+                bool m_paused;
+
+
                 public ConfigsGB Configs
                 {
                     get { return m_configs; }
                 }
 
+
+                public CPU CPU
+                {
+                    get { return m_cpu; }
+                }
+
+
+                public PPU PPU
+                {
+                    get { return m_ppu; }
+                }
+
+
+                public APU APU
+                {
+                    get { return m_apu; }
+                }
+
+
+                public MEM MEM
+                {
+                    get { return m_mem; }
+                }
+
+
+                public bool IsPaused
+                {
+                    get { return m_paused; }
+                }
+
+
                 public EmuGB(ConfigsGB aConfigs)
                 {
                     m_configs = aConfigs;
+
+                    m_cpu = new CPU();
+                    m_ppu = new PPU();
+                    m_apu = new APU();
+
+                    m_mem = new MEM();
+
+                    // Start paused
+                    m_paused = true;
+                }
+
+
+                public void EmulateFrame( )
+                {
+                    if (m_paused)
+                    {
+                        return;
+                    }
+
+
+                    m_cpu.Run();
                 }
 
 
