@@ -45,6 +45,34 @@ namespace xFF
                 {
                     m_configs = aConfigs;
                 }
+
+
+                public void SetBootRom(byte[] aBootRom)
+                {
+                    
+                }
+
+
+                public bool LoadSimpleRom(byte[] aRomData)
+                {
+                    if (aRomData == null || aRomData.Length != 0x8000)
+                    {
+                        return false;
+                    }
+                    
+                    return true;
+                }
+
+
+                public static bool IsValidROM(string aFilePath)
+                {
+                    if (aFilePath.ToLower().EndsWith(".gb") || aFilePath.ToLower().EndsWith(".gbc"))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
             }
 
 

@@ -63,6 +63,13 @@ namespace xFF
 
 
                 [System.Serializable]
+                public class Graphics
+                {
+                    public int displayZoom = 1;
+                }
+
+
+                [System.Serializable]
                 public class DMGColors
                 {
                     [System.Serializable]
@@ -107,6 +114,7 @@ namespace xFF
                 public BootROM bootRomSGB;
                 public BootROM bootRomCGB;
                 public Audio audio;
+                public Graphics graphics;
                 public DMGColors dmgColors;
                 public string emulatedSystem;
                 public string linkPortDevice;
@@ -121,6 +129,7 @@ namespace xFF
                     bootRomSGB = new BootROM();
                     bootRomCGB = new BootROM();
                     audio = new Audio();
+                    graphics = new Graphics();
                     dmgColors = new DMGColors();
                     emulatedSystem = Defs.HardwareModel.DMG.ToString();
                     linkPortDevice = Defs.LinkPortDevices.None.ToString();
