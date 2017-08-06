@@ -69,6 +69,8 @@ namespace xFF
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
 
+                        m_emuGB.BindLogger(Debug.Log, Debug.LogWarning, Debug.LogError);
+
                         LoadBootRom();
                         LoadROM();
                         

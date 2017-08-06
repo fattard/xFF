@@ -24,6 +24,8 @@
 *         reasonable ways as different from the original version.
 */
 
+using xFF.Processors.Sharp;
+
 namespace xFF
 {
     namespace EmuCores
@@ -36,14 +38,59 @@ namespace xFF
 
                 public class CPU
                 {
+                    public const uint kCPUClock = 4194304; // ~4.19 MHz
+                    public const uint kCyclesPerFrame = kCPUClock / 60; // 69905 cycles per frame
+
+
+                    LR35902 m_gb_core;
+
+                    uint m_cyclesElapsed;
+                    uint m_userCyclesRate;
+
+                    public uint UserCyclesRate
+                    {
+                        get { return m_userCyclesRate; }
+                        set { m_userCyclesRate = value; }
+                    }
+
+
+                    public LR35902 ProcessorState
+                    {
+                        get { return m_gb_core; }
+                    }
+
+
+                    public CPU( )
+                    {
+                        m_gb_core = new LR35902();
+
+                        m_gb_core.BindCyclesStep(CyclesStep);
+
+                        m_userCyclesRate = kCyclesPerFrame;
+                        m_cyclesElapsed = 0;
+                    }
 
 
                     public void Run( )
                     {
+                        while (m_cyclesElapsed < m_userCyclesRate)
+                        {
+                            m_gb_core.Fetch();
+                            m_gb_core.DecodeAndExecute();
+                        }
 
+
+                        //UnityEngine.Debug.Log(m_cyclesElapsed);
+
+                        // Reset cycles counter 
+                        m_cyclesElapsed -= m_userCyclesRate;
                     }
 
 
+                    void CyclesStep(int aElapsedCycles)
+                    {
+                        m_cyclesElapsed += (uint)aElapsedCycles;
+                    }
                 }
 
 

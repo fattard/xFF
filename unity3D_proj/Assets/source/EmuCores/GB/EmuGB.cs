@@ -38,6 +38,7 @@ namespace xFF
             public class EmuGB
             {
                 public delegate void DrawDisplayFunc(PPU aPPU);
+                public delegate void MsgHandler(object aMsg);
 
 
                 ConfigsGB m_configs;
@@ -111,6 +112,8 @@ namespace xFF
 
                 public void PowerOn( )
                 {
+                    m_cpu.ProcessorState.Reset();
+
                     m_paused = false;
                 }
 
@@ -126,6 +129,29 @@ namespace xFF
                     m_cpu.Run();
 
                     DrawDisplay(m_ppu);
+                }
+
+
+                public void BindLogger(MsgHandler aLogHandler, MsgHandler aWarningHandler, MsgHandler aErrorHandler)
+                {
+                    Processors.Sharp.LR35902.MsgHandler log = (aMsg) =>
+                    {
+                        aLogHandler(aMsg);
+                    };
+
+                    Processors.Sharp.LR35902.MsgHandler logWarning = (aMsg) =>
+                    {
+                        aWarningHandler(aMsg);
+                    };
+
+                    Processors.Sharp.LR35902.MsgHandler logError = (aMsg) =>
+                    {
+                        aErrorHandler(aMsg);
+                    };
+
+                    Processors.Sharp.LR35902.Log +=  log;
+                    Processors.Sharp.LR35902.LogWarning += logWarning;
+                    Processors.Sharp.LR35902.LogError += logError;
                 }
 
 
