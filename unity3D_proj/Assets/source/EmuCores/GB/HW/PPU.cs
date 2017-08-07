@@ -36,7 +36,40 @@ namespace xFF
 
                 public class PPU
                 {
+                    byte[] m_VRAM;
 
+
+                    public byte[] VRAM
+                    {
+                        get { return m_VRAM; }
+                    }
+
+
+                    public int BackgroundPalette
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int BGScrollX
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int BGScrollY
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public PPU( )
+                    {
+                        m_VRAM = new byte[0x2000]; // 8 KB
+                    }
                 }
 
 
