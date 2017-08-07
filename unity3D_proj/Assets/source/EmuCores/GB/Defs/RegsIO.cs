@@ -39,6 +39,8 @@ namespace xFF
                 /// </summary>
                 public static class RegsIO
                 {
+                    public const int P1   = 0xFF00;  // Joystick Port
+
                     public const int SCY  = 0xFF42;  // Background ScrollY
                     public const int SCX  = 0xFF43;  // Background ScrollX
 
@@ -55,7 +57,13 @@ namespace xFF
                 /// </summary>
                 public static class RegsIO_Bits
                 {
-
+                    // P1
+                    public const int P10 = (1 << 0);
+                    public const int P11 = (1 << 1);
+                    public const int P12 = (1 << 2);
+                    public const int P13 = (1 << 3);
+                    public const int P14 = (1 << 4);
+                    public const int P15 = (1 << 5);
 
                     // BOOT
                     public const int BOOT_LOCK = (1 << 0);

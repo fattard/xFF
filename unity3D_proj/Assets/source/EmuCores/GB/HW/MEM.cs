@@ -87,6 +87,11 @@ namespace xFF
                             return m_ppu.VRAM[aAddress & 0x1FFF];
                         }
 
+                        else if (aAddress == RegsIO.P1)
+                        {
+                            return 0xCF; // Default: all not pressed
+                        }
+
                         else if (aAddress == RegsIO.SCX)
                         {
                             return m_ppu.BGScrollX;
@@ -116,6 +121,11 @@ namespace xFF
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
                         {
                             m_ppu.VRAM[aAddress & 0x1FFF] = (byte)aValue;
+                        }
+
+                        else if (aAddress == RegsIO.P1)
+                        {
+                            
                         }
 
                         else if (aAddress == RegsIO.BGP)
