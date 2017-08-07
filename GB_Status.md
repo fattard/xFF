@@ -168,8 +168,8 @@ Serial
 Joypad
 
 Graphics   | Status
----------- | ------
-Backgrounds
+------------ | ------
+Backgrounds  | :soon:
 Sprites
 GBC Palettes
 

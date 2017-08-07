@@ -78,13 +78,132 @@ namespace xFF
 
                     public void DrawDisplay(PPU aPPU)
                     {
-                        //TODO: display test
                         Color[] displayPixels = gbDisplay.Pixels;
+                        byte[] vram = aPPU.VRAM;
+                        int texWid = gbDisplay.TextureWidth;
+                        int scrollY = aPPU.BGScrollY;
+                        int scrollX = aPPU.BGScrollX;
+
+                        int aux = 0;
+
+                        int palData = aPPU.BackgroundPalette;
+
+
                         for (int i = 0; i < 144; ++i)
                         {
                             for (int j = 0; j < 160; ++j)
                             {
-                                displayPixels[(i * 512) + j] = m_LCDColor[0];
+                                int yPos = ((i + scrollY) % 256);
+
+                                aux = ((yPos / 8) * 32) + (j / 8);
+
+
+                                int tileIdx = (16 * vram[0x1800 + aux]);
+
+                                int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
+                                int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
+                                int colData = 1 << (7 - (j % 8));
+                                int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
+
+                                int colorIdx = 0;
+                                int hi = 0;
+                                int lo = 0;
+
+                                // which bits of the colour palette does the colour id map to?
+                                switch (palIdx)
+                                {
+                                    case 0: hi = 1; lo = 0; break;
+                                    case 1: hi = 3; lo = 2; break;
+                                    case 2: hi = 5; lo = 4; break;
+                                    case 3: hi = 7; lo = 6; break;
+                                }
+
+                                // use the palette to get the colour
+                                int color = 0;
+                                color = ((palData >> hi) & 0x1) << 1;
+                                color |= ((palData >> lo) & 0x1);
+
+                                displayPixels[(i * texWid) + j] = m_LCDColor[color];
+                            }
+                        }
+                    }
+
+
+                    public void DrawTilemap(PPU aPPU)
+                    {
+                        Color[] displayPixels = gbDisplay.Pixels;
+                        byte[] vram = aPPU.VRAM;
+                        int texWid = gbDisplay.TextureWidth;
+
+                        int aux = 0;
+
+                        int palData = aPPU.BackgroundPalette;
+
+
+                        for (int i = 0; i < 256; ++i)
+                        {
+                            for (int j = 0; j < 256; ++j)
+                            {
+                                int yPos = ((i));
+
+                                aux = ((yPos / 8) * 32) + (j / 8);
+
+
+                                int tileIdx = (16 * vram[0x1800 + aux]);
+
+                                int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
+                                int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
+                                int colData = 1 << (7 - (j % 8));
+                                int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
+
+                                int colorIdx = 0;
+                                int hi = 0;
+                                int lo = 0;
+
+                                // which bits of the colour palette does the colour id map to?
+                                switch (palIdx)
+                                {
+                                    case 0: hi = 1; lo = 0; break;
+                                    case 1: hi = 3; lo = 2; break;
+                                    case 2: hi = 5; lo = 4; break;
+                                    case 3: hi = 7; lo = 6; break;
+                                }
+
+                                // use the palette to get the colour
+                                int color = 0;
+                                color = ((palData >> hi) & 0x1) << 1;
+                                color |= ((palData >> lo) & 0x1);
+
+                                displayPixels[(i * texWid) + j] = m_LCDColor[color];
+                            }
+                        }
+                    }
+
+
+                    public void DrawTileset(PPU aPPU)
+                    {
+                        Color[] displayPixels = gbDisplay.Pixels;
+                        byte[] vram = aPPU.VRAM;
+                        int texWid = gbDisplay.TextureWidth;
+
+                        int aux = 0;
+
+
+                        for (int i = 0; i < 144; ++i)
+                        {
+                            for (int j = 0; j < 160; ++j)
+                            {
+                                aux = ((i / 8) * 20) + (j / 8);
+
+
+                                int tileIdx = (16 * aux);
+
+                                int lineDataL = vram[tileIdx + (2 * (i % 8))];
+                                int lineDataH = vram[tileIdx + (2 * (i % 8)) + 1];
+                                int colData = 1 << (7 - (j % 8));
+                                int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
+
+                                displayPixels[(i * texWid) + j] = m_LCDColor[palIdx];
                             }
                         }
                     }
