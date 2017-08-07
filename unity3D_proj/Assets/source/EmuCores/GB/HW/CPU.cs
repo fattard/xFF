@@ -43,6 +43,7 @@ namespace xFF
 
 
                     LR35902 m_gb_core;
+                    MEM m_mem;
 
                     uint m_cyclesElapsed;
                     uint m_userCyclesRate;
@@ -71,16 +72,26 @@ namespace xFF
                     }
 
 
+                    public void BindMemBUS(MEM aMem)
+                    {
+                        m_mem = aMem;
+
+                        m_gb_core.BindBUS(aMem.Read8, aMem.Write8);
+                    }
+
+
                     public void Run( )
                     {
                         while (m_cyclesElapsed < m_userCyclesRate)
                         {
+                            //UnityEngine.Debug.Log(m_gb_core.ToString());
+
                             m_gb_core.Fetch();
                             m_gb_core.DecodeAndExecute();
                         }
 
 
-                        //UnityEngine.Debug.Log(m_cyclesElapsed);
+                        //UnityEngine.Debug.Log(m_cyclesElapsed + " - " + m_gb_core.ToString());
 
                         // Reset cycles counter 
                         m_cyclesElapsed -= m_userCyclesRate;

@@ -24,6 +24,9 @@
 *         reasonable ways as different from the original version.
 */
 
+using xFF.EmuCores.GB.Defs;
+
+
 namespace xFF
 {
     namespace EmuCores
@@ -36,7 +39,86 @@ namespace xFF
 
                 public class MEM
                 {
+                    byte[] m_bootRom;
 
+                    byte[] m_dbg_FullRam;
+
+
+                    public byte[] BootRomData
+                    {
+                        get { return m_bootRom; }
+                    }
+
+
+                    public byte[] DBG_FullRAM
+                    {
+                        get { return m_dbg_FullRam; }
+                    }
+
+
+                    public MEM( )
+                    {
+                        m_dbg_FullRam = new byte[0x10000]; // 64 KB
+
+                        // Fill default empty data into ROM area
+                        for (int i = 0; i < 0x8000; ++i)
+                        {
+                            m_dbg_FullRam[i] = 0xFF;
+                        }
+
+                        // Temp Binding
+                        m_bootRom = m_dbg_FullRam;
+                    }
+
+
+                    public int Read8(int aAddress)
+                    {
+                        if (aAddress < 0x100 && (m_dbg_FullRam[RegsIO.BOOT] == 0))
+                        {
+                            return m_bootRom[aAddress];
+                        }
+
+                        return m_dbg_FullRam[aAddress];
+                    }
+
+
+                    public void Write8(int aAddress, int aValue)
+                    {
+                        if (aAddress < 0x8000)
+                        {
+                            return;
+                        }
+
+                        if (aAddress == RegsIO.BOOT)
+                        {
+                            m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_LOCK & aValue);
+                        }
+
+                        else if (aAddress == 0xFF02 && aValue == 0x81)
+                        {
+                            //emuDbg.Write(Read8(0xFF01));
+                        }
+
+                        else
+                        {
+                            m_dbg_FullRam[aAddress] = (byte)(0xFF & aValue);
+                        }
+                    }
+
+
+                    public void SetBootRom(byte[] aBootRom)
+                    {
+                        m_bootRom = aBootRom;
+                    }
+
+
+                    public void LoadSimpleRom(byte[] aRomData)
+                    {
+                        for (int i = 0; i < 0x8000; ++i)
+                        {
+                            m_dbg_FullRam[i] = aRomData[i];
+                        }
+                    }
                 }
 
 

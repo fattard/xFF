@@ -107,6 +107,9 @@ namespace xFF
 
                     // Temp binding
                     DrawDisplay = (aPPU) => { };
+
+
+                    m_cpu.BindMemBUS(m_mem);
                 }
 
 
@@ -157,7 +160,7 @@ namespace xFF
 
                 public void SetBootRom(byte[] aBootRom)
                 {
-                    
+                    m_mem.SetBootRom(aBootRom);
                 }
 
 
@@ -167,6 +170,8 @@ namespace xFF
                     {
                         return false;
                     }
+
+                    m_mem.LoadSimpleRom(aRomData);
                     
                     return true;
                 }

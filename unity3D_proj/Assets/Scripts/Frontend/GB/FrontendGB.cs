@@ -78,6 +78,8 @@ namespace xFF
 
                         lastUpdateTick = Time.realtimeSinceStartup;
 
+                        //m_emuGB.CPU.UserCyclesRate = 500;
+
                         m_emuGB.PowerOn();
                     }
 
