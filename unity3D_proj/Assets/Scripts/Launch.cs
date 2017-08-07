@@ -113,6 +113,16 @@ namespace xFF
                 invalidArgs = true;
             }
         }
+
+
+        void Update( )
+        {
+            if (invalidArgs)
+            {
+                EmuEnvironment.ShowErrorBox("xFF", "File: " + EmuEnvironment.RomFilePath + "\nNot a valid ROM.");
+                Application.Quit();
+            }
+        }
     }
 }
 // namespace xFF
