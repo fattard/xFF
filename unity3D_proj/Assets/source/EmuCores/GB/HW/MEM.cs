@@ -43,6 +43,10 @@ namespace xFF
 
                     byte[] m_dbg_FullRam;
 
+                    CPU m_cpu;
+                    PPU m_ppu;
+
+
 
                     public byte[] BootRomData
                     {
@@ -78,6 +82,26 @@ namespace xFF
                             return m_bootRom[aAddress];
                         }
 
+                        else if (aAddress >= 0x8000 && aAddress < 0xA000)
+                        {
+                            return m_ppu.VRAM[aAddress & 0x1FFF];
+                        }
+
+                        else if (aAddress == RegsIO.SCX)
+                        {
+                            return m_ppu.BGScrollX;
+                        }
+
+                        else if (aAddress == RegsIO.SCY)
+                        {
+                            return m_ppu.BGScrollY;
+                        }
+
+                        else if (aAddress == RegsIO.BGP)
+                        {
+                            return m_ppu.BackgroundPalette;
+                        }
+
                         return m_dbg_FullRam[aAddress];
                     }
 
@@ -89,7 +113,27 @@ namespace xFF
                             return;
                         }
 
-                        if (aAddress == RegsIO.BOOT)
+                        else if (aAddress >= 0x8000 && aAddress < 0xA000)
+                        {
+                            m_ppu.VRAM[aAddress & 0x1FFF] = (byte)aValue;
+                        }
+
+                        else if (aAddress == RegsIO.BGP)
+                        {
+                            m_ppu.BackgroundPalette = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.SCX)
+                        {
+                            m_ppu.BGScrollX = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.SCY)
+                        {
+                            m_ppu.BGScrollY = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.BOOT)
                         {
                             m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_LOCK & aValue);
                         }
@@ -109,6 +153,19 @@ namespace xFF
                     public void SetBootRom(byte[] aBootRom)
                     {
                         m_bootRom = aBootRom;
+                    }
+
+
+                    public void AttachCPU(CPU aCPU)
+                    {
+                        m_cpu = aCPU;
+                        m_cpu.BindMemBUS(this);
+                    }
+
+
+                    public void AttachPPU(PPU aPPU)
+                    {
+                        m_ppu = aPPU;
                     }
 
 

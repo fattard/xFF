@@ -109,7 +109,8 @@ namespace xFF
                     DrawDisplay = (aPPU) => { };
 
 
-                    m_cpu.BindMemBUS(m_mem);
+                    m_mem.AttachCPU(m_cpu);
+                    m_mem.AttachPPU(m_ppu);
                 }
 
 
