@@ -4,7 +4,7 @@
 ## [GB Emulation Status](GB_Status.md) ##
 Game Boy core emulation. Initially, only the classic emulation will be supported.  
 The current release build (v0.0.3) is able to run TestROMS, such as [Blargg's  
-individual cpu_intrs]((http://gbdev.gg8.se/files/roms/blargg-gb-tests/), and also some [mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/).
+individual cpu_intrs](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), and also some [mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/).
 <br>
 <br>
 Below is the current montage of results from cpu_instrs individual tests:
