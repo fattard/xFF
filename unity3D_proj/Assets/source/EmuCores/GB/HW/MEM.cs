@@ -92,6 +92,12 @@ namespace xFF
                             return 0xCF; // Default: all not pressed
                         }
 
+                        /*else if (aAddress == 0xFF41)
+                        {
+                            //return 1;
+                            return 0;
+                        }*/
+
                         else if (aAddress == RegsIO.SCX)
                         {
                             return m_ppu.BGScrollX;
@@ -100,6 +106,11 @@ namespace xFF
                         else if (aAddress == RegsIO.SCY)
                         {
                             return m_ppu.BGScrollY;
+                        }
+
+                        else if (aAddress == RegsIO.LY)
+                        {
+                            return m_ppu.CurScanline;
                         }
 
                         else if (aAddress == RegsIO.BGP)
@@ -141,6 +152,12 @@ namespace xFF
                         else if (aAddress == RegsIO.SCY)
                         {
                             m_ppu.BGScrollY = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.LY)
+                        {
+                            // Reset Scanline counter
+                            m_ppu.CurScanline = 0;
                         }
 
                         else if (aAddress == RegsIO.BOOT)

@@ -193,7 +193,7 @@ namespace xFF
                         aConf.graphics.displayZoom = frontendConfigs.zoomFactor;
 
                         // Bootrom
-                        aConf.bootRomDMG.enabled = false;
+                        aConf.bootRomDMG.enabled = frontendConfigs.bootRomEnabled;
                         aConf.bootRomDMG.path = frontendConfigs.bootRomPath;
 
                         // DMG Colors

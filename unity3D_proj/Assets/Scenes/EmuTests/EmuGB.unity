@@ -137,6 +137,14 @@ Prefab:
       propertyPath: zoomFactor
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 11422206, guid: 22ad5a27aa37cea4fb0b48925faffd48, type: 2}
+      propertyPath: bootRomPath
+      value: P:\Projetos\EMU\FFEmu\biosFiles\GB\dmg_boot_rev1.bin
+      objectReference: {fileID: 0}
+    - target: {fileID: 11422206, guid: 22ad5a27aa37cea4fb0b48925faffd48, type: 2}
+      propertyPath: bootRomEnabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 22ad5a27aa37cea4fb0b48925faffd48, type: 2}
   m_IsPrefabParent: 0

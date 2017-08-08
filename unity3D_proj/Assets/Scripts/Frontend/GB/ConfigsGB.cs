@@ -42,7 +42,7 @@ namespace xFF
                 public class ConfigsGB : MonoBehaviour
                 {
                     [Header("DMG Bootrom")]
-                    //public bool bootRomEnabled = true;
+                    public bool bootRomEnabled = false;
                     public string bootRomPath = "";
 
                     [Header("Quick ROMS Selector")]
