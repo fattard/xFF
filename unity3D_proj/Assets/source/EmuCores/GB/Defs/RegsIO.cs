@@ -44,6 +44,8 @@ namespace xFF
                     public const int SCY  = 0xFF42;  // Background ScrollY
                     public const int SCX  = 0xFF43;  // Background ScrollX
 
+                    public const int LY   = 0xFF44;  // LCDC Y-Cordinate - Cur Scanline
+
                     public const int BGP  = 0xFF47;  // DMG Background Palette
 
                     public const int BOOT = 0xFF50;  // BootROM protection

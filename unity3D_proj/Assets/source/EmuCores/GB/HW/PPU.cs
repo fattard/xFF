@@ -38,6 +38,8 @@ namespace xFF
                 {
                     byte[] m_VRAM;
 
+                    uint m_cyclesElapsed;
+
 
                     public byte[] VRAM
                     {
@@ -66,9 +68,28 @@ namespace xFF
                     }
 
 
+                    public int CurScanline
+                    {
+                        get;
+                        set;
+                    }
+
+
                     public PPU( )
                     {
                         m_VRAM = new byte[0x2000]; // 8 KB
+                    }
+
+
+                    public void CyclesStep(int aElapsedCycles)
+                    {
+                        m_cyclesElapsed += (uint)aElapsedCycles;
+
+                        if (m_cyclesElapsed >= 456)
+                        {
+                            CurScanline = (CurScanline + 1) % 153;
+                            m_cyclesElapsed -= 456;
+                        }
                     }
                 }
 
