@@ -66,7 +66,7 @@ namespace xFF
 
                 BUSRead8Func Read8;
                 BUSWrite8Func Write8;
-                CyclesStepFunc CyclesStep;
+                event CyclesStepFunc CyclesStep;
 
 
                 /// <summary>
@@ -126,7 +126,7 @@ namespace xFF
                     // Temp binding
                     Read8 = (int aAddress) => { return 0xFF; };
                     Write8 = (int aAddress, int aAvalue) => { };
-                    CyclesStep = (int aElapsedCycles) => { };
+                    CyclesStep += _DummyCyclesStep;
 
                     Reset();
                 }
@@ -177,7 +177,8 @@ namespace xFF
                 /// <param name="aCyclesStep">A compatible delegate</param>
                 public void BindCyclesStep(CyclesStepFunc aCyclesStep)
                 {
-                    CyclesStep = aCyclesStep;
+                    CyclesStep += aCyclesStep;
+                    CyclesStep -= _DummyCyclesStep;
                 }
 
 
@@ -279,6 +280,12 @@ namespace xFF
                 public override string ToString()
                 {
                     return ("PC=" + m_regs.PC.ToString("X4") + " - Opcode: 0x" + Read8(m_regs.PC).ToString("X2") + string.Format("  AF={0}  BC={1}  DE={2}  HL={3}  SP={4}  [HL]={5}  [SP]={6}", m_regs.AF.ToString("X4"), m_regs.BC.ToString("X4"), m_regs.DE.ToString("X4"), m_regs.HL.ToString("X4"), m_regs.SP.ToString("X4"), Read8(m_regs.HL).ToString("X2"), Read8(m_regs.SP + 1).ToString("X2") + Read8(m_regs.SP).ToString("X2")) + string.Format("   Flags=[Z={0} N={1} H={2} C={3}]\n", m_regs.F.Z, m_regs.F.N, m_regs.F.H, m_regs.F.C));
+                }
+
+
+                private void _DummyCyclesStep(int aElapsedCycles)
+                {
+
                 }
             }
 
