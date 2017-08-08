@@ -72,7 +72,11 @@ namespace xFF
                         m_emuGB.BindLogger(Debug.Log, Debug.LogWarning, Debug.LogError);
 
                         LoadBootRom();
-                        LoadROM();
+
+                        if (!string.IsNullOrEmpty(EmuEnvironment.RomFilePath))
+                        {
+                            LoadROM();
+                        }
                         
                         SaveConfigFile(configsGB);
 
@@ -102,7 +106,7 @@ namespace xFF
 
                                 if (bootROM.Length != 0x100) // 256 bytes
                                 {
-                                    throw new System.ArgumentException("Invalid BootROM format. Expected " + 0x100 + " bytes.\nFound " + bootROM.Length + ". File: " + m_emuGB.Configs.bootRomDMG.path);
+                                    throw new System.ArgumentException("Invalid BootROM format. Expected " + 0x100 + " bytes.\nFound " + bootROM.Length + ". File: " + m_emuGB.Configs.bootRomDMG.path + "\nThe internal BootROM will be used.");
                                 }
 
                                 m_emuGB.SetBootRom(bootROM);
@@ -110,7 +114,11 @@ namespace xFF
                             catch (System.Exception e)
                             {
                                 EmuEnvironment.ShowErrorBox("GB Emu Error", "BootROM error:\n" + e.Message);
-                                Application.Quit();
+
+                                // Fallback to internal boot rom
+                                byte[] devBootROM = Resources.Load<TextAsset>("GB/DMG_CustomBootRom").bytes;
+
+                                m_emuGB.SetBootRom(devBootROM);
                             }
                         }
                     }
@@ -132,7 +140,6 @@ namespace xFF
                         catch (System.Exception e)
                         {
                             EmuEnvironment.ShowErrorBox("GB Emu Error", "Failed loading rom:\n" + e.Message);
-                            Application.Quit();
                         }
                     }
 

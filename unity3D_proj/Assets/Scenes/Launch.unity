@@ -124,8 +124,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   editorArgs:
   - 
-  - -core=bytepusher
-  - P:\Projetos\EMU\xFF_BytePusher_emu\TestROMS\BytePusher\Sprites.BytePusher
+  - -core=gb
+  - 
 --- !u!92 &396316603
 Behaviour:
   m_ObjectHideFlags: 0
