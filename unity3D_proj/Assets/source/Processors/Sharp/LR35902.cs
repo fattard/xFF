@@ -200,6 +200,51 @@ namespace xFF
                 }
 
 
+                /// <summary>
+                /// Services interrupt
+                /// </summary>
+                public void ServiceIRQ(int aIRQ)
+                {
+                    m_interruptsMasterFlagEnabled = false;
+
+                    --m_regs.SP;
+                    Write8(m_regs.SP, (0xFF & (m_regs.PC >> 8)));
+                    --m_regs.SP;
+                    Write8(m_regs.SP, (0xFF & (m_regs.PC)));
+
+                    switch (aIRQ)
+                    {
+                        case 0:
+                            m_regs.PC = 0x0040;
+                            break;
+
+                        case 1:
+                            m_regs.PC = 0x0048;
+                            break;
+
+                        case 2:
+                            m_regs.PC = 0x0050;
+                            break;
+
+                        case 3:
+                            m_regs.PC = 0x0058;
+                            break;
+
+                        case 4:
+                            m_regs.PC = 0x0060;
+                            break;
+                            
+                        default:
+                            if (LogError != null)
+                            {
+                                LogError("Invalid IRQ to service: " + aIRQ + "\nDefaulting to 0");
+                            }
+                            m_regs.PC = 0x0040;
+                            break;
+                    }
+                }
+
+
 
                 #region Helpers
                 /// <summary>
