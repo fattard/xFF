@@ -25,6 +25,7 @@
 */
 
 using xFF.Processors.Sharp;
+using xFF.EmuCores.GB.Defs;
 
 namespace xFF
 {
@@ -40,6 +41,8 @@ namespace xFF
                 {
                     public const uint kCPUClock = 4194304; // ~4.19 MHz
                     public const uint kCyclesPerFrame = kCPUClock / 60; // 69905 cycles per frame
+
+                    public delegate void RequestIRQFunc(int aIRQ_flag);
 
 
                     LR35902 m_gb_core;
@@ -86,6 +89,12 @@ namespace xFF
                         {
                             //UnityEngine.Debug.Log(m_gb_core.ToString());
 
+                            // Check interrupts
+                            if (m_gb_core.IsInterruptsMasterFlagEnabled)
+                            {
+                                CheckInterrupts();
+                            }
+                            
                             m_gb_core.Fetch();
                             m_gb_core.DecodeAndExecute();
                         }
@@ -95,6 +104,33 @@ namespace xFF
 
                         // Reset cycles counter 
                         m_cyclesElapsed -= m_userCyclesRate;
+                    }
+
+
+                    void CheckInterrupts( )
+                    {
+                        int interruptRequests = m_mem.Read8(RegsIO.IF);
+                        int interruptEnables = m_mem.Read8(RegsIO.IE);
+
+                        //TODO: Loop unrolling here??
+
+                        for (int irq = 0; irq < 5; ++irq)
+                        {
+                            if (((interruptRequests & (1 << irq)) > 0) && ((interruptEnables & (1 << irq)) > 0))
+                            {
+                                // Disable request flag
+                                m_mem.Write8(RegsIO.IF, interruptRequests & (~(1 << irq)));
+
+                                m_gb_core.ServiceIRQ(irq);
+                            }
+                        }
+                    }
+
+
+                    public void RequestIRQ(int aIRQ_flag)
+                    {
+                        int interruptRequests = (m_mem.Read8(RegsIO.IF) | aIRQ_flag);
+                        m_mem.Write8(RegsIO.IF, (0x1F & interruptRequests));
                     }
 
 
