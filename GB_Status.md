@@ -161,7 +161,7 @@ STOP             | :o: |                    |                    |
 ## GB Emu - Hardware Emulation
 Interrupts | Status
 ---------- | ------
-V-Blank
+V-Blank    | :o:
 LCD
 Timer
 Serial

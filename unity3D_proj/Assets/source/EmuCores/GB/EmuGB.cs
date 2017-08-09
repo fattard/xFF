@@ -112,6 +112,8 @@ namespace xFF
                     m_mem.AttachCPU(m_cpu);
                     m_mem.AttachPPU(m_ppu);
                     m_cpu.ProcessorState.BindCyclesStep(m_ppu.CyclesStep);
+
+                    m_ppu.BindRequestIRQ(m_cpu.RequestIRQ);
                 }
 
 

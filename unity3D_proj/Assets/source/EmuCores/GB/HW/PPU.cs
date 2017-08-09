@@ -24,6 +24,8 @@
 *         reasonable ways as different from the original version.
 */
 
+using xFF.EmuCores.GB.Defs;
+
 namespace xFF
 {
     namespace EmuCores
@@ -39,6 +41,8 @@ namespace xFF
                     byte[] m_VRAM;
 
                     uint m_cyclesElapsed;
+
+                    CPU.RequestIRQFunc RequestIRQ;
 
 
                     public byte[] VRAM
@@ -78,6 +82,9 @@ namespace xFF
                     public PPU( )
                     {
                         m_VRAM = new byte[0x2000]; // 8 KB
+
+                        // Temp binding
+                        RequestIRQ = (aIRQ_flag) => { };
                     }
 
 
@@ -89,7 +96,18 @@ namespace xFF
                         {
                             CurScanline = (CurScanline + 1) % 153;
                             m_cyclesElapsed -= 456;
+
+                            // Start VBLANK
+                            if (CurScanline == 144)
+                            {
+                                RequestIRQ(RegsIO_Bits.IF_VBLANK);
+                            }
                         }
+                    }
+
+                    public void BindRequestIRQ(CPU.RequestIRQFunc aRequestIRQFunc)
+                    {
+                        RequestIRQ = aRequestIRQFunc;
                     }
                 }
 
