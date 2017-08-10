@@ -44,6 +44,9 @@ namespace xFF
                     public const int IF   = 0xFF0F;  // Interrupt Request
                     public const int IE   = 0xFFFF;  // Interrupt Enable
 
+                    public const int LCDC = 0xFF40;  // LCD Control
+                    public const int STAT = 0xFF41;  // LCD Controller Status Flags
+
                     public const int SCY  = 0xFF42;  // Background ScrollY
                     public const int SCX  = 0xFF43;  // Background ScrollX
 
@@ -69,6 +72,7 @@ namespace xFF
                     public const int P14 = (1 << 4); // Output Port P14
                     public const int P15 = (1 << 5); // Output Port P15
 
+
                     // IF
                     public const int IF_VBLANK = (1 << 0); // Vertical Blanking
                     public const int IF_STAT   = (1 << 1); // LCDC (STAT referenced)
@@ -77,12 +81,33 @@ namespace xFF
                     public const int IF_JOYPAD = (1 << 4); // P10-P13 terminal negative edge
 
 
+                    // LCDC
+                    public const int LCDC_BGEN    = (1 << 0); // BG Display: 1=On / 0=Off
+                    public const int LCDC_OBJEN   = (1 << 1); // OBJ Display: 1=On / 0=Off
+                    public const int LCDC_OBJSIZE = (1 << 2); // OBJ Block Size: 0=8x8 / 1=8x16
+                    public const int LCDC_BGMAP   = (1 << 3); // BG Map: 0=0x9800-0x9BFF / 1=0x9C00-0x9FFF
+                    public const int LCDC_TILE    = (1 << 4); // Tile data: 0=0x8800-0x97FF / 1=0x8000-0x8FFF
+                    public const int LCDC_WEN     = (1 << 5); // Window Display: 1=On / 0=Off
+                    public const int LCDC_WMAP    = (1 << 6); // Window Map: 0=0x9800-0x9BFF / 1=0x9C00-0x9FFF
+                    public const int LCDC_EN      = (1 << 7); // LCD Operation: 1=On / 0=Off
+
+
+                    // STAT
+                    public const int STAT_MODE   =     0x03; // 11b - Mode Flag
+                    public const int STAT_LYC    = (1 << 2); // Match Flag (LYC==LY)
+                    public const int STAT_INTM0  = (1 << 3); // Interrupt Mode 0
+                    public const int STAT_INTM1  = (1 << 4); // Interrupt Mode 1
+                    public const int STAT_INTM2  = (1 << 5); // Interrupt Mode 2
+                    public const int STAT_INTLYC = (1 << 6); // Interrupt Match LYC==LY
+
+
                     // IE
                     public const int IE_VBLANK = (1 << 0); // Vertical Blanking
                     public const int IE_STAT   = (1 << 1); // LCDC (STAT referenced)
                     public const int IE_TIMER  = (1 << 2); // Timer overflow
                     public const int IE_SERIAL = (1 << 3); // Serial I/O transfer completion
                     public const int IE_JOYPAD = (1 << 4); // P10-P13 terminal negative edge
+
 
                     // BOOT
                     public const int BOOT_LOCK = (1 << 0);
