@@ -41,6 +41,11 @@ namespace xFF
                     byte[] m_VRAM;
 
                     uint m_cyclesElapsed;
+                    uint m_scanlineTotalCyclesElapsed;
+
+                    int m_lcdc;
+                    int m_stat;
+                    int m_operationMode;
 
                     CPU.RequestIRQFunc RequestIRQ;
 
@@ -79,9 +84,34 @@ namespace xFF
                     }
 
 
+                    public int LCDControl
+                    {
+                        get { return m_lcdc; }
+                        set
+                        {
+                            m_lcdc = (0xFF & value);
+
+                            //BGDisplayOn = (value & RegsIO_Bits.LCDC_BGEN);
+                        }
+                    }
+
+
+                    public int LCDControllerStatus
+                    {
+                        get { return m_stat; }
+                        set
+                        {
+                            m_stat = (0x7F & value);
+                        }
+                    }
+
+
                     public PPU( )
                     {
                         m_VRAM = new byte[0x2000]; // 8 KB
+                        m_operationMode = 2;
+                        m_scanlineTotalCyclesElapsed = 0;
+                        m_cyclesElapsed = 0;
 
                         // Temp binding
                         RequestIRQ = (aIRQ_flag) => { };
@@ -91,17 +121,60 @@ namespace xFF
                     public void CyclesStep(int aElapsedCycles)
                     {
                         m_cyclesElapsed += (uint)aElapsedCycles;
+                        m_scanlineTotalCyclesElapsed += (uint)aElapsedCycles;
 
-                        if (m_cyclesElapsed >= 456)
+                        switch (m_operationMode)
                         {
-                            CurScanline = (CurScanline + 1) % 153;
-                            m_cyclesElapsed -= 456;
+                            case 0: // H-Blank
+                                if (m_cyclesElapsed >= 201)
+                                {
+                                    m_cyclesElapsed = 0;
+                                    m_operationMode = 2;
+                                }
+                                if (m_scanlineTotalCyclesElapsed >= 456)
+                                {
+                                    CurScanline = (CurScanline + 1) % 153;
+                                    m_scanlineTotalCyclesElapsed -= 456;
 
-                            // Start VBLANK
-                            if (CurScanline == 144)
-                            {
-                                RequestIRQ(RegsIO_Bits.IF_VBLANK);
-                            }
+                                    // Start VBLANK
+                                    if (CurScanline == 144)
+                                    {
+                                        m_operationMode = 1;
+                                        m_cyclesElapsed = 0;
+                                        RequestIRQ(RegsIO_Bits.IF_VBLANK);
+                                    }
+                                }
+                                break;
+
+                            case 1: // V-Blank
+                                if (m_cyclesElapsed >= 456)
+                                {
+                                    CurScanline = (CurScanline + 1) % 153;
+                                    m_cyclesElapsed -= 456;
+                                }
+                                if (m_scanlineTotalCyclesElapsed >= 4560)
+                                {
+                                    m_scanlineTotalCyclesElapsed = 0;
+                                    m_cyclesElapsed = 0;
+                                    m_operationMode = 2;
+                                }
+                                break;
+
+                            case 2: // Accessing OAM
+                                if (m_cyclesElapsed >= 77)
+                                {
+                                    m_cyclesElapsed = 0;
+                                    m_operationMode = 3;
+                                }
+                                break;
+
+                            case 3: // Accessing VRAM
+                                if (m_cyclesElapsed >= 169)
+                                {
+                                    m_cyclesElapsed = 0;
+                                    m_operationMode = 0;
+                                }
+                                break;
                         }
                     }
 

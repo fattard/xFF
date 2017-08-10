@@ -92,11 +92,15 @@ namespace xFF
                             return 0xCF; // Default: all not pressed
                         }
 
-                        /*else if (aAddress == 0xFF41)
+                        else if (aAddress == RegsIO.LCDC)
                         {
-                            //return 1;
-                            return 0;
-                        }*/
+                            return m_ppu.LCDControl;
+                        }
+
+                        else if (aAddress == RegsIO.STAT)
+                        {
+                            return m_ppu.LCDControllerStatus;
+                        }
 
                         else if (aAddress == RegsIO.SCX)
                         {
@@ -136,7 +140,17 @@ namespace xFF
 
                         else if (aAddress == RegsIO.P1)
                         {
-                            
+
+                        }
+
+                        else if (aAddress == RegsIO.LCDC)
+                        {
+                            m_ppu.LCDControl = aValue;
+                        }
+
+                        else if (aAddress == RegsIO.STAT)
+                        {
+                            m_ppu.LCDControllerStatus = aValue;
                         }
 
                         else if (aAddress == RegsIO.BGP)
