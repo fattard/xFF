@@ -94,15 +94,16 @@ namespace xFF
                             for (int j = 0; j < 160; ++j)
                             {
                                 int yPos = ((i + scrollY) % 256);
+                                int xPos = ((j + scrollX) % 256);
 
-                                aux = ((yPos / 8) * 32) + (j / 8);
+                                aux = ((yPos / 8) * 32) + (xPos / 8);
 
 
                                 int tileIdx = (16 * vram[0x1800 + aux]);
 
                                 int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
                                 int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
-                                int colData = 1 << (7 - (j % 8));
+                                int colData = 1 << (7 - (xPos % 8));
                                 int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
 
                                 int colorIdx = 0;
