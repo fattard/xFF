@@ -162,7 +162,7 @@ STOP             | :o: |                    |                    |
 Interrupts | Status
 ---------- | ------
 V-Blank    | :o:
-LCD
+LCD        | :soon:
 Timer
 Serial
 Joypad

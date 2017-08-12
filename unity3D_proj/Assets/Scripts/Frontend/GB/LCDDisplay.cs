@@ -88,6 +88,9 @@ namespace xFF
 
                         int palData = aPPU.BackgroundPalette;
 
+                        int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
+                        int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
+
 
                         for (int i = 0; i < 144; ++i)
                         {
@@ -96,10 +99,19 @@ namespace xFF
                                 int yPos = ((i + scrollY) % 256);
                                 int xPos = ((j + scrollX) % 256);
 
-                                aux = ((yPos / 8) * 32) + (xPos / 8);
+                                aux = mapDataOffset + ((yPos / 8) * 32) + (xPos / 8);
 
 
-                                int tileIdx = (16 * vram[0x1800 + aux]);
+                                int tileIdx = tileDataOffset;
+                                if (tileDataOffset > 0)
+                                {
+                                    tileIdx += ((128 + ((sbyte)vram[aux])) * 16);
+                                }
+                                else
+                                {
+                                    tileIdx += (vram[aux] * 16);
+                                }
+
 
                                 int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
                                 int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
@@ -140,17 +152,30 @@ namespace xFF
 
                         int palData = aPPU.BackgroundPalette;
 
+                        int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
+                        int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
+
 
                         for (int i = 0; i < 256; ++i)
                         {
                             for (int j = 0; j < 256; ++j)
                             {
                                 int yPos = ((i));
+                                int xPos = ((j));
 
-                                aux = ((yPos / 8) * 32) + (j / 8);
+                                aux = mapDataOffset + ((yPos / 8) * 32) + (xPos / 8);
 
+                                int tileIdx = tileDataOffset;
+                                if (tileDataOffset > 0)
+                                {
+                                    tileIdx += ((128 + ((sbyte)vram[aux])) * 16);
+                                }
+                                else
+                                {
+                                    tileIdx += (vram[aux] * 16);
+                                }
+                                
 
-                                int tileIdx = (16 * vram[0x1800 + aux]);
 
                                 int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
                                 int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
