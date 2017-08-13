@@ -98,6 +98,13 @@ namespace xFF
                     }
 
 
+                    public int ScanlineComparer
+                    {
+                        get;
+                        set;
+                    }
+
+
                     public int LCDControl
                     {
                         get { return m_lcdc; }
@@ -144,6 +151,11 @@ namespace xFF
                                 {
                                     m_cyclesElapsed = 0;
                                     m_operationMode = 2;
+
+                                    if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                    {
+                                        RequestIRQ(RegsIO_Bits.IF_STAT);
+                                    }
                                 }
                                 if (m_scanlineTotalCyclesElapsed >= 456)
                                 {
@@ -156,6 +168,16 @@ namespace xFF
                                         m_operationMode = 1;
                                         m_cyclesElapsed = 0;
                                         RequestIRQ(RegsIO_Bits.IF_VBLANK);
+
+                                        if ((m_stat & RegsIO_Bits.STAT_INTM1) > 0)
+                                        {
+                                            RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        }
+                                    }
+
+                                    if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
+                                    {
+                                        RequestIRQ(RegsIO_Bits.IF_STAT);
                                     }
                                 }
                                 break;
@@ -171,6 +193,11 @@ namespace xFF
                                     m_scanlineTotalCyclesElapsed = 0;
                                     m_cyclesElapsed = 0;
                                     m_operationMode = 2;
+
+                                    if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                    {
+                                        RequestIRQ(RegsIO_Bits.IF_STAT);
+                                    }
                                 }
                                 break;
 
@@ -187,9 +214,16 @@ namespace xFF
                                 {
                                     m_cyclesElapsed = 0;
                                     m_operationMode = 0;
+
+                                    if ((m_stat & RegsIO_Bits.STAT_INTM0) > 0)
+                                    {
+                                        RequestIRQ(RegsIO_Bits.IF_STAT);
+                                    }
                                 }
                                 break;
                         }
+
+                        m_stat = (0x78 & m_stat) | (0x03 & m_operationMode) | ((CurScanline == ScanlineComparer) ? RegsIO_Bits.STAT_LYC : 0);
                     }
 
                     public void BindRequestIRQ(CPU.RequestIRQFunc aRequestIRQFunc)

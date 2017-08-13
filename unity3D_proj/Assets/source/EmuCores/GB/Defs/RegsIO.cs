@@ -54,6 +54,7 @@ namespace xFF
                     public const int WX   = 0xFF4B;  // Window position X ( 7 <= WY <= 166)
 
                     public const int LY   = 0xFF44;  // LCDC Y-Cordinate - Cur Scanline
+                    public const int LYC  = 0xFF45;  // Scanline Compare
 
                     public const int BGP  = 0xFF47;  // DMG Background Palette
 

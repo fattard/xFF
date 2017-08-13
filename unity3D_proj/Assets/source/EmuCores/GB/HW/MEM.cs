@@ -127,6 +127,11 @@ namespace xFF
                             return m_ppu.CurScanline;
                         }
 
+                        else if (aAddress == RegsIO.LYC)
+                        {
+                            return m_ppu.ScanlineComparer;
+                        }
+
                         else if (aAddress == RegsIO.BGP)
                         {
                             return m_ppu.BackgroundPalette;
@@ -192,6 +197,11 @@ namespace xFF
                         {
                             // Reset Scanline counter
                             m_ppu.CurScanline = 0;
+                        }
+
+                        else if (aAddress == RegsIO.LYC)
+                        {
+                            m_ppu.ScanlineComparer = (0xFF & aValue);
                         }
 
                         else if (aAddress == RegsIO.BOOT)
