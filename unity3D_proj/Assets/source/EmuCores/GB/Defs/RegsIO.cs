@@ -57,6 +57,8 @@ namespace xFF
                     public const int LYC  = 0xFF45;  // Scanline Compare
 
                     public const int BGP  = 0xFF47;  // DMG Background Palette
+                    public const int OBP0 = 0xFF48;  // Object Palette 0
+                    public const int OBP1 = 0xFF49;  // Object Palette 1
 
                     public const int BOOT = 0xFF50;  // BootROM protection
                 }
