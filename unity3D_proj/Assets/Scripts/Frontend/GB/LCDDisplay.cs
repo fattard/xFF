@@ -137,6 +137,10 @@ namespace xFF
                                     {
                                         tileIdx += (vram[auxWnd] * 16);
                                     }
+
+                                    // Fix pos for window overlay space
+                                    yPos = (i - wStartY);
+                                    xPos = (j - wStartX);
                                 }
 
                                 else if (isBGEnabled)
