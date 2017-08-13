@@ -77,6 +77,20 @@ namespace xFF
                     }
 
 
+                    public int WindowPosX
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int WindowPosY
+                    {
+                        get;
+                        set;
+                    }
+
+
                     public int CurScanline
                     {
                         get;

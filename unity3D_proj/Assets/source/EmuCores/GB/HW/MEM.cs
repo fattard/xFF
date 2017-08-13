@@ -112,6 +112,16 @@ namespace xFF
                             return m_ppu.BGScrollY;
                         }
 
+                        else if (aAddress == RegsIO.WX)
+                        {
+                            return m_ppu.WindowPosX;
+                        }
+
+                        else if (aAddress == RegsIO.WY)
+                        {
+                            return m_ppu.WindowPosY;
+                        }
+
                         else if (aAddress == RegsIO.LY)
                         {
                             return m_ppu.CurScanline;
@@ -166,6 +176,16 @@ namespace xFF
                         else if (aAddress == RegsIO.SCY)
                         {
                             m_ppu.BGScrollY = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.WX)
+                        {
+                            m_ppu.WindowPosX = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.WY)
+                        {
+                            m_ppu.WindowPosY = (0xFF & aValue);
                         }
 
                         else if (aAddress == RegsIO.LY)
