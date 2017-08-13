@@ -50,6 +50,9 @@ namespace xFF
                     public const int SCY  = 0xFF42;  // Background ScrollY
                     public const int SCX  = 0xFF43;  // Background ScrollX
 
+                    public const int WY   = 0xFF4A;  // Window position Y ( 0 <= WY <= 143)
+                    public const int WX   = 0xFF4B;  // Window position X ( 7 <= WY <= 166)
+
                     public const int LY   = 0xFF44;  // LCDC Y-Cordinate - Cur Scanline
 
                     public const int BGP  = 0xFF47;  // DMG Background Palette
