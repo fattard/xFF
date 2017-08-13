@@ -48,6 +48,7 @@ namespace xFF
                     int m_operationMode;
 
                     CPU.RequestIRQFunc RequestIRQ;
+                    EmuGB.DrawDisplayLineFunc DrawDisplayLine;
 
 
                     public byte[] VRAM
@@ -159,6 +160,8 @@ namespace xFF
                                 }
                                 if (m_scanlineTotalCyclesElapsed >= 456)
                                 {
+                                    DrawDisplayLine(this);
+
                                     CurScanline = (CurScanline + 1) % 153;
                                     m_scanlineTotalCyclesElapsed -= 456;
 
@@ -229,6 +232,12 @@ namespace xFF
                     public void BindRequestIRQ(CPU.RequestIRQFunc aRequestIRQFunc)
                     {
                         RequestIRQ = aRequestIRQFunc;
+                    }
+
+
+                    public void BindDrawDisplayLine(EmuGB.DrawDisplayLineFunc aDrawDisplayLineFunc)
+                    {
+                        DrawDisplayLine = aDrawDisplayLineFunc;
                     }
                 }
 

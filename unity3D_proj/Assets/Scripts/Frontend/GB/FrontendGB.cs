@@ -66,6 +66,7 @@ namespace xFF
 
                         m_emuGB = new EmuCores.GB.EmuGB(configsGB);
                         m_emuGB.DrawDisplay = lcdDisplay.DrawDisplay;
+                        m_emuGB.DrawDisplayLine = lcdDisplay.DrawDisplayLine;
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
 

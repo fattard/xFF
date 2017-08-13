@@ -38,6 +38,7 @@ namespace xFF
             public class EmuGB
             {
                 public delegate void DrawDisplayFunc(PPU aPPU);
+                public delegate void DrawDisplayLineFunc(PPU aPPU);
                 public delegate void MsgHandler(object aMsg);
 
 
@@ -92,6 +93,12 @@ namespace xFF
                 public DrawDisplayFunc DrawDisplay;
 
 
+                public DrawDisplayLineFunc DrawDisplayLine
+                {
+                    set { m_ppu.BindDrawDisplayLine(value); }
+                }
+
+
                 public EmuGB(ConfigsGB aConfigs)
                 {
                     m_configs = aConfigs;
@@ -107,6 +114,7 @@ namespace xFF
 
                     // Temp binding
                     DrawDisplay = (aPPU) => { };
+                    DrawDisplayLine = (aPPU) => { };
 
 
                     m_mem.AttachCPU(m_cpu);
@@ -114,6 +122,7 @@ namespace xFF
                     m_cpu.ProcessorState.BindCyclesStep(m_ppu.CyclesStep);
 
                     m_ppu.BindRequestIRQ(m_cpu.RequestIRQ);
+                    //m_ppu.BindDrawDisplayLine(DrawDisplayLine);
                 }
 
 
@@ -135,7 +144,7 @@ namespace xFF
 
                     m_cpu.Run();
 
-                    DrawDisplay(m_ppu);
+                    //DrawDisplay(m_ppu);
                 }
 
 

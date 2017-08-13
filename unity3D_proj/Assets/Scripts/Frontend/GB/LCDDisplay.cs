@@ -76,7 +76,7 @@ namespace xFF
                     }
 
 
-                    public void DrawDisplay(PPU aPPU)
+                    public void DrawDisplayLine(PPU aPPU)
                     {
                         Color[] displayPixels = gbDisplay.Pixels;
                         byte[] vram = aPPU.VRAM;
@@ -113,8 +113,9 @@ namespace xFF
 
 
 
-                        for (int i = 0; i < 144; ++i)
+                        //for (int i = 0; i < 144; ++i)
                         {
+                            int i = aPPU.CurScanline;
                             for (int j = 0; j < 160; ++j)
                             {
                                 int yPos = ((i + scrollY) % 256);
@@ -180,6 +181,18 @@ namespace xFF
                                 }
                             }
                         }
+                    }
+
+
+                    public void DrawDisplay(PPU aPPU)
+                    {
+                        int oldScanline = aPPU.CurScanline;
+                        for (int i = 0; i < 144; ++i)
+                        {
+                            aPPU.CurScanline = i;
+                            DrawDisplayLine(aPPU);
+                        }
+                        aPPU.CurScanline = oldScanline;
                     }
 
 
