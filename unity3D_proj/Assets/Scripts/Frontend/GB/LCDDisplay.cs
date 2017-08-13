@@ -81,15 +81,36 @@ namespace xFF
                         Color[] displayPixels = gbDisplay.Pixels;
                         byte[] vram = aPPU.VRAM;
                         int texWid = gbDisplay.TextureWidth;
+
+                        if ((aPPU.LCDControl & (1 << 7)) == 0)
+                        {
+                            for (int i = 0; i < 144; ++i)
+                            {
+                                for (int j = 0; j < 160; ++j)
+                                {
+                                    displayPixels[(i * texWid) + j] = m_disabledLCDColor;
+                                }
+                            }
+                            return;
+                        }
+
+                        
                         int scrollY = aPPU.BGScrollY;
                         int scrollX = aPPU.BGScrollX;
+                        int wStartX = aPPU.WindowPosX - 7;
+                        int wStartY = aPPU.WindowPosY;
 
-                        int aux = 0;
+                        int auxBG = 0;
+                        int auxWnd = 0;
 
                         int palData = aPPU.BackgroundPalette;
 
                         int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
                         int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
+                        int windowDataOffset = ((aPPU.LCDControl & (1 << 6)) > 0) ? 0x1C00 : 0x1800;
+                        bool isWindowEnabled = ((aPPU.LCDControl & (1 << 5)) > 0);
+                        bool isBGEnabled = ((aPPU.LCDControl & (1 << 0)) > 0);
+
 
 
                         for (int i = 0; i < 144; ++i)
@@ -98,45 +119,65 @@ namespace xFF
                             {
                                 int yPos = ((i + scrollY) % 256);
                                 int xPos = ((j + scrollX) % 256);
+                                
+                                
+                                auxBG = mapDataOffset + ((yPos / 8) * 32) + (xPos / 8);
+                                auxWnd = windowDataOffset + (((i - wStartY) / 8) * 32) + ((j - wStartX) / 8);
 
-                                aux = mapDataOffset + ((yPos / 8) * 32) + (xPos / 8);
-
-
-                                int tileIdx = tileDataOffset;
-                                if (tileDataOffset > 0)
+                                int tileIdx = 0;
+                                if (isWindowEnabled && (j >= wStartX && i >= wStartY))
                                 {
-                                    tileIdx += ((128 + ((sbyte)vram[aux])) * 16);
-                                }
-                                else
-                                {
-                                    tileIdx += (vram[aux] * 16);
-                                }
-
-
-                                int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
-                                int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
-                                int colData = 1 << (7 - (xPos % 8));
-                                int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
-
-                                int colorIdx = 0;
-                                int hi = 0;
-                                int lo = 0;
-
-                                // which bits of the colour palette does the colour id map to?
-                                switch (palIdx)
-                                {
-                                    case 0: hi = 1; lo = 0; break;
-                                    case 1: hi = 3; lo = 2; break;
-                                    case 2: hi = 5; lo = 4; break;
-                                    case 3: hi = 7; lo = 6; break;
+                                    tileIdx = tileDataOffset;
+                                    if (tileDataOffset > 0)
+                                    {
+                                        tileIdx += ((128 + ((sbyte)vram[auxWnd])) * 16);
+                                    }
+                                    else
+                                    {
+                                        tileIdx += (vram[auxWnd] * 16);
+                                    }
                                 }
 
-                                // use the palette to get the colour
-                                int color = 0;
-                                color = ((palData >> hi) & 0x1) << 1;
-                                color |= ((palData >> lo) & 0x1);
+                                else if (isBGEnabled)
+                                {
+                                    tileIdx = tileDataOffset;
+                                    if (tileDataOffset > 0)
+                                    {
+                                        tileIdx += ((128 + ((sbyte)vram[auxBG])) * 16);
+                                    }
+                                    else
+                                    {
+                                        tileIdx += (vram[auxBG] * 16);
+                                    }
+                                }
 
-                                displayPixels[(i * texWid) + j] = m_LCDColor[color];
+                                if (isBGEnabled || isWindowEnabled)
+                                {
+                                    int lineDataL = vram[tileIdx + (2 * (yPos % 8))];
+                                    int lineDataH = vram[tileIdx + (2 * (yPos % 8)) + 1];
+                                    int colData = 1 << (7 - (xPos % 8));
+                                    int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
+
+                                    int colorIdx = 0;
+                                    int hi = 0;
+                                    int lo = 0;
+
+                                    // which bits of the colour palette does the colour id map to?
+                                    switch (palIdx)
+                                    {
+                                        case 0: hi = 1; lo = 0; break;
+                                        case 1: hi = 3; lo = 2; break;
+                                        case 2: hi = 5; lo = 4; break;
+                                        case 3: hi = 7; lo = 6; break;
+                                    }
+
+                                    // use the palette to get the colour
+                                    int color = 0;
+                                    color = ((palData >> hi) & 0x1) << 1;
+                                    color |= ((palData >> lo) & 0x1);
+
+                                    displayPixels[(i * texWid) + j] = m_LCDColor[color];
+                                }
                             }
                         }
                     }
