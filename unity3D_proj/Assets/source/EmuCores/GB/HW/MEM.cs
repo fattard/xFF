@@ -87,6 +87,11 @@ namespace xFF
                             return m_ppu.VRAM[aAddress & 0x1FFF];
                         }
 
+                        else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
+                        {
+                            return m_ppu.OAM[aAddress & 0xFF];
+                        }
+
                         else if (aAddress == RegsIO.P1)
                         {
                             return 0xCF; // Default: all not pressed
@@ -137,6 +142,16 @@ namespace xFF
                             return m_ppu.BackgroundPalette;
                         }
 
+                        else if (aAddress == RegsIO.OBP0)
+                        {
+                            return m_ppu.ObjectPalette0;
+                        }
+
+                        else if (aAddress == RegsIO.OBP1)
+                        {
+                            return m_ppu.ObjectPalette1;
+                        }
+
                         return m_dbg_FullRam[aAddress];
                     }
 
@@ -151,6 +166,11 @@ namespace xFF
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
                         {
                             m_ppu.VRAM[aAddress & 0x1FFF] = (byte)aValue;
+                        }
+
+                        else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
+                        {
+                            m_ppu.OAM[aAddress & 0xFF] = (0xFF & aValue);
                         }
 
                         else if (aAddress == RegsIO.P1)
@@ -171,6 +191,16 @@ namespace xFF
                         else if (aAddress == RegsIO.BGP)
                         {
                             m_ppu.BackgroundPalette = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.OBP0)
+                        {
+                            m_ppu.ObjectPalette0 = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.OBP1)
+                        {
+                            m_ppu.ObjectPalette1 = (0xFF & aValue);
                         }
 
                         else if (aAddress == RegsIO.SCX)

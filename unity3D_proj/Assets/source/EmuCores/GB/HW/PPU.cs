@@ -39,6 +39,7 @@ namespace xFF
                 public class PPU
                 {
                     byte[] m_VRAM;
+                    OAM m_OAM;
 
                     uint m_cyclesElapsed;
                     uint m_scanlineTotalCyclesElapsed;
@@ -57,7 +58,27 @@ namespace xFF
                     }
 
 
+                    public OAM OAM
+                    {
+                        get { return m_OAM; }
+                    }
+
+
                     public int BackgroundPalette
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int ObjectPalette0
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int ObjectPalette1
                     {
                         get;
                         set;
@@ -131,6 +152,7 @@ namespace xFF
                     public PPU( )
                     {
                         m_VRAM = new byte[0x2000]; // 8 KB
+                        m_OAM = new OAM();
                         m_operationMode = 2;
                         m_scanlineTotalCyclesElapsed = 0;
                         m_cyclesElapsed = 0;
