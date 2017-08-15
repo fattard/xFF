@@ -49,6 +49,7 @@ namespace xFF
                 APU m_apu;
 
                 MEM m_mem;
+                DMAController m_dmaController;
 
 
                 bool m_paused;
@@ -108,6 +109,7 @@ namespace xFF
                     m_apu = new APU();
 
                     m_mem = new MEM();
+                    m_dmaController = new DMAController();
 
                     // Start paused
                     m_paused = true;
@@ -119,7 +121,9 @@ namespace xFF
 
                     m_mem.AttachCPU(m_cpu);
                     m_mem.AttachPPU(m_ppu);
+                    m_mem.AttachDMAController(m_dmaController);
                     m_cpu.ProcessorState.BindCyclesStep(m_ppu.CyclesStep);
+                    m_cpu.ProcessorState.BindCyclesStep(m_dmaController.CyclesStep);
 
                     m_ppu.BindRequestIRQ(m_cpu.RequestIRQ);
                     //m_ppu.BindDrawDisplayLine(DrawDisplayLine);

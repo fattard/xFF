@@ -45,6 +45,7 @@ namespace xFF
 
                     CPU m_cpu;
                     PPU m_ppu;
+                    DMAController m_dmaController;
 
 
 
@@ -234,6 +235,11 @@ namespace xFF
                             m_ppu.ScanlineComparer = (0xFF & aValue);
                         }
 
+                        else if (aAddress == RegsIO.DMA)
+                        {
+                            m_dmaController.StartDMA_OAM((0xFF & aValue) << 8);
+                        }
+
                         else if (aAddress == RegsIO.BOOT)
                         {
                             m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_LOCK & aValue);
@@ -267,6 +273,13 @@ namespace xFF
                     public void AttachPPU(PPU aPPU)
                     {
                         m_ppu = aPPU;
+                    }
+
+
+                    public void AttachDMAController(DMAController aDMA)
+                    {
+                        m_dmaController = aDMA;
+                        m_dmaController.BindMEM(this);
                     }
 
 
