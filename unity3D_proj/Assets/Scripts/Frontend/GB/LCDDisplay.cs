@@ -209,6 +209,7 @@ namespace xFF
                         int objHeight = (spriteMode == 1) ? 16 : 8;
 
                         int i = aPPU.CurScanline;
+                        int renderedObj = 0;
                         for (int objIdx = 0; objIdx < 40; ++objIdx)
                         {
                             OAM.ObjAttributes obj = aOAM.GetObjAttributes(objIdx);
@@ -258,6 +259,14 @@ namespace xFF
                                         displayPixels[(i * texWid) + pixel] = m_LCDColor[color];
                                     }
                                 }
+
+                                ++renderedObj;
+                            }
+
+                            // Check limit of 10 sprites per scanline
+                            if (renderedObj >= 10)
+                            {
+                                break;
                             }
                         }
                     }
