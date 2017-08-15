@@ -56,6 +56,8 @@ namespace xFF
                     public const int LY   = 0xFF44;  // LCDC Y-Cordinate - Cur Scanline
                     public const int LYC  = 0xFF45;  // Scanline Compare
 
+                    public const int DMA  = 0xFF46;  // DMA transfer to OAM with starting address
+
                     public const int BGP  = 0xFF47;  // DMG Background Palette
                     public const int OBP0 = 0xFF48;  // Object Palette 0
                     public const int OBP1 = 0xFF49;  // Object Palette 1
