@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using xFF;
 using xFF.Frontend.Unity3D.GB;
 using xFF.EmuCores.GB.HW;
+using xFF.EmuCores.GB.Defs;
 
 namespace xFF
 {
@@ -182,6 +183,80 @@ namespace xFF
                                     color |= ((palData >> lo) & 0x1);
 
                                     displayPixels[(i * texWid) + j] = m_LCDColor[color];
+                                }
+
+                                else
+                                {
+                                    displayPixels[(i * texWid) + j] = m_LCDColor[0];
+                                }
+                            }
+
+                            RenderSprites(aPPU);
+                        }
+                    }
+
+
+                    public void RenderSprites(PPU aPPU)
+                    {
+                        Color[] displayPixels = gbDisplay.Pixels;
+                        byte[] vram = aPPU.VRAM;
+                        int texWid = gbDisplay.TextureWidth;
+
+                        OAM aOAM = aPPU.OAM;
+                        
+                        
+                        int spriteMode = ((aPPU.LCDControl & RegsIO_Bits.LCDC_OBJSIZE) > 0) ? 1 : 0;
+                        int objHeight = (spriteMode == 1) ? 16 : 8;
+
+                        int i = aPPU.CurScanline;
+                        for (int objIdx = 0; objIdx < 40; ++objIdx)
+                        {
+                            OAM.ObjAttributes obj = aOAM.GetObjAttributes(objIdx);
+
+                            int yPos = obj.PosY - 16;
+                            int xPos = obj.PosX - 8;
+                            int tileIdx = obj.TileIdx;
+                            int palData = (obj.ObjPalIdx == 1) ? aPPU.ObjectPalette1 : aPPU.ObjectPalette0;
+
+                            if (i >= yPos && i <= (yPos + objHeight))
+                            {
+                                for (int j = 0; j < 8; ++j)
+                                {
+                                    int line = (aPPU.CurScanline - yPos);
+                                    int pixel = xPos + j;
+
+                                    if (pixel < 0 || pixel > 159 || i < 0 || i > 143)
+                                    {
+                                        continue;
+                                    }
+
+                                    int lineDataL = vram[(tileIdx * 16) + (2 * line)];
+                                    int lineDataH = vram[(tileIdx * 16) + (2 * line) + 1];
+                                    int colData = 1 << (7 - j);
+                                    int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
+
+                                    int colorIdx = 0;
+                                    int hi = 0;
+                                    int lo = 0;
+
+                                    // which bits of the colour palette does the colour id map to?
+                                    switch (palIdx)
+                                    {
+                                        case 0: hi = 1; lo = 0; break;
+                                        case 1: hi = 3; lo = 2; break;
+                                        case 2: hi = 5; lo = 4; break;
+                                        case 3: hi = 7; lo = 6; break;
+                                    }
+
+                                    // use the palette to get the colour
+                                    int color = 0;
+                                    color = ((palData >> hi) & 0x1) << 1;
+                                    color |= ((palData >> lo) & 0x1);
+
+                                    if (palIdx > 0)
+                                    {
+                                        displayPixels[(i * texWid) + pixel] = m_LCDColor[color];
+                                    }
                                 }
                             }
                         }

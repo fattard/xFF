@@ -169,8 +169,8 @@ Joypad
 
 Graphics   | Status
 ------------ | ------
-Backgrounds  | :soon:
-Sprites
+Backgrounds  | :o:
+Sprites      | :soon:
 GBC Palettes
 
 Audio | Status
