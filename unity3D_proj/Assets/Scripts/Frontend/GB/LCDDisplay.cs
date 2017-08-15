@@ -219,7 +219,7 @@ namespace xFF
                             int tileIdx = obj.TileIdx;
                             int palData = (obj.ObjPalIdx == 1) ? aPPU.ObjectPalette1 : aPPU.ObjectPalette0;
 
-                            if (i >= yPos && i <= (yPos + objHeight))
+                            if (i >= yPos && i < (yPos + objHeight))
                             {
                                 for (int j = 0; j < 8; ++j)
                                 {
