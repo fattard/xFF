@@ -1,0 +1,9 @@
+; this file was created with wlalink by ville helin <vhelin@iki.fi>.
+; wla symbolic information for "Sprite_T01.gb".
+
+[labels]
+0000:015f Clear_VRAM
+0000:016b Clear_OAM
+0000:017c Fill_Tile0
+0000:018b Fill_Tile1
+0000:01db Loop
