@@ -223,7 +223,7 @@ namespace xFF
                             {
                                 for (int j = 0; j < 8; ++j)
                                 {
-                                    int line = (aPPU.CurScanline - yPos);
+                                    int line = (obj.FlipV) ? ((objHeight - 1) - (aPPU.CurScanline - yPos)) : (aPPU.CurScanline - yPos);
                                     int pixel = xPos + j;
 
                                     if (pixel < 0 || pixel > 159 || i < 0 || i > 143)
@@ -233,7 +233,7 @@ namespace xFF
 
                                     int lineDataL = vram[(tileIdx * 16) + (2 * line)];
                                     int lineDataH = vram[(tileIdx * 16) + (2 * line) + 1];
-                                    int colData = 1 << (7 - j);
+                                    int colData = (obj.FlipH) ? (1 << j) : (1 << (7 - j));
                                     int palIdx = (((lineDataL & colData) > 0) ? 1 : 0) + (((lineDataH & colData) > 0) ? 2 : 0);
 
                                     int colorIdx = 0;
