@@ -210,9 +210,12 @@ namespace xFF
 
                         int i = aPPU.CurScanline;
                         int renderedObj = 0;
+
+                        aOAM.SortByPosX();
+
                         for (int objIdx = 0; objIdx < 40; ++objIdx)
                         {
-                            OAM.ObjAttributes obj = aOAM.GetObjAttributes(objIdx);
+                            OAM.ObjAttributes obj = aOAM.GetObjAttributesSorted(objIdx);
 
                             int yPos = obj.PosY - 16;
                             int xPos = obj.PosX - 8;

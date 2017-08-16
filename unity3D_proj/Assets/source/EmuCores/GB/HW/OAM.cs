@@ -24,6 +24,8 @@
 *         reasonable ways as different from the original version.
 */
 
+using System.Collections.Generic;
+
 namespace xFF
 {
     namespace EmuCores
@@ -36,7 +38,7 @@ namespace xFF
 
                 public class OAM
                 {
-                    public class ObjAttributes
+                    public class ObjAttributes : System.IComparable
                     {
                         public int ID
                         {
@@ -107,19 +109,39 @@ namespace xFF
                         {
                             return (ObjPalIdx << 4) | ((FlipH) ? (1 << 5) : 0) | ((FlipV) ? (1 << 6) : 0) | (BGPriority << 7);
                         }
+
+
+                        public int CompareTo(object aObj)
+                        {
+                            int v = ((aObj as ObjAttributes).PosX - PosX);
+                            if (v > 0)
+                            {
+                                return 1;
+                            }
+                            
+                            else if (v == 0)
+                            {
+                                // Same pos, compares idx
+                                return ((aObj as ObjAttributes).ID > ID) ? 1 : -1;
+                            }
+
+                            return -1;
+                        }
                     }
 
-
                     ObjAttributes[] m_objAttrs;
+                    List<ObjAttributes> m_objAttrsSorted;
                     //byte[] m_mem;
 
 
                     public OAM( )
                     {
                         m_objAttrs = new ObjAttributes[40];
+                        m_objAttrsSorted = new List<ObjAttributes>(m_objAttrs.Length);
                         for (int i = 0; i < m_objAttrs.Length; ++i)
                         {
                             m_objAttrs[i] = new ObjAttributes(i);
+                            m_objAttrsSorted.Add(m_objAttrs[i]);
                         }
 
                         //m_mem = new byte[40 * 4];
@@ -129,6 +151,17 @@ namespace xFF
                     public ObjAttributes GetObjAttributes(int aIdx)
                     {
                         return m_objAttrs[aIdx];
+                    }
+
+                    public ObjAttributes GetObjAttributesSorted(int aIdx)
+                    {
+                        return m_objAttrsSorted[aIdx];
+                    }
+
+
+                    public void SortByPosX( )
+                    {
+                        m_objAttrsSorted.Sort();
                     }
 
 
