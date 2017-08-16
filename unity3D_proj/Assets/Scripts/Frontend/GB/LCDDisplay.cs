@@ -259,7 +259,18 @@ namespace xFF
 
                                     if (palIdx > 0)
                                     {
-                                        displayPixels[(i * texWid) + pixel] = m_LCDColor[color];
+                                        // Only appears above BG color0
+                                        if (obj.BGPriority == 1)
+                                        {
+                                            if (displayPixels[(i * texWid) + pixel] == m_LCDColor[aPPU.BackgroundPalette & 0x03])
+                                            {
+                                                displayPixels[(i * texWid) + pixel] = m_LCDColor[color];
+                                            }
+                                        }
+                                        else
+                                        {
+                                            displayPixels[(i * texWid) + pixel] = m_LCDColor[color];
+                                        }
                                     }
                                 }
 
