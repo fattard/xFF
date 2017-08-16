@@ -111,6 +111,7 @@ namespace xFF
                         int windowDataOffset = ((aPPU.LCDControl & (1 << 6)) > 0) ? 0x1C00 : 0x1800;
                         bool isWindowEnabled = ((aPPU.LCDControl & (1 << 5)) > 0);
                         bool isBGEnabled = ((aPPU.LCDControl & (1 << 0)) > 0);
+                        bool isObjsEnabled = ((aPPU.LCDControl & (1 << 1)) > 0);
 
 
 
@@ -191,7 +192,10 @@ namespace xFF
                                 }
                             }
 
-                            RenderSprites(aPPU);
+                            if (isObjsEnabled)
+                            {
+                                RenderSprites(aPPU);
+                            }
                         }
                     }
 
