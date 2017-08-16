@@ -170,7 +170,7 @@ Joypad
 Graphics   | Status
 ------------ | ------
 Backgrounds  | :o:
-Sprites      | :soon:
+Sprites      | :o:
 GBC Palettes
 
 Audio | Status
