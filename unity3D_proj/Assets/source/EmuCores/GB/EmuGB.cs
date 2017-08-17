@@ -39,6 +39,7 @@ namespace xFF
             {
                 public delegate void DrawDisplayFunc(PPU aPPU);
                 public delegate void DrawDisplayLineFunc(PPU aPPU);
+                public delegate int GetKeysStateFunc( );
                 public delegate void MsgHandler(object aMsg);
 
 
@@ -50,6 +51,8 @@ namespace xFF
 
                 MEM m_mem;
                 DMAController m_dmaController;
+
+                Joypad m_joypad;
 
 
                 bool m_paused;
@@ -100,6 +103,12 @@ namespace xFF
                 }
 
 
+                public GetKeysStateFunc GetKeysState
+                {
+                    set { m_joypad.BindGetKeysStateFunc(value); }
+                }
+
+
                 public EmuGB(ConfigsGB aConfigs)
                 {
                     m_configs = aConfigs;
@@ -110,6 +119,8 @@ namespace xFF
 
                     m_mem = new MEM();
                     m_dmaController = new DMAController();
+
+                    m_joypad = new Joypad();
 
                     // Start paused
                     m_paused = true;
@@ -122,10 +133,12 @@ namespace xFF
                     m_mem.AttachCPU(m_cpu);
                     m_mem.AttachPPU(m_ppu);
                     m_mem.AttachDMAController(m_dmaController);
+                    m_mem.AttachJoypad(m_joypad);
                     m_cpu.ProcessorState.BindCyclesStep(m_ppu.CyclesStep);
                     m_cpu.ProcessorState.BindCyclesStep(m_dmaController.CyclesStep);
 
                     m_ppu.BindRequestIRQ(m_cpu.RequestIRQ);
+                    m_joypad.BindRequestIRQ(m_cpu.RequestIRQ);
                     //m_ppu.BindDrawDisplayLine(DrawDisplayLine);
                 }
 
@@ -145,6 +158,7 @@ namespace xFF
                         return;
                     }
 
+                    m_joypad.UpdateKeys();
 
                     m_cpu.Run();
 

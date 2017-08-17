@@ -46,6 +46,7 @@ namespace xFF
                     CPU m_cpu;
                     PPU m_ppu;
                     DMAController m_dmaController;
+                    Joypad m_joypad;
 
 
 
@@ -95,7 +96,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.P1)
                         {
-                            return 0xCF; // Default: all not pressed
+                            return (0xC0 | m_joypad.SelectedOutPort | (0x0F & m_joypad.KeysState));
                         }
 
                         else if (aAddress == RegsIO.LCDC)
@@ -176,7 +177,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.P1)
                         {
-
+                            m_joypad.SelectedOutPort = (0x30 & aValue);
                         }
 
                         else if (aAddress == RegsIO.LCDC)
@@ -281,6 +282,13 @@ namespace xFF
                         m_dmaController = aDMA;
                         m_dmaController.BindMEM(this);
                     }
+
+
+                    public void AttachJoypad(Joypad aJoypad)
+                    {
+                        m_joypad = aJoypad;
+                    }
+                    
 
 
                     public void LoadSimpleRom(byte[] aRomData)
