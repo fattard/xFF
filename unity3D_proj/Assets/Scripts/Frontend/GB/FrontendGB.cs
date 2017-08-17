@@ -44,6 +44,7 @@ namespace xFF
                 {
                     public ConfigsGB frontendConfigs;
                     public LCDDisplay lcdDisplay;
+                    public GBInput gbInput;
 
                     EmuCores.GB.EmuGB m_emuGB;
 
@@ -67,6 +68,7 @@ namespace xFF
                         m_emuGB = new EmuCores.GB.EmuGB(configsGB);
                         m_emuGB.DrawDisplay = lcdDisplay.DrawDisplay;
                         m_emuGB.DrawDisplayLine = lcdDisplay.DrawDisplayLine;
+                        m_emuGB.GetKeysState = gbInput.GetKeysState;
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
 

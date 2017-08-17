@@ -43,6 +43,7 @@ GameObject:
   - 114: {fileID: 11422206}
   - 114: {fileID: 11490940}
   - 114: {fileID: 11463768}
+  - 114: {fileID: 11448502}
   m_Layer: 0
   m_Name: EmuGB
   m_TagString: Untagged
@@ -236,6 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e1bad1f1c6d4324ba8a96ddd62c070e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bootRomEnabled: 0
   bootRomPath: 
   selectedRomIndex: 0
   romsPath: []
@@ -244,6 +246,17 @@ MonoBehaviour:
   color2: {r: 0.20392157, g: 0.40784314, b: 0.3372549, a: 1}
   color3: {r: 0.03137255, g: 0.09411765, b: 0.1254902, a: 1}
   zoomFactor: 1
+--- !u!114 &11448502
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 150848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3ce77ec4373c3840ba3e62c19d392b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &11463768
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -269,6 +282,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frontendConfigs: {fileID: 11422206}
   lcdDisplay: {fileID: 11463768}
+  gbInput: {fileID: 11448502}
 --- !u!124 &12487392
 Behaviour:
   m_ObjectHideFlags: 1
