@@ -41,6 +41,12 @@ namespace xFF
                 {
                     public const int P1   = 0xFF00;  // Joypad Ports
 
+                    public const int DIV  = 0xFF04;  // Divider Read/Reset
+                    public const int TIMA = 0xFF05;  // Timer Counter
+                    public const int TMA  = 0xFF06;  // Timer Modulo
+                    public const int TAC  = 0xFF07;  // Timer Controller
+
+
                     public const int IF   = 0xFF0F;  // Interrupt Request
                     public const int IE   = 0xFFFF;  // Interrupt Enable
 
@@ -79,6 +85,11 @@ namespace xFF
                     public const int P13 = (1 << 3); // Input Port P13
                     public const int P14 = (1 << 4); // Output Port P14
                     public const int P15 = (1 << 5); // Output Port P15
+
+
+                    // TAC
+                    public const int TAC_CLK =     0x03; // 11b - Input Clock Select
+                    public const int TAC_EN  = (1 << 2); // Timer Enable 
 
 
                     // IF
