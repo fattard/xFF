@@ -46,6 +46,7 @@ namespace xFF
                     CPU m_cpu;
                     PPU m_ppu;
                     DMAController m_dmaController;
+                    TimerController m_timerController;
                     Joypad m_joypad;
 
 
@@ -154,6 +155,26 @@ namespace xFF
                             return m_ppu.ObjectPalette1;
                         }
 
+                        else if (aAddress == RegsIO.DIV)
+                        {
+                            return m_timerController.Divider;
+                        }
+
+                        else if (aAddress == RegsIO.TIMA)
+                        {
+                            return m_timerController.TimerCounter;
+                        }
+
+                        else if (aAddress == RegsIO.TMA)
+                        {
+                            return m_timerController.TimerModulo;
+                        }
+
+                        else if (aAddress == RegsIO.TAC)
+                        {
+                            return m_timerController.GetControllerData();
+                        }
+
                         return m_dbg_FullRam[aAddress];
                     }
 
@@ -241,6 +262,27 @@ namespace xFF
                             m_dmaController.StartDMA_OAM((0xFF & aValue) << 8);
                         }
 
+                        else if (aAddress == RegsIO.DIV)
+                        {
+                            // Resets DIV
+                            m_timerController.Divider = 0;
+                        }
+
+                        else if (aAddress == RegsIO.TIMA)
+                        {
+                            m_timerController.TimerCounter = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.TMA)
+                        {
+                            m_timerController.TimerModulo = (0xFF & aValue);
+                        }
+
+                        else if (aAddress == RegsIO.TAC)
+                        {
+                            m_timerController.SetControllerData(0x07 & aValue);
+                        }
+
                         else if (aAddress == RegsIO.BOOT)
                         {
                             m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_LOCK & aValue);
@@ -281,6 +323,12 @@ namespace xFF
                     {
                         m_dmaController = aDMA;
                         m_dmaController.BindMEM(this);
+                    }
+
+
+                    public void AttachTimerController(TimerController aTimer)
+                    {
+                        m_timerController = aTimer;
                     }
 
 

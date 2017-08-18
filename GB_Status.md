@@ -163,7 +163,7 @@ Interrupts | Status
 ---------- | ------
 V-Blank    | :o:
 LCD        | :o:
-Timer
+Timer      | :o:
 Serial
 Joypad     | :o:
 
