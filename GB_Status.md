@@ -165,7 +165,7 @@ V-Blank    | :o:
 LCD        | :o:
 Timer
 Serial
-Joypad
+Joypad     | :o:
 
 Graphics   | Status
 ------------ | ------
