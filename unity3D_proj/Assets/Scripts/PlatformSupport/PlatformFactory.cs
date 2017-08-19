@@ -37,6 +37,20 @@ namespace xFF
 
         public static class PlatformFactory
         {
+            static IPlatform s_platform;
+
+
+            public static IPlatform GetPlatform( )
+            {
+                if (s_platform == null)
+                {
+                    CreatePlatform();
+                }
+
+                return s_platform;
+            }
+
+
             public static IPlatform CreatePlatform( )
             {
                 IPlatform p = null;
@@ -47,9 +61,11 @@ namespace xFF
 
             #else
 
-                #error No platform support found
+            #error No platform support found
 
             #endif
+
+                s_platform = p;
 
                 return p;
             }
