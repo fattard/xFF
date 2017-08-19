@@ -61,6 +61,7 @@ namespace xFF
                             if (m_selectedPort == 0x30)
                             {
                                 RequestIRQ(RegsIO_Bits.IF_JOYPAD);
+                                m_selectedPort = 0;
                             }
                         }
                     }
@@ -94,7 +95,7 @@ namespace xFF
                         RequestIRQ = (aIRQ_flag) => { };
                         GetKeysState = () => { return 0; };
 
-                        SelectedOutPort = 0x30;
+                        SelectedOutPort = 0;
                     }
 
 
