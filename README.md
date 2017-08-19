@@ -3,8 +3,14 @@
 ## Core Status ##
 ## [GB Emulation Status](GB_Status.md) ##
 Game Boy core emulation. Initially, only the classic emulation will be supported.  
-The current release build (v0.0.3) is able to run TestROMS, such as [Blargg's  
-individual cpu_intrs](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), and also some [mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/).
+The current release build (v0.0.4) is able to run TestROMS, such as [Blargg's  
+individual cpu_intrs](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), and also some [mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/), and also commercial games that do not use mappers (such as MBC1 or MBC3, aka. "ROM ONLY" 32KB files).  
+Remember to check the [status page](GB_Status.md) for information on what is supported or not.
+<br>
+<br>
+Below is a montage of 3 games running:
+<br>
+![First Games](sshots/GB/first_games.png)
 <br>
 <br>
 Below is the current montage of results from cpu_instrs individual tests:
@@ -12,6 +18,21 @@ Below is the current montage of results from cpu_instrs individual tests:
 <br>
 Instruction 'DAA' is stubbed for now, and I think I can blame my bad Half-Borrow  
 implementation to cause many of the tests to fail.
+<br>
+<br>
+### Keyboard Controls ###
+GB Button | Keyboard
+----------|---------
+Button A | X
+Button B | Z
+Button Select | Right Shift
+Button Start | Enter/Return
+DPad Up | Arrow Up
+DPad Down | Arrow Down
+DPad Left | Arrow Left
+DPad Right | Arrow Right
+<br>
+
 <br>
 <br>
 
