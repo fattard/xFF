@@ -40,13 +40,25 @@ namespace xFF
         public class WinPlatform : MonoBehaviour, IPlatform
         {
             List<IPlatformInput> m_inputs;
+            bool m_isInited;
 
 
             #region IPlatform Implementations
 
+            public bool IsInited
+            {
+                get { return m_isInited; }
+            }
+
             public bool SupportsResolutionChange
             {
                 get { return true; }
+            }
+
+
+            public List<IPlatformInput> GetConnectedInputs( )
+            {
+                return m_inputs;
             }
 
             #endregion IPlatform Implementations
@@ -75,7 +87,7 @@ namespace xFF
                     XInputDotNetPure.GamePadState x_state = XInputDotNetPure.GamePad.GetState(0);
                 }
 
-                Invoke("DelayedAwake", 1.0f);
+                Invoke("DelayedAwake", 0.2f);
             }
 
 
@@ -106,6 +118,9 @@ namespace xFF
 
                     m_inputs.Add(new GenericJoystick(i));
                 }
+
+
+                m_isInited = true;
             }
 
 

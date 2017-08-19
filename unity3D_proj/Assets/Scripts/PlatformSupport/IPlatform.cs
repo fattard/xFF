@@ -37,10 +37,19 @@ namespace xFF
 
         public interface IPlatform
         {
+            bool IsInited
+            {
+                get;
+            }
+
+
             bool SupportsResolutionChange
             {
                 get;
             }
+
+
+            List<IPlatformInput> GetConnectedInputs();
 
 
             void UpdateState();
