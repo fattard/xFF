@@ -25,6 +25,7 @@
 */
 
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace xFF
 {
@@ -37,6 +38,88 @@ namespace xFF
 
                 public class GBInput : MonoBehaviour
                 {
+                    public enum GBButtons
+                    {
+                        A,
+                        B,
+                        Select,
+                        Start,
+                        DPadDown,
+                        DPadUp,
+                        DPadLeft,
+                        DPadRight
+                    }
+
+                    class InputHelper
+                    {
+                        PlatformSupport.IPlatformInput m_input;
+                        Dictionary<GBButtons, int> m_mappedButtons;
+
+                        public bool GetButton(GBButtons aGBBtn)
+                        {
+                            return m_input.GetButton(m_mappedButtons[aGBBtn]);
+                        }
+
+                        public bool GetButtonDown(GBButtons aGBBtn)
+                        {
+                            return m_input.GetButtonDown(m_mappedButtons[aGBBtn]);
+                        }
+
+                        public bool GetButtonUp(GBButtons aGBBtn)
+                        {
+                            return m_input.GetButtonUp(m_mappedButtons[aGBBtn]);
+                        }
+
+
+                        public InputHelper(PlatformSupport.IPlatformInput aInput)
+                        {
+                            m_input = aInput;
+                            m_mappedButtons = new Dictionary<GBButtons, int>(8);
+
+
+                            if (m_input is PlatformSupport.KeyboardInput)
+                            {
+                                m_mappedButtons.Add(GBButtons.A, (int)KeyCode.X);
+                                m_mappedButtons.Add(GBButtons.B, (int)KeyCode.Z);
+                                m_mappedButtons.Add(GBButtons.Select, (int)KeyCode.RightShift);
+                                m_mappedButtons.Add(GBButtons.Start, (int)KeyCode.Return);
+                                m_mappedButtons.Add(GBButtons.DPadDown, (int)KeyCode.DownArrow);
+                                m_mappedButtons.Add(GBButtons.DPadUp, (int)KeyCode.UpArrow);
+                                m_mappedButtons.Add(GBButtons.DPadLeft, (int)KeyCode.LeftArrow);
+                                m_mappedButtons.Add(GBButtons.DPadRight, (int)KeyCode.RightArrow);
+                            }
+
+                    #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+                            else if (m_input is PlatformSupport.XInputController)
+                            {
+                                m_mappedButtons.Add(GBButtons.A, (int)PlatformSupport.XInputController.Button.B);
+                                m_mappedButtons.Add(GBButtons.B, (int)PlatformSupport.XInputController.Button.A);
+                                m_mappedButtons.Add(GBButtons.Select, (int)PlatformSupport.XInputController.Button.Back);
+                                m_mappedButtons.Add(GBButtons.Start, (int)PlatformSupport.XInputController.Button.Start);
+                                m_mappedButtons.Add(GBButtons.DPadDown, (int)PlatformSupport.XInputController.Button.DPadDown);
+                                m_mappedButtons.Add(GBButtons.DPadUp, (int)PlatformSupport.XInputController.Button.DPadUp);
+                                m_mappedButtons.Add(GBButtons.DPadLeft, (int)PlatformSupport.XInputController.Button.DPadLeft);
+                                m_mappedButtons.Add(GBButtons.DPadRight, (int)PlatformSupport.XInputController.Button.DPadRight);
+                            }
+                    #endif
+
+                            else
+                            {
+                                m_mappedButtons.Add(GBButtons.A, 3);
+                                m_mappedButtons.Add(GBButtons.B, 2);
+                                m_mappedButtons.Add(GBButtons.Select, 9);
+                                m_mappedButtons.Add(GBButtons.Start, 10);
+                                m_mappedButtons.Add(GBButtons.DPadDown, 11);
+                                m_mappedButtons.Add(GBButtons.DPadUp, 12);
+                                m_mappedButtons.Add(GBButtons.DPadLeft, 13);
+                                m_mappedButtons.Add(GBButtons.DPadRight, 14);
+                            }
+                        }
+                    }
+
+
+                    List<InputHelper> m_helpers;
+                    InputHelper m_selectedInput;
                     int m_keysState;
 
 
@@ -44,7 +127,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.X);
+                            return m_selectedInput.GetButton(GBButtons.A);
                         }
                     }
 
@@ -53,7 +136,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.Z);
+                            return m_selectedInput.GetButton(GBButtons.B);
                         }
                     }
 
@@ -62,7 +145,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.RightShift);
+                            return m_selectedInput.GetButton(GBButtons.Select);
                         }
                     }
 
@@ -71,7 +154,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.Return);
+                            return m_selectedInput.GetButton(GBButtons.Start);
                         }
                     }
 
@@ -80,7 +163,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.UpArrow);
+                            return m_selectedInput.GetButton(GBButtons.DPadUp);
                         }
                     }
 
@@ -89,7 +172,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.DownArrow);
+                            return m_selectedInput.GetButton(GBButtons.DPadDown);
                         }
                     }
 
@@ -98,7 +181,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.LeftArrow);
+                            return m_selectedInput.GetButton(GBButtons.DPadLeft);
                         }
                     }
 
@@ -107,7 +190,7 @@ namespace xFF
                     {
                         get
                         {
-                            return Input.GetKey(KeyCode.RightArrow);
+                            return m_selectedInput.GetButton(GBButtons.DPadRight);
                         }
                     }
 
@@ -118,7 +201,21 @@ namespace xFF
                     }
 
 
-                    void Update( )
+                    public void Init( )
+                    {
+                        m_helpers = new List<InputHelper>(4);
+
+                        var inputs = PlatformSupport.PlatformFactory.GetPlatform().GetConnectedInputs();
+                        for (int i = 0; i < inputs.Count; ++i)
+                        {
+                            m_helpers.Add(new InputHelper(inputs[i]));
+                        }
+
+                        m_selectedInput = m_helpers[0];
+                    }
+
+
+                    public void UpdateState( )
                     {
                         int keys = 0;
 
