@@ -53,66 +53,66 @@ namespace xFF
                     class InputHelper
                     {
                         PlatformSupport.IPlatformInput m_input;
-                        Dictionary<GBButtons, int> m_mappedButtons;
+                        Dictionary<int, int> m_mappedButtons;
 
                         public bool GetButton(GBButtons aGBBtn)
                         {
-                            return m_input.GetButton(m_mappedButtons[aGBBtn]);
+                            return m_input.GetButton(m_mappedButtons[(int)aGBBtn]);
                         }
 
                         public bool GetButtonDown(GBButtons aGBBtn)
                         {
-                            return m_input.GetButtonDown(m_mappedButtons[aGBBtn]);
+                            return m_input.GetButtonDown(m_mappedButtons[(int)aGBBtn]);
                         }
 
                         public bool GetButtonUp(GBButtons aGBBtn)
                         {
-                            return m_input.GetButtonUp(m_mappedButtons[aGBBtn]);
+                            return m_input.GetButtonUp(m_mappedButtons[(int)aGBBtn]);
                         }
 
 
                         public InputHelper(PlatformSupport.IPlatformInput aInput)
                         {
                             m_input = aInput;
-                            m_mappedButtons = new Dictionary<GBButtons, int>(8);
+                            m_mappedButtons = new Dictionary<int, int>(8);
 
 
                             if (m_input is PlatformSupport.KeyboardInput)
                             {
-                                m_mappedButtons.Add(GBButtons.A, (int)KeyCode.X);
-                                m_mappedButtons.Add(GBButtons.B, (int)KeyCode.Z);
-                                m_mappedButtons.Add(GBButtons.Select, (int)KeyCode.RightShift);
-                                m_mappedButtons.Add(GBButtons.Start, (int)KeyCode.Return);
-                                m_mappedButtons.Add(GBButtons.DPadDown, (int)KeyCode.DownArrow);
-                                m_mappedButtons.Add(GBButtons.DPadUp, (int)KeyCode.UpArrow);
-                                m_mappedButtons.Add(GBButtons.DPadLeft, (int)KeyCode.LeftArrow);
-                                m_mappedButtons.Add(GBButtons.DPadRight, (int)KeyCode.RightArrow);
+                                m_mappedButtons.Add((int)GBButtons.A, (int)KeyCode.X);
+                                m_mappedButtons.Add((int)GBButtons.B, (int)KeyCode.Z);
+                                m_mappedButtons.Add((int)GBButtons.Select, (int)KeyCode.RightShift);
+                                m_mappedButtons.Add((int)GBButtons.Start, (int)KeyCode.Return);
+                                m_mappedButtons.Add((int)GBButtons.DPadDown, (int)KeyCode.DownArrow);
+                                m_mappedButtons.Add((int)GBButtons.DPadUp, (int)KeyCode.UpArrow);
+                                m_mappedButtons.Add((int)GBButtons.DPadLeft, (int)KeyCode.LeftArrow);
+                                m_mappedButtons.Add((int)GBButtons.DPadRight, (int)KeyCode.RightArrow);
                             }
 
                     #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
                             else if (m_input is PlatformSupport.XInputController)
                             {
-                                m_mappedButtons.Add(GBButtons.A, (int)PlatformSupport.XInputController.Button.B);
-                                m_mappedButtons.Add(GBButtons.B, (int)PlatformSupport.XInputController.Button.A);
-                                m_mappedButtons.Add(GBButtons.Select, (int)PlatformSupport.XInputController.Button.Back);
-                                m_mappedButtons.Add(GBButtons.Start, (int)PlatformSupport.XInputController.Button.Start);
-                                m_mappedButtons.Add(GBButtons.DPadDown, (int)PlatformSupport.XInputController.Button.DPadDown);
-                                m_mappedButtons.Add(GBButtons.DPadUp, (int)PlatformSupport.XInputController.Button.DPadUp);
-                                m_mappedButtons.Add(GBButtons.DPadLeft, (int)PlatformSupport.XInputController.Button.DPadLeft);
-                                m_mappedButtons.Add(GBButtons.DPadRight, (int)PlatformSupport.XInputController.Button.DPadRight);
+                                m_mappedButtons.Add((int)GBButtons.A, (int)PlatformSupport.XInputController.Button.B);
+                                m_mappedButtons.Add((int)GBButtons.B, (int)PlatformSupport.XInputController.Button.A);
+                                m_mappedButtons.Add((int)GBButtons.Select, (int)PlatformSupport.XInputController.Button.Back);
+                                m_mappedButtons.Add((int)GBButtons.Start, (int)PlatformSupport.XInputController.Button.Start);
+                                m_mappedButtons.Add((int)GBButtons.DPadDown, (int)PlatformSupport.XInputController.Button.DPadDown);
+                                m_mappedButtons.Add((int)GBButtons.DPadUp, (int)PlatformSupport.XInputController.Button.DPadUp);
+                                m_mappedButtons.Add((int)GBButtons.DPadLeft, (int)PlatformSupport.XInputController.Button.DPadLeft);
+                                m_mappedButtons.Add((int)GBButtons.DPadRight, (int)PlatformSupport.XInputController.Button.DPadRight);
                             }
                     #endif
 
                             else
                             {
-                                m_mappedButtons.Add(GBButtons.A, 3);
-                                m_mappedButtons.Add(GBButtons.B, 2);
-                                m_mappedButtons.Add(GBButtons.Select, 9);
-                                m_mappedButtons.Add(GBButtons.Start, 10);
-                                m_mappedButtons.Add(GBButtons.DPadDown, 11);
-                                m_mappedButtons.Add(GBButtons.DPadUp, 12);
-                                m_mappedButtons.Add(GBButtons.DPadLeft, 13);
-                                m_mappedButtons.Add(GBButtons.DPadRight, 14);
+                                m_mappedButtons.Add((int)GBButtons.A, 3);
+                                m_mappedButtons.Add((int)GBButtons.B, 2);
+                                m_mappedButtons.Add((int)GBButtons.Select, 9);
+                                m_mappedButtons.Add((int)GBButtons.Start, 10);
+                                m_mappedButtons.Add((int)GBButtons.DPadDown, 11);
+                                m_mappedButtons.Add((int)GBButtons.DPadUp, 12);
+                                m_mappedButtons.Add((int)GBButtons.DPadLeft, 13);
+                                m_mappedButtons.Add((int)GBButtons.DPadRight, 14);
                             }
                         }
                     }
