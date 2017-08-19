@@ -46,6 +46,7 @@ namespace xFF
                     public LCDDisplay lcdDisplay;
                     public GBInput gbInput;
 
+                    PlatformSupport.IPlatform m_platform;
                     EmuCores.GB.EmuGB m_emuGB;
 
                     float lastUpdateTick;
@@ -53,6 +54,8 @@ namespace xFF
 
                     void Start( )
                     {
+                        m_platform = PlatformSupport.PlatformFactory.CreatePlatform();
+
                         EmuCores.GB.ConfigsGB configsGB = LoadConfigFile();
 
                         // Running direct from scene
@@ -149,6 +152,8 @@ namespace xFF
 
                     void Update( )
                     {
+                        m_platform.UpdateState();
+
                         m_emuGB.EmulateFrame();
                         lcdDisplay.Render();
 
