@@ -106,6 +106,35 @@ namespace xFF
                 }
 
 
+                [System.Serializable]
+                public class InputProfile
+                {
+                    public string inputType;
+                    public string buttonA;
+                    public string buttonB;
+                    public string buttonSelect;
+                    public string buttonStart;
+                    public string buttonDPadUp;
+                    public string buttonDPadDown;
+                    public string buttonDPadLeft;
+                    public string buttonDPadRight;
+
+                    public InputProfile()
+                    {
+                        inputType = "none";
+
+                        buttonA = string.Empty;
+                        buttonB = string.Empty;
+                        buttonSelect = string.Empty;
+                        buttonStart = string.Empty;
+                        buttonDPadUp = string.Empty;
+                        buttonDPadDown = string.Empty;
+                        buttonDPadLeft = string.Empty;
+                        buttonDPadRight = string.Empty;
+                    }
+                }
+
+
 
                 #region Data
 
@@ -116,6 +145,8 @@ namespace xFF
                 public Audio audio;
                 public Graphics graphics;
                 public DMGColors dmgColors;
+                public InputProfile[] inputProfiles;
+                public int inputProfileActiveIndex;
                 public string emulatedSystem;
                 public string linkPortDevice;
 
@@ -131,8 +162,14 @@ namespace xFF
                     audio = new Audio();
                     graphics = new Graphics();
                     dmgColors = new DMGColors();
+                    inputProfiles = new InputProfile[4];
                     emulatedSystem = Defs.HardwareModel.DMG.ToString();
                     linkPortDevice = Defs.LinkPortDevices.None.ToString();
+
+                    for (int i = 0; i < inputProfiles.Length; ++i)
+                    {
+                        inputProfiles[i] = new InputProfile();
+                    }
                 }
             }
 
