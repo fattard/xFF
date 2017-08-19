@@ -48,7 +48,7 @@ namespace xFF
                         DMAController controller;
 
 
-                        public DMAJob(DMAController aController, int aSourceAddress, int aTargetAddress, int aLength)
+                        public void Prepare(DMAController aController, int aSourceAddress, int aTargetAddress, int aLength)
                         {
                             lastSourceAddress = aSourceAddress;
                             lastTargetAddress = aTargetAddress;
@@ -75,6 +75,7 @@ namespace xFF
                             if (totalElapsedCycles >= 671)
                             {
                                 controller.m_jobs.Remove(this);
+                                controller.m_availableJobs.Add(this);
                             }
                         }
                     }
@@ -83,6 +84,7 @@ namespace xFF
                     MEM m_mem;
 
                     List<DMAJob> m_jobs;
+                    List<DMAJob> m_availableJobs;
 
                     public bool IsBusy
                     {
@@ -93,12 +95,25 @@ namespace xFF
                     public DMAController( )
                     {
                         m_jobs = new List<DMAJob>();
+                        m_availableJobs = new List<DMAJob>();
+
+                        m_availableJobs.Add(new DMAJob());
                     }
 
 
                     public void StartDMA_OAM(int aStartAddress)
                     {
-                        m_jobs.Add(new DMAJob(this, aStartAddress, 0xFE00, 160));
+                        if (m_availableJobs.Count == 0)
+                        {
+                            return;
+                        }
+
+                        DMAJob job = m_availableJobs[0];
+                        m_availableJobs.RemoveAt(0);
+
+                        job.Prepare(this, aStartAddress, 0xFE00, 160);
+
+                        m_jobs.Add(job);
                     }
 
 
