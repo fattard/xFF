@@ -52,9 +52,22 @@ namespace xFF
                     float lastUpdateTick;
 
 
-                    void Start( )
+                    void Awake( )
                     {
-                        m_platform = PlatformSupport.PlatformFactory.CreatePlatform();
+                        m_platform = PlatformSupport.PlatformFactory.GetPlatform();
+                    }
+
+
+                    IEnumerator Start( )
+                    {
+                        this.enabled = false;
+                        while (!m_platform.IsInited)
+                        {
+                            yield return null;
+                        }
+                        this.enabled = true;
+
+                        gbInput.Init();
 
                         EmuCores.GB.ConfigsGB configsGB = LoadConfigFile();
 
@@ -153,6 +166,7 @@ namespace xFF
                     void Update( )
                     {
                         m_platform.UpdateState();
+                        gbInput.UpdateState();
 
                         m_emuGB.EmulateFrame();
                         lcdDisplay.Render();
@@ -222,6 +236,8 @@ namespace xFF
 
                     public static void ConfigScene()
                     {
+                        PlatformSupport.PlatformFactory.CreatePlatform();
+
                         GameObject go = Resources.Load<GameObject>("EmuGB");
                         Instantiate(go);
                     }
