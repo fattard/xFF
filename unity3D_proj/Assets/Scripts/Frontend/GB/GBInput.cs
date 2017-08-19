@@ -50,7 +50,7 @@ namespace xFF
                         DPadRight
                     }
 
-                    class InputHelper
+                    public class InputHelper
                     {
                         PlatformSupport.IPlatformInput m_input;
                         Dictionary<int, int> m_mappedButtons;
@@ -115,12 +115,35 @@ namespace xFF
                                 m_mappedButtons.Add((int)GBButtons.DPadRight, 14);
                             }
                         }
+
+
+                        public int GetMappedCode(GBButtons aBtn)
+                        {
+                            return m_mappedButtons[(int)aBtn];
+                        }
+
+
+                        public void SetMappedCode(GBButtons aBtn, int aCode)
+                        {
+                            m_mappedButtons[(int)aBtn] = aCode;
+                        }
+
+                        public PlatformSupport.IPlatformInput GetPlatformInput( )
+                        {
+                            return m_input;
+                        }
                     }
 
 
                     List<InputHelper> m_helpers;
                     InputHelper m_selectedInput;
                     int m_keysState;
+
+
+                    public List<InputHelper> GetInputList( )
+                    {
+                        return m_helpers;
+                    }
 
 
                     public bool A
