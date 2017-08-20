@@ -42,6 +42,13 @@
 .INCLUDE "..\..\common\cartDefs.inc"
 
 
+    ld B, $90 ; scanline 144
+Wait_VBL:
+    ld A, ($FF44)
+    cp B
+    jp NZ, Wait_VBL
+
+
     ; Disable LCD
     xor A
     ld ($FF00+$40), A
@@ -53,11 +60,11 @@
     
     
     xor A
-	ld HL, $9fff
+    ld HL, $9fff
 Clear_VRAM:
-	ld [HL-], A
-	bit 7, H
-	jr NZ, Clear_VRAM
+    ld [HL-], A
+    bit 7, H
+    jr NZ, Clear_VRAM
     
     
     ld C, $00
@@ -175,6 +182,6 @@ Fill_Tile3: ; Sprite filled BGP[2]
     ld ($FF00+$40), A
         
 Loop:
-	jp Loop
+    jp Loop
 
-	
+    

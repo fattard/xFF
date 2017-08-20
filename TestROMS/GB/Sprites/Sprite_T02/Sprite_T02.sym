@@ -2,9 +2,10 @@
 ; wla symbolic information for "Sprite_T02.gb".
 
 [labels]
-0000:015f Clear_VRAM
-0000:016b Clear_OAM
-0000:017c Fill_Tile0_1
-0000:018b Fill_Tile2
-0000:019a Fill_Tile3
-0000:01f6 Loop
+0000:0152 Wait_VBL
+0000:0168 Clear_VRAM
+0000:0174 Clear_OAM
+0000:0185 Fill_Tile0_1
+0000:0194 Fill_Tile2
+0000:01a3 Fill_Tile3
+0000:01ff Loop
