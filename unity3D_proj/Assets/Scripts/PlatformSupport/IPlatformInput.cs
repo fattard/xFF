@@ -34,18 +34,159 @@ namespace xFF
     namespace PlatformSupport
     {
 
+        public enum InputType
+        {
+            Keyboard,
+            Xbox,
+            DualShock,
+            Nintendo,
+            GenericJoystick
+        }
+
+
 
         public interface IPlatformInput
         {
+            InputType InputType
+            {
+                get;
+            }
+
+
             bool GetButtonDown(int aBtn);
 
             bool GetButtonUp(int aBtn);
 
             bool GetButton(int aBtn);
 
+            float GetAxis(int aAxisIdx);
+
             void UpdateState();
         }
+        
 
+        public static class XboxInputType
+        {
+            public enum Button
+            {
+                A,
+                B,
+                X,
+                Y,
+                RB,
+                LB,
+                RT,
+                LT,
+                RS,
+                LS,
+                Start,
+                Back,
+                Guide,
+
+                DPadUp,
+                DPadDown,
+                DPadLeft,
+                DPadRight,
+
+                Menu = Start,
+            }
+
+
+            public enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                RightStickX,
+                RightStickY,
+                RT,
+                LT
+            }
+        }
+
+
+        public static class DualshockInputType
+        {
+            public enum Button
+            {
+                Cross,
+                Circle,
+                Square,
+                Triangle,
+                R1,
+                L1,
+                R2,
+                L2,
+                R3,
+                L3,
+                Start,
+                Select,
+                PSButton,
+                TouchPadButton,
+
+                DPadUp,
+                DPadDown,
+                DPadLeft,
+                DPadRight,
+
+                PSVitaR = R2,
+                PSVitaL = L2,
+
+                Options = Start,
+                Share = Select,
+            }
+
+
+            public enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                RightStickX,
+                RightStickY,
+                R2,
+                L2
+            }
+        }
+
+
+        public static class NintendoInputType
+        {
+            public enum Button
+            {
+                A,
+                B,
+                X,
+                Y,
+                R,
+                L,
+                ZR,
+                ZL,
+                RS,
+                LS,
+                Start,
+                Select,
+                Home,
+
+                DPadUp,
+                DPadDown,
+                DPadLeft,
+                DPadRight,
+
+                Plus = Start,
+                Minus = Select,
+                Z = ZR,
+            }
+
+
+            public enum Axis
+            {
+                LeftStickX,
+                LeftStickY,
+                RightStickX,
+                RightStickY,
+                ZR,
+                ZL
+            }
+        }
 
     }
     // namespace PlatformSupport

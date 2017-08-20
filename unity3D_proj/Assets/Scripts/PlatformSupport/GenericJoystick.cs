@@ -89,6 +89,18 @@ namespace xFF
                     m_axisNames[i] = "j" + (aIdx + 1) + " axis " + i;
                 }
             }
+
+
+            public int BaseBtn
+            {
+                get { return m_baseBtn; }
+            }
+
+
+            public InputType InputType
+            {
+                get { return InputType.GenericJoystick; }
+            }
             
 
             public bool GetButtonDown(int aBtn)
@@ -109,9 +121,9 @@ namespace xFF
             }
 
 
-            public float GetAxis(int aAxisNum)
+            public float GetAxis(int aAxisIdx)
             {
-                return Input.GetAxis(m_axisNames[aAxisNum]);
+                return Input.GetAxis(m_axisNames[aAxisIdx]);
             }
 
 

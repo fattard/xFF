@@ -1,6 +1,4 @@
-﻿#if UNITY_STANDALONE || UNITY_EDITOR
-
-/*
+﻿/*
 *   This file is part of xFF
 *   Copyright (C) 2017 Fabio Attard
 *
@@ -37,6 +35,11 @@ namespace xFF
 
         public class KeyboardInput : IPlatformInput
         {
+
+            public InputType InputType
+            {
+                get { return InputType.Keyboard; }
+            }
             
 
             public bool GetButtonDown(int aBtn)
@@ -57,6 +60,12 @@ namespace xFF
             }
 
 
+            float IPlatformInput.GetAxis(int aAxisIdx)
+            {
+                return 0.0f;
+            }
+
+
             public void UpdateState()
             {
             }
@@ -69,5 +78,3 @@ namespace xFF
     // namespace PlatformSupport
 }
 // namespace xFF
-
-#endif

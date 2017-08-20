@@ -37,29 +37,6 @@ namespace xFF
 
         public class XInputController : IPlatformInput
         {
-            public enum Button
-            {
-                A,
-                B,
-                X,
-                Y,
-                RB,
-                LB,
-                RT,
-                LT,
-                RS,
-                LS,
-                Start,
-                Back,
-                Guide,
-
-                DPadUp,
-                DPadDown,
-                DPadLeft,
-                DPadRight
-            }
-
-
             PlayerIndex m_playerIndex;
             GamePadState m_state;
             GamePadState m_prevState;
@@ -77,77 +54,84 @@ namespace xFF
             }
 
 
+            public InputType InputType
+            {
+                get { return InputType.Xbox; }
+            }
+
+
+
             public bool GetButtonDown(int aBtn)
             {
                 bool btnState = false;
 
-                switch ((Button)aBtn)
+                switch ((XboxInputType.Button)aBtn)
                 {
-                    case Button.A:
+                    case XboxInputType.Button.A:
                         btnState = (m_prevState.Buttons.A == ButtonState.Released && m_state.Buttons.A == ButtonState.Pressed);
                         break;
 
-                    case Button.B:
+                    case XboxInputType.Button.B:
                         btnState = (m_prevState.Buttons.B == ButtonState.Released && m_state.Buttons.B == ButtonState.Pressed);
                         break;
 
-                    case Button.X:
+                    case XboxInputType.Button.X:
                         btnState = (m_prevState.Buttons.X == ButtonState.Released && m_state.Buttons.X == ButtonState.Pressed);
                         break;
 
-                    case Button.Y:
+                    case XboxInputType.Button.Y:
                         btnState = (m_prevState.Buttons.Y == ButtonState.Released && m_state.Buttons.Y == ButtonState.Pressed);
                         break;
 
-                    case Button.RB:
+                    case XboxInputType.Button.RB:
                         btnState = (m_prevState.Buttons.RightShoulder == ButtonState.Released && m_state.Buttons.RightShoulder == ButtonState.Pressed);
                         break;
 
-                    case Button.LB:
+                    case XboxInputType.Button.LB:
                         btnState = (m_prevState.Buttons.LeftShoulder == ButtonState.Released && m_state.Buttons.LeftShoulder == ButtonState.Pressed);
                         break;
 
-                    case Button.RT:
+                    case XboxInputType.Button.RT:
                         btnState = (m_prevState.Triggers.Right < 0.25f && m_state.Triggers.Right > 0.75f);
                         break;
 
-                    case Button.LT:
+                    case XboxInputType.Button.LT:
                         btnState = (m_prevState.Triggers.Left < 0.25f && m_state.Triggers.Left > 0.75f);
                         break;
 
-                    case Button.RS:
+                    case XboxInputType.Button.RS:
                         btnState = (m_prevState.Buttons.RightStick == ButtonState.Released && m_state.Buttons.RightStick == ButtonState.Pressed);
                         break;
 
-                    case Button.LS:
+                    case XboxInputType.Button.LS:
                         btnState = (m_prevState.Buttons.LeftStick == ButtonState.Released && m_state.Buttons.LeftStick == ButtonState.Pressed);
                         break;
 
-                    case Button.Start:
+                    case XboxInputType.Button.Start:
                         btnState = (m_prevState.Buttons.Start == ButtonState.Released && m_state.Buttons.Start == ButtonState.Pressed);
                         break;
 
-                    case Button.Back:
+                    case XboxInputType.Button.Back:
                         btnState = (m_prevState.Buttons.Back == ButtonState.Released && m_state.Buttons.Back == ButtonState.Pressed);
                         break;
 
-                    case Button.Guide:
+                    case XboxInputType.Button.Guide:
                         btnState = (m_prevState.Buttons.Guide == ButtonState.Released && m_state.Buttons.Guide == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadUp:
+                    case XboxInputType.Button.DPadUp:
                         btnState = (m_prevState.DPad.Up == ButtonState.Released && m_state.DPad.Up == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadDown:
+                    case XboxInputType.Button.DPadDown:
                         btnState = (m_prevState.DPad.Down == ButtonState.Released && m_state.DPad.Down == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadLeft:
+                    case XboxInputType.Button.DPadLeft:
                         btnState = (m_prevState.DPad.Left == ButtonState.Released && m_state.DPad.Left == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadRight:
+                    case XboxInputType.Button.DPadRight:
                         btnState = (m_prevState.DPad.Right == ButtonState.Released && m_state.DPad.Right == ButtonState.Pressed);
                         break;
                 }
@@ -160,73 +144,73 @@ namespace xFF
             {
                 bool btnState = false;
 
-                switch ((Button)aBtn)
+                switch ((XboxInputType.Button)aBtn)
                 {
-                    case Button.A:
+                    case XboxInputType.Button.A:
                         btnState = (m_prevState.Buttons.A == ButtonState.Pressed && m_state.Buttons.A == ButtonState.Released);
                         break;
 
-                    case Button.B:
+                    case XboxInputType.Button.B:
                         btnState = (m_prevState.Buttons.B == ButtonState.Pressed && m_state.Buttons.B == ButtonState.Released);
                         break;
 
-                    case Button.X:
+                    case XboxInputType.Button.X:
                         btnState = (m_prevState.Buttons.X == ButtonState.Pressed && m_state.Buttons.X == ButtonState.Released);
                         break;
 
-                    case Button.Y:
+                    case XboxInputType.Button.Y:
                         btnState = (m_prevState.Buttons.Y == ButtonState.Pressed && m_state.Buttons.Y == ButtonState.Released);
                         break;
 
-                    case Button.RB:
+                    case XboxInputType.Button.RB:
                         btnState = (m_prevState.Buttons.RightShoulder == ButtonState.Pressed && m_state.Buttons.RightShoulder == ButtonState.Released);
                         break;
 
-                    case Button.LB:
+                    case XboxInputType.Button.LB:
                         btnState = (m_prevState.Buttons.LeftShoulder == ButtonState.Pressed && m_state.Buttons.LeftShoulder == ButtonState.Released);
                         break;
 
-                    case Button.RT:
+                    case XboxInputType.Button.RT:
                         btnState = (m_prevState.Triggers.Right > 0.75f && m_state.Triggers.Right < 0.25f);
                         break;
 
-                    case Button.LT:
+                    case XboxInputType.Button.LT:
                         btnState = (m_prevState.Triggers.Left > 0.75f && m_state.Triggers.Left < 0.25f);
                         break;
 
-                    case Button.RS:
+                    case XboxInputType.Button.RS:
                         btnState = (m_prevState.Buttons.RightStick == ButtonState.Pressed && m_state.Buttons.RightStick == ButtonState.Released);
                         break;
 
-                    case Button.LS:
+                    case XboxInputType.Button.LS:
                         btnState = (m_prevState.Buttons.LeftStick == ButtonState.Pressed && m_state.Buttons.LeftStick == ButtonState.Released);
                         break;
 
-                    case Button.Start:
+                    case XboxInputType.Button.Start:
                         btnState = (m_prevState.Buttons.Start == ButtonState.Pressed && m_state.Buttons.Start == ButtonState.Released);
                         break;
 
-                    case Button.Back:
+                    case XboxInputType.Button.Back:
                         btnState = (m_prevState.Buttons.Back == ButtonState.Pressed && m_state.Buttons.Back == ButtonState.Released);
                         break;
 
-                    case Button.Guide:
+                    case XboxInputType.Button.Guide:
                         btnState = (m_prevState.Buttons.Guide == ButtonState.Pressed && m_state.Buttons.Guide == ButtonState.Released);
                         break;
 
-                    case Button.DPadUp:
+                    case XboxInputType.Button.DPadUp:
                         btnState = (m_prevState.DPad.Up == ButtonState.Pressed && m_state.DPad.Up == ButtonState.Released);
                         break;
 
-                    case Button.DPadDown:
+                    case XboxInputType.Button.DPadDown:
                         btnState = (m_prevState.DPad.Down == ButtonState.Pressed && m_state.DPad.Down == ButtonState.Released);
                         break;
 
-                    case Button.DPadLeft:
+                    case XboxInputType.Button.DPadLeft:
                         btnState = (m_prevState.DPad.Left == ButtonState.Pressed && m_state.DPad.Left == ButtonState.Released);
                         break;
 
-                    case Button.DPadRight:
+                    case XboxInputType.Button.DPadRight:
                         btnState = (m_prevState.DPad.Right == ButtonState.Pressed && m_state.DPad.Right == ButtonState.Released);
                         break;
                 }
@@ -239,78 +223,113 @@ namespace xFF
             {
                 bool btnState = false;
 
-                switch ((Button)aBtn)
+                switch ((XboxInputType.Button)aBtn)
                 {
-                    case Button.A:
+                    case XboxInputType.Button.A:
                         btnState = (m_prevState.Buttons.A == ButtonState.Pressed);
                         break;
 
-                    case Button.B:
+                    case XboxInputType.Button.B:
                         btnState = (m_prevState.Buttons.B == ButtonState.Pressed);
                         break;
 
-                    case Button.X:
+                    case XboxInputType.Button.X:
                         btnState = (m_prevState.Buttons.X == ButtonState.Pressed);
                         break;
 
-                    case Button.Y:
+                    case XboxInputType.Button.Y:
                         btnState = (m_prevState.Buttons.Y == ButtonState.Pressed);
                         break;
 
-                    case Button.RB:
+                    case XboxInputType.Button.RB:
                         btnState = (m_prevState.Buttons.RightShoulder == ButtonState.Pressed);
                         break;
 
-                    case Button.LB:
+                    case XboxInputType.Button.LB:
                         btnState = (m_prevState.Buttons.LeftShoulder == ButtonState.Pressed);
                         break;
 
-                    case Button.RT:
+                    case XboxInputType.Button.RT:
                         btnState = (m_prevState.Triggers.Right > 0.75f);
                         break;
 
-                    case Button.LT:
+                    case XboxInputType.Button.LT:
                         btnState = (m_prevState.Triggers.Left > 0.75f);
                         break;
 
-                    case Button.RS:
+                    case XboxInputType.Button.RS:
                         btnState = (m_prevState.Buttons.RightStick == ButtonState.Pressed);
                         break;
 
-                    case Button.LS:
+                    case XboxInputType.Button.LS:
                         btnState = (m_prevState.Buttons.LeftStick == ButtonState.Pressed);
                         break;
 
-                    case Button.Start:
+                    case XboxInputType.Button.Start:
                         btnState = (m_prevState.Buttons.Start == ButtonState.Pressed);
                         break;
 
-                    case Button.Back:
+                    case XboxInputType.Button.Back:
                         btnState = (m_prevState.Buttons.Back == ButtonState.Pressed);
                         break;
 
-                    case Button.Guide:
+                    case XboxInputType.Button.Guide:
                         btnState = (m_prevState.Buttons.Guide == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadUp:
+                    case XboxInputType.Button.DPadUp:
                         btnState = (m_prevState.DPad.Up == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadDown:
+                    case XboxInputType.Button.DPadDown:
                         btnState = (m_prevState.DPad.Down == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadLeft:
+                    case XboxInputType.Button.DPadLeft:
                         btnState = (m_prevState.DPad.Left == ButtonState.Pressed);
                         break;
 
-                    case Button.DPadRight:
+                    case XboxInputType.Button.DPadRight:
                         btnState = (m_prevState.DPad.Right == ButtonState.Pressed);
                         break;
                 }
 
                 return btnState;
+            }
+
+
+            public float GetAxis(int aAxisIdx)
+            {
+                float v = 0.0f;
+
+                switch ((XboxInputType.Axis)aAxisIdx)
+                {
+                    case XboxInputType.Axis.LeftStickX:
+                        v = m_state.ThumbSticks.Left.X;
+                        break;
+
+                    case XboxInputType.Axis.LeftStickY:
+                        v = m_state.ThumbSticks.Left.Y;
+                        break;
+
+                    case XboxInputType.Axis.RightStickX:
+                        v = m_state.ThumbSticks.Right.X;
+                        break;
+
+                    case XboxInputType.Axis.RightStickY:
+                        v = m_state.ThumbSticks.Right.Y;
+                        break;
+
+                    case XboxInputType.Axis.RT:
+                        v = m_state.Triggers.Right;
+                        break;
+
+                    case XboxInputType.Axis.LT:
+                        v = m_state.Triggers.Left;
+                        break;
+                }
+
+                return v;
             }
 
 
