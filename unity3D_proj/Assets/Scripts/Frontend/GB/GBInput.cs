@@ -36,8 +36,10 @@ namespace xFF
             namespace GB
             {
 
-                public class GBInput
+
+                public abstract class GBInput : PlatformSupport.InputHelper
                 {
+
                     public enum GBButtons
                     {
                         A,
@@ -50,191 +52,100 @@ namespace xFF
                         DPadRight
                     }
 
-                    public class InputHelper
+                    public static List<GBInput> InputList
                     {
-                        PlatformSupport.IPlatformInput m_input;
-                        Dictionary<int, int> m_mappedButtons;
+                        get { return s_inputList; }
+                    }
 
-                        public bool GetButton(GBButtons aGBBtn)
-                        {
-                            return m_input.GetButton(m_mappedButtons[(int)aGBBtn]);
-                        }
+                    protected static List<GBInput> s_inputList = new List<GBInput>(4);
 
-                        public bool GetButtonDown(GBButtons aGBBtn)
-                        {
-                            return m_input.GetButtonDown(m_mappedButtons[(int)aGBBtn]);
-                        }
-
-                        public bool GetButtonUp(GBButtons aGBBtn)
-                        {
-                            return m_input.GetButtonUp(m_mappedButtons[(int)aGBBtn]);
-                        }
+                    protected Dictionary<int, MappedButton> m_mappedButtons;
+                    protected PlatformSupport.IPlatformInput m_input;
+                    protected int m_keysState;
 
 
-                        public InputHelper(PlatformSupport.IPlatformInput aInput)
-                        {
-                            m_input = aInput;
-                            m_mappedButtons = new Dictionary<int, int>(8);
-
-
-                            if (m_input is PlatformSupport.KeyboardInput)
-                            {
-                                m_mappedButtons.Add((int)GBButtons.A, (int)KeyCode.X);
-                                m_mappedButtons.Add((int)GBButtons.B, (int)KeyCode.Z);
-                                m_mappedButtons.Add((int)GBButtons.Select, (int)KeyCode.RightShift);
-                                m_mappedButtons.Add((int)GBButtons.Start, (int)KeyCode.Return);
-                                m_mappedButtons.Add((int)GBButtons.DPadDown, (int)KeyCode.DownArrow);
-                                m_mappedButtons.Add((int)GBButtons.DPadUp, (int)KeyCode.UpArrow);
-                                m_mappedButtons.Add((int)GBButtons.DPadLeft, (int)KeyCode.LeftArrow);
-                                m_mappedButtons.Add((int)GBButtons.DPadRight, (int)KeyCode.RightArrow);
-                            }
-
-                    #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                            else if (m_input is PlatformSupport.XInputController)
-                            {
-                                m_mappedButtons.Add((int)GBButtons.A, (int)PlatformSupport.XInputController.Button.B);
-                                m_mappedButtons.Add((int)GBButtons.B, (int)PlatformSupport.XInputController.Button.A);
-                                m_mappedButtons.Add((int)GBButtons.Select, (int)PlatformSupport.XInputController.Button.Back);
-                                m_mappedButtons.Add((int)GBButtons.Start, (int)PlatformSupport.XInputController.Button.Start);
-                                m_mappedButtons.Add((int)GBButtons.DPadDown, (int)PlatformSupport.XInputController.Button.DPadDown);
-                                m_mappedButtons.Add((int)GBButtons.DPadUp, (int)PlatformSupport.XInputController.Button.DPadUp);
-                                m_mappedButtons.Add((int)GBButtons.DPadLeft, (int)PlatformSupport.XInputController.Button.DPadLeft);
-                                m_mappedButtons.Add((int)GBButtons.DPadRight, (int)PlatformSupport.XInputController.Button.DPadRight);
-                            }
-                    #endif
-
-                            else
-                            {
-                                m_mappedButtons.Add((int)GBButtons.A, 3);
-                                m_mappedButtons.Add((int)GBButtons.B, 2);
-                                m_mappedButtons.Add((int)GBButtons.Select, 9);
-                                m_mappedButtons.Add((int)GBButtons.Start, 10);
-                                m_mappedButtons.Add((int)GBButtons.DPadDown, 11);
-                                m_mappedButtons.Add((int)GBButtons.DPadUp, 12);
-                                m_mappedButtons.Add((int)GBButtons.DPadLeft, 13);
-                                m_mappedButtons.Add((int)GBButtons.DPadRight, 14);
-                            }
-                        }
-
-
-                        public int GetMappedCode(GBButtons aBtn)
-                        {
-                            return m_mappedButtons[(int)aBtn];
-                        }
-
-
-                        public void SetMappedCode(GBButtons aBtn, int aCode)
-                        {
-                            m_mappedButtons[(int)aBtn] = aCode;
-                        }
-
-                        public PlatformSupport.IPlatformInput GetPlatformInput( )
-                        {
-                            return m_input;
-                        }
+                    protected GBInput(PlatformSupport.IPlatformInput aInput)
+                    {
+                        m_input = aInput;
+                        m_mappedButtons = new Dictionary<int, MappedButton>(8);
                     }
 
 
-                    List<InputHelper> m_helpers;
-                    InputHelper m_selectedInput;
-                    int m_keysState;
-
-
-                    public List<InputHelper> GetInputList( )
-                    {
-                        return m_helpers;
-                    }
-
-
-                    public bool A
+                    public virtual bool A
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.A);
+                            return m_mappedButtons[(int)GBButtons.A].Held(m_input);
                         }
                     }
 
 
-                    public bool B
+                    public virtual bool B
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.B);
+                            return m_mappedButtons[(int)GBButtons.B].Held(m_input);
                         }
                     }
 
 
-                    public bool Select
+                    public virtual bool Select
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.Select);
+                            return m_mappedButtons[(int)GBButtons.Select].Held(m_input);
                         }
                     }
 
 
-                    public bool Start
+                    public virtual bool Start
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.Start);
+                            return m_mappedButtons[(int)GBButtons.Start].Held(m_input);
                         }
                     }
 
 
-                    public bool DPadUp
+                    public virtual bool DPadUp
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.DPadUp);
+                            return m_mappedButtons[(int)GBButtons.DPadUp].Held(m_input);
                         }
                     }
 
 
-                    public bool DPadDown
+                    public virtual bool DPadDown
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.DPadDown);
+                            return m_mappedButtons[(int)GBButtons.DPadDown].Held(m_input);
                         }
                     }
 
 
-                    public bool DPadLeft
+                    public virtual bool DPadLeft
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.DPadLeft);
+                            return m_mappedButtons[(int)GBButtons.DPadLeft].Held(m_input);
                         }
                     }
 
 
-                    public bool DPadRight
+                    public virtual bool DPadRight
                     {
                         get
                         {
-                            return m_selectedInput.GetButton(GBButtons.DPadRight);
+                            return m_mappedButtons[(int)GBButtons.DPadRight].Held(m_input);
                         }
                     }
 
 
-                    public int GetKeysState()
+                    public int GetKeysState( )
                     {
                         return m_keysState;
-                    }
-
-
-                    public void Init( )
-                    {
-                        m_helpers = new List<InputHelper>(4);
-
-                        var inputs = PlatformSupport.PlatformFactory.GetPlatform().GetConnectedInputs();
-                        for (int i = 0; i < inputs.Count; ++i)
-                        {
-                            m_helpers.Add(new InputHelper(inputs[i]));
-                        }
-
-                        m_selectedInput = m_helpers[0];
                     }
 
 
@@ -259,11 +170,90 @@ namespace xFF
                         keys |= Select ? (1 << 6) : 0;
                         keys |= Start ? (1 << 7) : 0;
 
-                        
+
 
                         m_keysState = ~keys;
                     }
+
+
+                    public abstract void AssignDefaultMappings( );
+
+                    public abstract void ApplyCustomMappings(EmuCores.GB.ConfigsGB.InputProfile aProfile);
+
+
+                    public static GBInput BuildInput(EmuCores.GB.ConfigsGB.InputProfile aProfile, List<PlatformSupport.IPlatformInput> aInputList)
+                    {
+                        // Build input list
+                        for (int i = 0; i < aInputList.Count; ++i)
+                        {
+                            if (aInputList[i].InputType == PlatformSupport.InputType.Keyboard)
+                            {
+                                s_inputList.Add(new KeyboardInput_GB(aInputList[i]));
+                            }
+
+                            else if (aInputList[i].InputType == PlatformSupport.InputType.Xbox)
+                            {
+                                s_inputList.Add(new XboxInput_GB(aInputList[i]));
+                            }
+
+                            else if (aInputList[i] is PlatformSupport.GenericJoystick)
+                            {
+                                s_inputList.Add(new GenericJoystick_GB(aInputList[i]));
+                            }
+                        }
+
+                        if (aInputList.Count == 1)
+                        {
+                            return s_inputList[0];
+                        }
+
+                        return new MasterInput_GB();
+
+
+                        //TODO: apply custom profiles
+#if _DISABLED
+                        for (int i = 0; i < aInputList.Count; ++i)
+                        {
+                            if (aProfile.inputType == "keyboard" && aInputList[i] is PlatformSupport.KeyboardInput)
+                            {
+                                var kbd = new KeyboardInput_GB(aInputList[i]);
+                                kbd.ApplyCustomMappings(aProfile);
+                                return kbd;
+                            }
+
+                            else if (aProfile.inputType == "xinput" && aInputList[i] is PlatformSupport.XboxInputType)
+                            {
+                                var xinput = new XboxInput_GB(aInputList[i]);
+                                xinput.ApplyCustomMappings(aProfile);
+                                return xinput;
+                            }
+
+                            else if (aProfile.inputType == "joystick" && aInputList[i] is PlatformSupport.GenericJoystick)
+                            {
+                                var joystick = new GenericJoystick_GB(aInputList[i]);
+                                joystick.ApplyCustomMappings(aProfile);
+                                return joystick;
+                            }
+                        }
+
+                        // Build default for platform
+                        var defaultInput = aInputList[0];
+                        if (defaultInput is PlatformSupport.KeyboardInput)
+                        {
+                            return new KeyboardInput_GB(defaultInput);
+                        }
+                        else if (defaultInput is PlatformSupport.XboxInputType)
+                        {
+                            return new XboxInput_GB(defaultInput);
+                        }
+
+                        // Keyboard as fallback
+                        return new KeyboardInput_GB(defaultInput);
+#endif // _DISABLED
+                    }
+
                 }
+
 
             }
             // namespace GB
