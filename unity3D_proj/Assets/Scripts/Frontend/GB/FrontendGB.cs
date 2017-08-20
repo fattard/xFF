@@ -56,7 +56,6 @@ namespace xFF
                     void Awake( )
                     {
                         m_platform = PlatformSupport.PlatformFactory.GetPlatform();
-                        m_gbInput = new GBInput();
                     }
 
 
@@ -69,12 +68,11 @@ namespace xFF
                         }
                         this.enabled = true;
 
-                        m_gbInput.Init();
-
                         EmuCores.GB.ConfigsGB configsGB = LoadConfigFile();
 
-                        SetDefaultInputMappings(configsGB, m_gbInput);
-                        ApplyCustomInputMapping(configsGB, m_gbInput);
+                        // Find preferred input
+                        m_gbInput = GBInput.BuildInput(configsGB.inputProfiles[configsGB.inputProfileActiveIndex], m_platform.GetConnectedInputs());
+                            
 
                         // Running direct from scene
                         if (EmuEnvironment.EmuCore == EmuEnvironment.Cores._Unknown)
@@ -176,8 +174,8 @@ namespace xFF
                         m_emuGB.EmulateFrame();
                         lcdDisplay.Render();
 
-                        
 
+                    #if UNITY_EDITOR
                         // Prevent DBG unresponsive loops
                         float newTime = Time.realtimeSinceStartup;
                         if ((newTime - lastUpdateTick) > 5)
@@ -186,6 +184,7 @@ namespace xFF
                             Debug.Break();
                         }
                         lastUpdateTick = newTime;
+                    #endif
                     }
 
 
@@ -236,63 +235,6 @@ namespace xFF
                         aConf.dmgColors.color2.Set((int)(255 * frontendConfigs.color2.r), (int)(255 * frontendConfigs.color2.g), (int)(255 * frontendConfigs.color2.b));
                         aConf.dmgColors.color3.Set((int)(255 * frontendConfigs.color3.r), (int)(255 * frontendConfigs.color3.g), (int)(255 * frontendConfigs.color3.b));
                         aConf.dmgColors.colorDisabledLCD.Set((int)(255 * frontendConfigs.color0.r), (int)(255 * frontendConfigs.color0.g), (int)(255 * frontendConfigs.color0.b));
-                    }
-
-
-                    void SetDefaultInputMappings(EmuCores.GB.ConfigsGB aConf, GBInput aGBInput)
-                    {
-                        /*var inputs = aGBInput.GetInputList();
-
-                        if (aConf.inputProfiles[0].inputType == "none")
-                        {
-                            if (inputs[0].GetPlatformInput() is PlatformSupport.KeyboardInput)
-                            {
-                                aConf.inputProfiles[0].inputType = "keyboard";
-                            }
-
-                    #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                            else if (inputs[0].GetPlatformInput() is PlatformSupport.XInputController)
-                            {
-                                aConf.inputProfiles[0].inputType = "xinput";
-                            }
-                    #endif
-
-                            else
-                            {
-                                aConf.inputProfiles[0].inputType = "joystick";
-                            }
-
-                            aConf.inputProfiles[0].buttonA = inputs[0].GetMappedCode(GBInput.GBButtons.A).ToString();
-                            aConf.inputProfiles[0].buttonB = inputs[0].GetMappedCode(GBInput.GBButtons.B).ToString();
-                            aConf.inputProfiles[0].buttonSelect = inputs[0].GetMappedCode(GBInput.GBButtons.Select).ToString();
-                            aConf.inputProfiles[0].buttonStart = inputs[0].GetMappedCode(GBInput.GBButtons.Start).ToString();
-                            aConf.inputProfiles[0].buttonDPadUp = inputs[0].GetMappedCode(GBInput.GBButtons.DPadUp).ToString();
-                            aConf.inputProfiles[0].buttonDPadDown = inputs[0].GetMappedCode(GBInput.GBButtons.DPadDown).ToString();
-                            aConf.inputProfiles[0].buttonDPadLeft = inputs[0].GetMappedCode(GBInput.GBButtons.DPadLeft).ToString();
-                            aConf.inputProfiles[0].buttonDPadRight = inputs[0].GetMappedCode(GBInput.GBButtons.DPadRight).ToString();
-                        }*/
-                    }
-
-
-                    void ApplyCustomInputMapping(EmuCores.GB.ConfigsGB aConf, GBInput aGBInput)
-                    {
-                        /*var inputs = aGBInput.GetInputList();
-
-                        if ((inputs[0].GetPlatformInput() is PlatformSupport.KeyboardInput) && (aConf.inputProfiles[0].inputType == "keyboard")
-                #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                        || (inputs[0].GetPlatformInput() is PlatformSupport.XInputController) && (aConf.inputProfiles[0].inputType == "xinput")
-                #endif
-                        || (inputs[0].GetPlatformInput() is PlatformSupport.GenericJoystick) && (aConf.inputProfiles[0].inputType == "joystick"))
-                        {
-                            inputs[0].SetMappedCode(GBInput.GBButtons.A, int.Parse(aConf.inputProfiles[0].buttonA));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.B, int.Parse(aConf.inputProfiles[0].buttonB));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.Select, int.Parse(aConf.inputProfiles[0].buttonSelect));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.Start, int.Parse(aConf.inputProfiles[0].buttonStart));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.DPadUp, int.Parse(aConf.inputProfiles[0].buttonDPadUp));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.DPadDown, int.Parse(aConf.inputProfiles[0].buttonDPadDown));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.DPadLeft, int.Parse(aConf.inputProfiles[0].buttonDPadLeft));
-                            inputs[0].SetMappedCode(GBInput.GBButtons.DPadRight, int.Parse(aConf.inputProfiles[0].buttonDPadRight));
-                        }*/
                     }
 
 
