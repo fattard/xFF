@@ -39,6 +39,7 @@ namespace xFF
         {
 
             int m_baseBtn;
+            string[] m_axisNames;
 
 
             public GenericJoystick(int aIdx)
@@ -81,6 +82,12 @@ namespace xFF
                         m_baseBtn = (int)KeyCode.Joystick1Button0;
                         break;
                 }
+
+                m_axisNames = new string[20];
+                for (int i = 0; i < m_axisNames.Length; ++i)
+                {
+                    m_axisNames[i] = "j" + (aIdx + 1) + " axis " + i;
+                }
             }
             
 
@@ -99,6 +106,12 @@ namespace xFF
             public bool GetButton(int aBtn)
             {
                 return Input.GetKey((KeyCode)(m_baseBtn + aBtn));
+            }
+
+
+            public float GetAxis(int aAxisNum)
+            {
+                return Input.GetAxis(m_axisNames[aAxisNum]);
             }
 
 

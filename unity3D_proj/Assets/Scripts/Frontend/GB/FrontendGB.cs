@@ -44,10 +44,11 @@ namespace xFF
                 {
                     public ConfigsGB frontendConfigs;
                     public LCDDisplay lcdDisplay;
-                    public GBInput gbInput;
+                    
 
                     PlatformSupport.IPlatform m_platform;
                     EmuCores.GB.EmuGB m_emuGB;
+                    GBInput m_gbInput;
 
                     float lastUpdateTick;
 
@@ -55,6 +56,7 @@ namespace xFF
                     void Awake( )
                     {
                         m_platform = PlatformSupport.PlatformFactory.GetPlatform();
+                        m_gbInput = new GBInput();
                     }
 
 
@@ -67,12 +69,12 @@ namespace xFF
                         }
                         this.enabled = true;
 
-                        gbInput.Init();
+                        m_gbInput.Init();
 
                         EmuCores.GB.ConfigsGB configsGB = LoadConfigFile();
 
-                        SetDefaultInputMappings(configsGB, gbInput);
-                        ApplyCustomInputMapping(configsGB, gbInput);
+                        SetDefaultInputMappings(configsGB, m_gbInput);
+                        ApplyCustomInputMapping(configsGB, m_gbInput);
 
                         // Running direct from scene
                         if (EmuEnvironment.EmuCore == EmuEnvironment.Cores._Unknown)
@@ -87,7 +89,7 @@ namespace xFF
                         m_emuGB = new EmuCores.GB.EmuGB(configsGB);
                         m_emuGB.DrawDisplay = lcdDisplay.DrawDisplay;
                         m_emuGB.DrawDisplayLine = lcdDisplay.DrawDisplayLine;
-                        m_emuGB.GetKeysState = gbInput.GetKeysState;
+                        m_emuGB.GetKeysState = m_gbInput.GetKeysState;
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
 
@@ -169,7 +171,7 @@ namespace xFF
                     void Update( )
                     {
                         m_platform.UpdateState();
-                        gbInput.UpdateState();
+                        m_gbInput.UpdateState();
 
                         m_emuGB.EmulateFrame();
                         lcdDisplay.Render();
@@ -239,7 +241,7 @@ namespace xFF
 
                     void SetDefaultInputMappings(EmuCores.GB.ConfigsGB aConf, GBInput aGBInput)
                     {
-                        var inputs = aGBInput.GetInputList();
+                        /*var inputs = aGBInput.GetInputList();
 
                         if (aConf.inputProfiles[0].inputType == "none")
                         {
@@ -268,13 +270,13 @@ namespace xFF
                             aConf.inputProfiles[0].buttonDPadDown = inputs[0].GetMappedCode(GBInput.GBButtons.DPadDown).ToString();
                             aConf.inputProfiles[0].buttonDPadLeft = inputs[0].GetMappedCode(GBInput.GBButtons.DPadLeft).ToString();
                             aConf.inputProfiles[0].buttonDPadRight = inputs[0].GetMappedCode(GBInput.GBButtons.DPadRight).ToString();
-                        }
+                        }*/
                     }
 
 
                     void ApplyCustomInputMapping(EmuCores.GB.ConfigsGB aConf, GBInput aGBInput)
                     {
-                        var inputs = aGBInput.GetInputList();
+                        /*var inputs = aGBInput.GetInputList();
 
                         if ((inputs[0].GetPlatformInput() is PlatformSupport.KeyboardInput) && (aConf.inputProfiles[0].inputType == "keyboard")
                 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
@@ -290,7 +292,7 @@ namespace xFF
                             inputs[0].SetMappedCode(GBInput.GBButtons.DPadDown, int.Parse(aConf.inputProfiles[0].buttonDPadDown));
                             inputs[0].SetMappedCode(GBInput.GBButtons.DPadLeft, int.Parse(aConf.inputProfiles[0].buttonDPadLeft));
                             inputs[0].SetMappedCode(GBInput.GBButtons.DPadRight, int.Parse(aConf.inputProfiles[0].buttonDPadRight));
-                        }
+                        }*/
                     }
 
 

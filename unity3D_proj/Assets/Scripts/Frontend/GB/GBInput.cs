@@ -36,7 +36,7 @@ namespace xFF
             namespace GB
             {
 
-                public class GBInput : MonoBehaviour
+                public class GBInput
                 {
                     public enum GBButtons
                     {
