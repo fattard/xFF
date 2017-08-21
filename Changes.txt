@@ -1,0 +1,95 @@
+
+
+
+Version 0.0.4 (Alpha) - AUG/19/2017
+===================================
+
+Supported Cores:
+----------------
+- Game Boy - Classic GB emulator. Please, check the emulation
+  status (https://github.com/fattard/xFF/blob/0.0.4/GB_Status.md)
+  with details of what is supported, and what is in progress and known issues.
+- BytePusher - A special test core to help me creating the foundations
+  that will allow running all real cores.
+  More info: https://esolangs.org/wiki/BytePusher
+  
+[DMG] GB Core Updates:
+----------------------
+- Added support for running official bootROMs (disabled by default, must
+  edit config file that is created after running for first time).
+- Added support for all graphics modes, including Backgrounds, Window overlay,
+  and Sprites.
+- Input control using keyboard, still not possible to customize.
+  Check main page (https://github.com/fattard/xFF) for more information,
+  and also status page with in-depth emulation
+  status (https://github.com/fattard/xFF/blob/0.0.4/GB_Status.md).
+- Most of hardware is emulated now, altough accuracy is just OK.
+
+
+
+
+
+Version 0.0.3 (Alpha) - AUG/07/2017
+===================================
+
+New Core Support:
+-----------------
+- DMG - Support for Game Boy emulation. Please, check the emulation
+  status (https://github.com/fattard/xFF/blob/0.0.3/GB_Status.md) with details of what
+  is supported, and what is in progress and known issues.
+
+Other Supported Cores:
+----------------------
+- BytePusher - A special test core to help me creating the foundations
+  that will allow running all real cores.
+  More info: https://esolangs.org/wiki/BytePusher
+  
+[DMG] GB Core Updates:
+----------------------
+- Basic background support, enough to run test roms such as Blargg's cpu_instrs individual
+  tests (http://gbdev.gg8.se/files/roms/blargg-gb-tests/) and some mooneye-gb
+  tests (https://gekkio.fi/files/mooneye-gb/latest/).
+- There's an embedded custom bootROM, so no need to provide one.
+  Note that the current state of emulation will not run with official bootROMS,
+  due to missing pieces of emulation like scanline counting and LCD register statuses.
+
+
+
+
+  
+Version 0.0.2 (Alpha) - AUG/05/2017
+===================================
+
+Supported Cores:
+----------------
+- BytePusher - A special test core to help me creating the foundations
+  that will allow running all real cores.
+  More info: https://esolangs.org/wiki/BytePusher
+
+
+[BytePusher] Core Updates
+-------------------------
+- Added support for Keyboard and sound. The sound might be stuttering a bit,
+  not sure without more roms with sound support to check against other emulators.
+- You can download the 'roms' from BytePusher Home, as well getting more information
+  about the VM system: https://esolangs.org/wiki/BytePusher#Programs
+
+
+
+
+ 
+Version 0.0.1 (Alpha) - JUL/28/2017
+===================================
+
+New Core Support:
+-----------------
+- BytePusher - First emulator core support. This is a special test core to help me
+  creating the foundations that will allow running all real cores.
+  More information about BytePusher: https://esolangs.org/wiki/BytePusher
+
+[BytePusher] Core Updates:
+--------------------------
+- Full graphics support, allowing it to run all the available 'roms'.
+  Sound and keyboard not supported yet.
+- You can download the 'roms' from BytePusher Home, as well getting
+  more information about the VM system: https://esolangs.org/wiki/BytePusher#Programs

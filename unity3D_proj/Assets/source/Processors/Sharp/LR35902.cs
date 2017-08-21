@@ -278,7 +278,8 @@ namespace xFF
                 /// <returns>Returns 1 if there is a carry from bit 11</returns>
                 public static int HasHalfCarry16(int newValue, int oldValue)
                 {
-                    return (newValue & 0xF000) > (oldValue & 0xF000) ? 1 : 0;
+                    //return (newValue & 0xF000) > (oldValue & 0xF000) ? 1 : 0;
+                    return (oldValue & 0xF000) - (newValue & 0xF000) > 0 ? 1 : 0;
                 }
 
 
@@ -302,7 +303,8 @@ namespace xFF
                 /// <returns>Returns 1 if there is a carry from bit 3</returns>
                 public static int HasHalfCarry8(int newValue, int oldValue)
                 {
-                    return (newValue & 0xFFF0) > (oldValue & 0xF0) ? 1 : 0;
+                    //return (newValue & 0xFFF0) > (oldValue & 0xF0) ? 1 : 0;
+                    return (oldValue & 0x0F) - (newValue & 0x0F) > 0 ? 1 : 0;
                 }
 
 
@@ -314,10 +316,7 @@ namespace xFF
                 /// <returns>Returns 1 if there is a borrow from bit 4</returns>
                 public static int HasHalfBorrow8(int newValue, int oldValue)
                 {
-                    int p1 = newValue & 0xFFF0;
-                    int p2 = oldValue & 0xFFF0;
-
-                    return (newValue & 0xFFF0) < (oldValue & 0xFFF0) ? 1 : 0;
+                    return (oldValue & 0x0F) - (newValue & 0x0F) < 0 ? 1 : 0;
                 }
                 #endregion Helpers
 

@@ -196,7 +196,7 @@ namespace xFF
                                 s_inputList.Add(new XboxInput_GB(aInputList[i]));
                             }
 
-                            else if (aInputList[i] is PlatformSupport.GenericJoystick)
+                            else if (aInputList[i].InputType == PlatformSupport.InputType.GenericJoystick)
                             {
                                 s_inputList.Add(new GenericJoystick_GB(aInputList[i]));
                             }
