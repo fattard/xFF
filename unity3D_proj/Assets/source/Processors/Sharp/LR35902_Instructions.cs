@@ -1102,11 +1102,12 @@ namespace xFF
                         {
                             sbyte e = (sbyte)Read8(m_regs.PC++);
                             int v = m_regs.SP + e;
+                            int hv = (0x0FFF & m_regs.SP) + e;
 
                             m_regs.F.Z = 0;
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry16(v, m_regs.SP);
-                            m_regs.F.C = HasCarry16(v, m_regs.SP);
+                            m_regs.F.H = HasHalfCarry16(hv);
+                            m_regs.F.C = HasCarry16(v);
 
                             m_regs.HL = v;
 
@@ -1188,11 +1189,12 @@ namespace xFF
                             int r = (0x7 & m_fetchedInstruction);
 
                             int v = (m_regs.A + m_regs[r]);
+                            int hv = (0x0F & m_regs.A) + (0x0F & m_regs[r]);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
-                            m_regs.F.C = HasCarry8(v, m_regs.A);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(v);
 
                             m_regs.A = v;
 
@@ -1244,11 +1246,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.PC++);
                             int v = (m_regs.A + n);
+                            int hv = (0x0F & m_regs.A) + (0x0F & n);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
-                            m_regs.F.C = HasCarry8(v, m_regs.A);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(v);
 
                             m_regs.A = v;
 
@@ -1288,11 +1291,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = (m_regs.A + n);
+                            int hv = (0x0F & m_regs.A) + (0x0F & n);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
-                            m_regs.F.C = HasCarry8(v, m_regs.A);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(v);
 
                             m_regs.A = v;
 
@@ -1333,11 +1337,12 @@ namespace xFF
                             int r = (0x07 & m_fetchedInstruction);
 
                             int v = (m_regs.A + m_regs[r] + m_regs.F.C);
+                            int hv = (0x0F & m_regs.A) + (0x0F & m_regs[r]) + m_regs.F.C;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
-                            m_regs.F.C = HasCarry8(v, m_regs.A);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(v);
 
                             m_regs.A = v;
 
@@ -1390,11 +1395,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.PC++);
                             int v = (m_regs.A + n + m_regs.F.C);
+                            int hv = (0x0F & m_regs.A) + (0x0F & n) + m_regs.F.C;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
-                            m_regs.F.C = HasCarry8(v, m_regs.A);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(v);
 
                             m_regs.A = v;
 
@@ -1434,11 +1440,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = (m_regs.A + n + m_regs.F.C);
+                            int hv = (0x0F & m_regs.A) + (0x0F & n) + m_regs.F.C;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs.A);
-                            m_regs.F.C = HasCarry8(v, m_regs.A);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(v);
 
                             m_regs.A = v;
 
@@ -1479,11 +1486,12 @@ namespace xFF
                             int r = (0x07 & m_fetchedInstruction);
 
                             int v = (m_regs.A - m_regs[r]);
+                            int hv = (0x0F & m_regs.A) - (0x0F & m_regs[r]);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs.A = v;
 
@@ -1535,11 +1543,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.PC++);
                             int v = (m_regs.A - n);
+                            int hv = (0x0F & m_regs.A) - (0x0F & n);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs.A = v;
 
@@ -1579,11 +1588,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = (m_regs.A - n);
+                            int hv = (0x0F & m_regs.A) - (0x0F & n);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs.A = v;
 
@@ -1624,11 +1634,12 @@ namespace xFF
                             int r = (0x07 & m_fetchedInstruction);
 
                             int v = (m_regs.A - m_regs[r] - m_regs.F.C);
+                            int hv = (0x0F & m_regs.A) - (0x0F & m_regs[r]) - m_regs.F.C;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs.A = v;
 
@@ -1680,11 +1691,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.PC++);
                             int v = (m_regs.A - n - m_regs.F.C);
+                            int hv = (0x0F & m_regs.A) - (0x0F & n) - m_regs.F.C;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs.A = v;
 
@@ -1724,11 +1736,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = (m_regs.A - n - m_regs.F.C);
+                            int hv = (0x0F & m_regs.A) - (0x0F & n) - m_regs.F.C;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs.A = v;
 
@@ -2207,11 +2220,12 @@ namespace xFF
                             int r = (0x07 & m_fetchedInstruction);
 
                             int v = (m_regs.A - m_regs[r]);
+                            int hv = (0x0F & m_regs.A) - (0x0F & m_regs[r]);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             //TODO: increase accuracy
                             CyclesStep(4);
@@ -2261,11 +2275,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.PC++);
                             int v = (m_regs.A - n);
+                            int hv = (0x0F & m_regs.A) - (0x0F & n);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             //TODO: increase accuracy
                             CyclesStep(8);
@@ -2303,11 +2318,12 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = (m_regs.A - n);
+                            int hv = (0x0F & m_regs.A) - (0x0F & n);
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
                             m_regs.F.C = (v < 0) ? 1 : 0;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs.A);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             //TODO: increase accuracy
                             CyclesStep(8);
@@ -2346,10 +2362,11 @@ namespace xFF
                             int r = (0x07 & (m_fetchedInstruction >> 3));
 
                             int v = m_regs[r] + 1;
+                            int hv = (0x0F & m_regs[r]) + 1;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, m_regs[r]);
+                            m_regs.F.H = HasHalfCarry8(hv);
 
                             m_regs[r] = v;
 
@@ -2401,10 +2418,11 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = n + 1;
+                            int hv = (0x0F & n) + 1;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry8(v, n);
+                            m_regs.F.H = HasHalfCarry8(hv);
 
                             Write8(m_regs.HL, v);
 
@@ -2445,10 +2463,11 @@ namespace xFF
                             int r = (0x07 & (m_fetchedInstruction >> 3));
 
                             int v = (m_regs[r] - 1);
+                            int hv = (0x0F & m_regs[r]) - 1;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
-                            m_regs.F.H = HasHalfBorrow8(v, m_regs[r]);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             m_regs[r] = v;
 
@@ -2500,10 +2519,11 @@ namespace xFF
                         {
                             int n = Read8(m_regs.HL);
                             int v = (n - 1);
+                            int hv = (0x0F & n) - 1;
 
                             m_regs.F.Z = IsZero(v);
                             m_regs.F.N = 1;
-                            m_regs.F.H = HasHalfBorrow8(v, n);
+                            m_regs.F.H = HasHalfBorrow8(hv);
 
                             Write8(m_regs.HL, v);
 
@@ -2568,10 +2588,11 @@ namespace xFF
                             }
 
                             int v = (m_regs.HL + ss);
+                            int hv = (0x0FFF & m_regs.HL) + (0x0FFF & ss);
 
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry16(v, m_regs.HL);
-                            m_regs.F.C = HasCarry16(v, m_regs.HL);
+                            m_regs.F.H = HasHalfCarry16(hv);
+                            m_regs.F.C = HasCarry16(v);
 
                             m_regs.HL = v;
 
@@ -2617,11 +2638,12 @@ namespace xFF
                         {
                             sbyte e = (sbyte)Read8(m_regs.PC++);
                             int v = m_regs.SP + e;
+                            int hv = (0x0FFF & m_regs.SP) + e;
 
                             m_regs.F.Z = 0;
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry16(v, m_regs.SP);
-                            m_regs.F.C = HasCarry16(v, m_regs.SP);
+                            m_regs.F.H = HasHalfCarry16(hv);
+                            m_regs.F.C = HasCarry16(v);
 
                             m_regs.SP = v;
 

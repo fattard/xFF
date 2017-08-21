@@ -261,62 +261,55 @@ namespace xFF
                 /// <summary>
                 /// Check for 16-bits carry
                 /// </summary>
-                /// <param name="newValue">The new value</param>
-                /// <param name="oldValue">The old value</param>
+                /// <param name="aValue">The value</param>
                 /// <returns>Returns 1 if there is a carry from bit 15</returns>
-                public static int HasCarry16(int newValue, int oldValue)
+                public static int HasCarry16(int aValue)
                 {
-                    return (newValue & 0xFF0000) > (oldValue & 0xFF0000) ? 1 : 0;
+                    return (aValue > 0xFFFF) ? 1 : 0;
                 }
 
 
                 /// <summary>
                 /// Checks for 16-bits half-carry
                 /// </summary>
-                /// <param name="newValue">The new value</param>
-                /// <param name="oldValue">The old value</param>
+                /// <param name="aValue">The value</param>
                 /// <returns>Returns 1 if there is a carry from bit 11</returns>
-                public static int HasHalfCarry16(int newValue, int oldValue)
+                public static int HasHalfCarry16(int aValue)
                 {
-                    //return (newValue & 0xF000) > (oldValue & 0xF000) ? 1 : 0;
-                    return (oldValue & 0xF000) - (newValue & 0xF000) > 0 ? 1 : 0;
+                    return (aValue > 0x0FFF) ? 1 : 0;
                 }
 
 
                 /// <summary>
                 /// Checks for 8-bits carry
                 /// </summary>
-                /// <param name="newValue">The new value</param>
-                /// <param name="oldValue">The old value</param>
+                /// <param name="aValue">The value</param>
                 /// <returns>Returns 1 if there is a carry from bit 7</returns>
-                public static int HasCarry8(int newValue, int oldValue)
+                public static int HasCarry8(int aValue)
                 {
-                    return (newValue & 0xFF00) > (oldValue & 0xFF00) ? 1 : 0;
+                    return (aValue > 0xFF) ? 1 : 0;
                 }
 
 
                 /// <summary>
                 /// Checks for 8-bits half-carry
                 /// </summary>
-                /// <param name="newValue">The new value</param>
-                /// <param name="oldValue">The old value</param>
+                /// <param name="aValue">The value</param>
                 /// <returns>Returns 1 if there is a carry from bit 3</returns>
-                public static int HasHalfCarry8(int newValue, int oldValue)
+                public static int HasHalfCarry8(int aValue)
                 {
-                    //return (newValue & 0xFFF0) > (oldValue & 0xF0) ? 1 : 0;
-                    return (oldValue & 0x0F) - (newValue & 0x0F) > 0 ? 1 : 0;
+                    return (aValue > 0x0F) ? 1 : 0;
                 }
 
 
                 /// <summary>
                 /// Checks for 8-bits half-borrow
                 /// </summary>
-                /// <param name="newValue">The new value</param>
-                /// <param name="oldValue">The old value</param>
+                /// <param name="aValue">The value</param>
                 /// <returns>Returns 1 if there is a borrow from bit 4</returns>
-                public static int HasHalfBorrow8(int newValue, int oldValue)
+                public static int HasHalfBorrow8(int aValue)
                 {
-                    return (oldValue & 0x0F) - (newValue & 0x0F) < 0 ? 1 : 0;
+                    return (aValue < 0) ? 1 : 0;
                 }
                 #endregion Helpers
 
