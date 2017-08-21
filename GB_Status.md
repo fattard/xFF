@@ -51,15 +51,15 @@ LD [nn], SP      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 ADD r     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 ADD n     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 ADD [HL]  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
-ADC r     | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
-ADC n     | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
-ADC [HL]  | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
+ADC r     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+ADC n     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+ADC [HL]  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 SUB r     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 SUB n     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 SUB [HL]  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
-SBC r     | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
-SBC n     | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
-SBC [HL]  | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
+SBC r     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+SBC n     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+SBC [HL]  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 AND r     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 AND n     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 AND [HL]  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
@@ -79,8 +79,8 @@ DEC [HL]  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 16-bit Arithmetic |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ----------------- | ------------------ | ------------------ | ------------------ | ------------------
-ADD HL, ss        | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
-ADD SP, e         | :heavy_check_mark: | :heavy_check_mark: | :x: |                   
+ADD HL, ss        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+ADD SP, e         | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 INC ss            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 DEC ss            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 
@@ -147,14 +147,14 @@ RST t         | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 Misc             |   Implementation   | Checked Operation  |   Checked Flags    |   Checked Timing
 ---------------- | ------------------ | ------------------ | ------------------ | ------------------
-DAA              | :x: |                    |                    |                   
-CPL              | :heavy_check_mark: |                    |                    |                   
-NOP              | :heavy_check_mark: |                    |                    |                   
-CCF              | :heavy_check_mark: |                    |                    |                   
-SCF              | :heavy_check_mark: |                    |                    |                   
-DI               | :o: |                    |                    |                   
-EI               | :o: |                    |                    |                   
-HALT             | :o: |                    |                    |                   
+DAA              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+CPL              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+NOP              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+CCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+SCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
+DI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: |                   
+EI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: |                   
+HALT             | :o: | :x:                   |                    |                   
 STOP             | :o: |                    |                    |                   
 
 

@@ -3592,11 +3592,33 @@ namespace xFF
                         // daa
                         m_instructionHandler[0x27] = () =>
                         {
-                            //TODO: stub instruction
-                            m_regs.A = (m_regs.A % 100);
-                            m_regs.F.Z = IsZero(m_regs.A);
+                            int a = m_regs.A;
+                            int adjust = 0;
+
+                            adjust |= (m_regs.F.H == 1) ? 0x06 : 0;
+                            adjust |= (m_regs.F.C == 1) ? 0x60 : 0;
+
+                            if (m_regs.F.N == 1)
+                            {
+                                a -= adjust;
+                            }
+
+                            else
+                            {
+                                adjust |= ((a & 0x0F) > 0x09) ? 0x06 : 0;
+                                adjust |= (a > 0x99) ? 0x60 : 0;
+
+                                a += adjust;
+                            }
+
+                            //Log(m_regs.A.ToString("X4") + " -> " + res.ToString("X4"));
+
+                            m_regs.A = a;
+
+                            m_regs.F.Z = IsZero(a);
+                            m_regs.F.C = ((adjust & 0x60) != 0) ? 1 : 0;
                             m_regs.F.H = 0;
-                            m_regs.F.C = m_regs.F.C;
+
 
                             //TODO: increase accuracy
                             CyclesStep(4);
