@@ -154,7 +154,7 @@ CCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 SCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 DI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: |                   
 EI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: |                   
-HALT             | :o: | :x:                   |                    |                   
+HALT             | :o: | :0:                   | :heavy_check_mark: |                   
 STOP             | :o: |                    |                    |                   
 
 

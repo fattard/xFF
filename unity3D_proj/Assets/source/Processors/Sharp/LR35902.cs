@@ -201,6 +201,16 @@ namespace xFF
 
 
                 /// <summary>
+                /// Dispatch event to advance specified cycles
+                /// </summary>
+                /// <param name="aElapsedCycles">Number of cycles to advance</param>
+                public void AdvanceCycles(int aElapsedCycles)
+                {
+                    CyclesStep(aElapsedCycles);
+                }
+
+
+                /// <summary>
                 /// Services interrupt
                 /// </summary>
                 public void ServiceIRQ(int aIRQ)
@@ -242,6 +252,15 @@ namespace xFF
                             m_regs.PC = 0x0040;
                             break;
                     }
+                }
+
+
+                /// <summary>
+                /// Cancels the HALT mode
+                /// </summary>
+                public void CancelHalt( )
+                {
+                    m_inHaltMode = false;
                 }
 
 

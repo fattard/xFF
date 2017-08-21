@@ -90,11 +90,18 @@ namespace xFF
                             //UnityEngine.Debug.Log(m_gb_core.ToString());
 
                             // Check interrupts
-                            if (m_gb_core.IsInterruptsMasterFlagEnabled)
+                            if (m_gb_core.IsInterruptsMasterFlagEnabled || m_gb_core.IsInHaltMode)
                             {
                                 CheckInterrupts();
                             }
                             
+                            if (m_gb_core.IsInHaltMode)
+                            {
+                                m_gb_core.AdvanceCycles(4);
+                                continue;
+                            }
+
+
                             m_gb_core.Fetch();
                             m_gb_core.DecodeAndExecute();
                         }
@@ -118,6 +125,15 @@ namespace xFF
                         {
                             if (((interruptRequests & (1 << irq)) > 0) && ((interruptEnables & (1 << irq)) > 0))
                             {
+                                if (m_gb_core.IsInHaltMode)
+                                {
+                                    m_gb_core.CancelHalt();
+
+                                    if (!m_gb_core.IsInterruptsMasterFlagEnabled)
+                                    {
+                                        return;
+                                    }
+                                }
                                 // Disable request flag
                                 m_mem.Write8(RegsIO.IF, interruptRequests & (~(1 << irq)));
 
