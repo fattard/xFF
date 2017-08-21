@@ -1087,8 +1087,8 @@ namespace xFF
                      *        
                      *        Z: Reset
                      *        N: Reset
-                     *        H: Set if there is a carry from bit 11; otherwise reset
-                     *        C: Set if there is a carry from bit 15; otherwise reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
                      * 
                      * Clock Cycles:   12
                      * Machine Cycles:  3
@@ -1102,12 +1102,15 @@ namespace xFF
                         {
                             sbyte e = (sbyte)Read8(m_regs.PC++);
                             int v = m_regs.SP + e;
-                            int hv = (0x0FFF & m_regs.SP) + e;
+
+                            // The values of the carry and halfcarry are actually computed on the low 8bits.
+                            int hv = (0x0F & m_regs.SP) + (0x0F & e);
+                            int cv = (0xFF & m_regs.SP) + (0xFF & e);
 
                             m_regs.F.Z = 0;
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry16(hv);
-                            m_regs.F.C = HasCarry16(v);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(cv);
 
                             m_regs.HL = v;
 
@@ -2624,8 +2627,8 @@ namespace xFF
                      *        
                      *        Z: Reset
                      *        N: Reset
-                     *        H: Set if there is a carry from bit 11; otherwise reset
-                     *        C: Set if there is a carry from bit 15; otherwise reset
+                     *        H: Set if there is a carry from bit 3; otherwise reset
+                     *        C: Set if there is a carry from bit 7; otherwise reset
                      * 
                      * Clock Cycles:   16
                      * Machine Cycles:  4
@@ -2638,12 +2641,16 @@ namespace xFF
                         {
                             sbyte e = (sbyte)Read8(m_regs.PC++);
                             int v = m_regs.SP + e;
-                            int hv = (0x0FFF & m_regs.SP) + e;
+
+                            // The values of the carry and halfcarry are actually computed on the low 8bits.
+                            int hv = (0x0F & m_regs.SP) + (0x0F & e);
+                            int cv = (0xFF & m_regs.SP) + (0xFF & e);
+
 
                             m_regs.F.Z = 0;
                             m_regs.F.N = 0;
-                            m_regs.F.H = HasHalfCarry16(hv);
-                            m_regs.F.C = HasCarry16(v);
+                            m_regs.F.H = HasHalfCarry8(hv);
+                            m_regs.F.C = HasCarry8(cv);
 
                             m_regs.SP = v;
 
