@@ -55,6 +55,8 @@ namespace xFF
 
                 Joypad m_joypad;
 
+                SerialIO m_serialIO;
+
 
                 bool m_paused;
 
@@ -101,6 +103,18 @@ namespace xFF
                 }
 
 
+                public Joypad Joypad
+                {
+                    get { return m_joypad; }
+                }
+
+
+                public SerialIO SerialIO
+                {
+                    get { return m_serialIO; }
+                }
+
+
                 public bool IsPaused
                 {
                     get { return m_paused; }
@@ -136,6 +150,8 @@ namespace xFF
 
                     m_joypad = new Joypad();
 
+                    m_serialIO = new SerialIO();
+
                     // Start paused
                     m_paused = true;
 
@@ -149,13 +165,16 @@ namespace xFF
                     m_mem.AttachDMAController(m_dmaController);
                     m_mem.AttachTimerController(m_timerController);
                     m_mem.AttachJoypad(m_joypad);
+                    m_mem.AttachSerialIO(m_serialIO);
                     m_cpu.ProcessorState.BindCyclesStep(m_ppu.CyclesStep);
                     m_cpu.ProcessorState.BindCyclesStep(m_dmaController.CyclesStep);
                     m_cpu.ProcessorState.BindCyclesStep(m_timerController.CyclesStep);
+                    m_cpu.ProcessorState.BindCyclesStep(m_serialIO.CyclesStep);
 
                     m_ppu.BindRequestIRQ(m_cpu.RequestIRQ);
                     m_timerController.BindRequestIRQ(m_cpu.RequestIRQ);
                     m_joypad.BindRequestIRQ(m_cpu.RequestIRQ);
+                    m_serialIO.BindRequestIRQ(m_cpu.RequestIRQ);
                     //m_ppu.BindDrawDisplayLine(DrawDisplayLine);
                 }
 

@@ -154,7 +154,7 @@ CCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 SCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                   
 DI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: |                   
 EI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: |                   
-HALT             | :o: | :0:                   | :heavy_check_mark: |                   
+HALT             | :o: | :o:                   | :heavy_check_mark: |                   
 STOP             | :o: |                    |                    |                   
 
 
@@ -164,7 +164,7 @@ Interrupts | Status
 V-Blank    | :o:
 LCD        | :o:
 Timer      | :o:
-Serial
+Serial     | :o:
 Joypad     | :o:
 
 Graphics   | Status

@@ -48,6 +48,7 @@ namespace xFF
                     DMAController m_dmaController;
                     TimerController m_timerController;
                     Joypad m_joypad;
+                    SerialIO m_serialIO;
 
 
 
@@ -175,6 +176,16 @@ namespace xFF
                             return m_timerController.GetControllerData();
                         }
 
+                        else if (aAddress == RegsIO.SB)
+                        {
+                            return m_serialIO.SerialTransferData;
+                        }
+
+                        else if (aAddress == RegsIO.SC)
+                        {
+                            return m_serialIO.GetControlData();
+                        }
+
                         return m_dbg_FullRam[aAddress];
                     }
 
@@ -288,9 +299,14 @@ namespace xFF
                             m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_LOCK & aValue);
                         }
 
-                        else if (aAddress == 0xFF02 && aValue == 0x81)
+                        else if (aAddress == RegsIO.SB)
                         {
-                            //emuDbg.Write(Read8(0xFF01));
+                            m_serialIO.SerialTransferData = aValue;
+                        }
+
+                        else if (aAddress == RegsIO.SC)
+                        {
+                            m_serialIO.SetControlData(aValue);
                         }
 
                         else
@@ -335,6 +351,12 @@ namespace xFF
                     public void AttachJoypad(Joypad aJoypad)
                     {
                         m_joypad = aJoypad;
+                    }
+
+
+                    public void AttachSerialIO(SerialIO aSerialIO)
+                    {
+                        m_serialIO = aSerialIO;
                     }
                     
 
