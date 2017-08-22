@@ -41,6 +41,9 @@ namespace xFF
                 {
                     public const int P1   = 0xFF00;  // Joypad Ports
 
+                    public const int SB   = 0xFF01;  // Serial Transfer
+                    public const int SC   = 0xFF02;  // Serial Control
+
                     public const int DIV  = 0xFF04;  // Divider Read/Reset
                     public const int TIMA = 0xFF05;  // Timer Counter
                     public const int TMA  = 0xFF06;  // Timer Modulo
@@ -85,6 +88,11 @@ namespace xFF
                     public const int P13 = (1 << 3); // Input Port P13
                     public const int P14 = (1 << 4); // Output Port P14
                     public const int P15 = (1 << 5); // Output Port P15
+
+
+                    // SC
+                    public const int SC_CLK = (1 << 0); // Shift clock: 0=External / 1=Internal
+                    public const int SC_EN  = (1 << 7); // Serial Transfer Enable
 
 
                     // TAC
