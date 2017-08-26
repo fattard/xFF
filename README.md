@@ -3,11 +3,13 @@
 ## Core Status ##
 ## [GB Emulation Status](GB_Status.md) ##
 Game Boy core emulation. Initially, only the classic emulation will be supported.  
-The current release build (v0.0.4) is able to run TestROMS, such as [Blargg\'s individual cpu\_intrs](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), and also some [mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/), and also commercial games that do not use mappers (such as MBC1 or MBC3, aka. "ROM ONLY" 32KB files).  
+The current release build (v0.0.5) is able to run TestROMS, such as [Blargg's individual cpu\_intrs](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), some
+[mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/), and also commercial games that do not use mappers (such as MBC1 or MBC3).  
+Those supported ROMs are also known as "ROM ONLY" 32KB files.  
 Remember to check the [status page](GB_Status.md) for information on what is supported or not.
 <br>
 <br>
-Below is a montage of 3 games running:
+Below is a montage of 6 games running:
 <br>
 ![First Games](sshots/GB/first_games.png)
 <br>
@@ -15,21 +17,24 @@ Below is a montage of 3 games running:
 Below is the current montage of results from cpu_instrs individual tests:
 ![Test ROM result](sshots/GB/cpu_instrs_individual.png)
 <br>
-Instruction 'DAA' is stubbed for now, and I think I can blame my bad Half-Borrow  
-implementation to cause many of the tests to fail.
+The instructions timing is not properly tested yet, as there are still some
+tweaks in the Timer Controller to allow proper sync to run the tests.
 <br>
 <br>
-### Keyboard Controls ###
-GB Button | Keyboard
-----------|---------
-Button A | X
-Button B | Z
-Button Select | Right Shift
-Button Start | Enter/Return
-DPad Up | Arrow Up
-DPad Down | Arrow Down
-DPad Left | Arrow Left
-DPad Right | Arrow Right
+### Joypad Controls ###
+Supports both Keyboard control and Xbox Controller (compatible with any XInput device).  
+The controls uses pre-mapped keys for now:
+
+GB Button | Keyboard | Xbox Controller
+----------|----------|----------------
+Button A | X | B
+Button B | Z | A
+Button Select | Right Shift | Back
+Button Start | Enter/Return | Start
+DPad Up | Arrow Up | DPad Up / Left Stick Up
+DPad Down | Arrow Down | DPad Down / Left Stick Down
+DPad Left | Arrow Left | DPad Left / Left Stick Left
+DPad Right | Arrow Right | DPad Right / Left Stick Right
 <br>
 
 <br>
