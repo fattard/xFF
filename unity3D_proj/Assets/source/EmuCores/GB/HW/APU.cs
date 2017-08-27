@@ -36,7 +36,27 @@ namespace xFF
 
                 public class APU
                 {
+                    int[] m_regs;
 
+
+                    public APU( )
+                    {
+                        m_regs = new int[0x30];
+                    }
+
+
+                    public int this[int aIdx]
+                    {
+                        get
+                        {
+                            return m_regs[aIdx];
+                        }
+
+                        set
+                        {
+                            m_regs[aIdx] = value;
+                        }
+                    }
                 }
 
 

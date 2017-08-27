@@ -162,6 +162,7 @@ namespace xFF
 
                     m_mem.AttachCPU(m_cpu);
                     m_mem.AttachPPU(m_ppu);
+                    m_mem.AttachAPU(m_apu);
                     m_mem.AttachDMAController(m_dmaController);
                     m_mem.AttachTimerController(m_timerController);
                     m_mem.AttachJoypad(m_joypad);

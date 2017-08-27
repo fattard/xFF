@@ -45,6 +45,7 @@ namespace xFF
 
                     CPU m_cpu;
                     PPU m_ppu;
+                    APU m_apu;
                     DMAController m_dmaController;
                     TimerController m_timerController;
                     Joypad m_joypad;
@@ -102,6 +103,11 @@ namespace xFF
                         else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
                         {
                             return m_ppu.OAM[aAddress & 0xFF];
+                        }
+
+                        else if (aAddress >= 0xFF10 && aAddress < 0xFF40)
+                        {
+                            return m_apu[aAddress - 0xFF10];
                         }
 
                         else if (aAddress == RegsIO.P1)
@@ -213,6 +219,11 @@ namespace xFF
                         else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
                         {
                             m_ppu.OAM[aAddress & 0xFF] = (0xFF & aValue);
+                        }
+
+                        else if (aAddress >= 0xFF10 && aAddress < 0xFF40)
+                        {
+                            m_apu[aAddress - 0xFF10] = (0xFF & aValue);
                         }
 
                         else if (aAddress == RegsIO.P1)
@@ -340,6 +351,12 @@ namespace xFF
                     public void AttachPPU(PPU aPPU)
                     {
                         m_ppu = aPPU;
+                    }
+
+
+                    public void AttachAPU(APU aAPU)
+                    {
+                        m_apu = aAPU;
                     }
 
 

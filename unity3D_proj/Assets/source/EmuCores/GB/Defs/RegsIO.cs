@@ -72,6 +72,50 @@ namespace xFF
                     public const int OBP1 = 0xFF49;  // Object Palette 1
 
                     public const int BOOT = 0xFF50;  // BootROM protection
+
+
+                    public const int NR10 = 0xFF10;  // Sound Reg 10
+                    public const int NR11 = 0xFF11;  // Sound Reg 11
+                    public const int NR12 = 0xFF12;  // Sound Reg 12
+                    public const int NR13 = 0xFF13;  // Sound Reg 13
+                    public const int NR14 = 0xFF14;  // Sound Reg 14
+
+                    public const int NR21 = 0xFF16;  // Sound Reg 21
+                    public const int NR22 = 0xFF17;  // Sound Reg 22
+                    public const int NR23 = 0xFF18;  // Sound Reg 23
+                    public const int NR24 = 0xFF19;  // Sound Reg 24
+
+                    public const int NR30 = 0xFF1A;  // Sound Reg 30
+                    public const int NR31 = 0xFF1B;  // Sound Reg 31
+                    public const int NR32 = 0xFF1C;  // Sound Reg 32
+                    public const int NR33 = 0xFF1D;  // Sound Reg 33
+                    public const int NR34 = 0xFF1E;  // Sound Reg 34
+
+                    public const int NR41 = 0xFF20;  // Sound Reg 41
+                    public const int NR42 = 0xFF21;  // Sound Reg 42
+                    public const int NR43 = 0xFF22;  // Sound Reg 43
+                    public const int NR44 = 0xFF23;  // Sound Reg 44
+
+                    public const int NR50 = 0xFF24;  // Sound Reg 50
+                    public const int NR51 = 0xFF25;  // Sound Reg 51
+                    public const int NR52 = 0xFF26;  // Sound Reg 52
+
+                    public const int WAVE00 = 0xFF30;  // Wave 00
+                    public const int WAVE01 = 0xFF31;  // Wave 01
+                    public const int WAVE02 = 0xFF32;  // Wave 02
+                    public const int WAVE03 = 0xFF33;  // Wave 03
+                    public const int WAVE04 = 0xFF34;  // Wave 04
+                    public const int WAVE05 = 0xFF35;  // Wave 05
+                    public const int WAVE06 = 0xFF36;  // Wave 06
+                    public const int WAVE07 = 0xFF37;  // Wave 07
+                    public const int WAVE08 = 0xFF38;  // Wave 08
+                    public const int WAVE09 = 0xFF39;  // Wave 09
+                    public const int WAVE10 = 0xFF3A;  // Wave 10
+                    public const int WAVE11 = 0xFF3B;  // Wave 11
+                    public const int WAVE12 = 0xFF3C;  // Wave 12
+                    public const int WAVE13 = 0xFF3D;  // Wave 13
+                    public const int WAVE14 = 0xFF3E;  // Wave 14
+                    public const int WAVE15 = 0xFF3F;  // Wave 15
                 }
 
 
