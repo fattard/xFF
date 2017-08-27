@@ -1,5 +1,25 @@
+Version 0.0.5 (Alpha) - AUG/26/2017
+===================================
 
+Supported Cores:
+----------------
+- Game Boy - Classic GB emulator. Please, check the emulation
+  status (https://github.com/fattard/xFF/blob/0.0.4/GB_Status.md)
+  with details of what is supported, and what is in progress and known issues.
+- BytePusher - A special test core to help me creating the foundations
+  that will allow running all real cores.
+  More info: https://esolangs.org/wiki/BytePusher
 
+[DMG] GB Core Updates:
+----------------------
+- Added input for Xbox Controller (and any XInput compatible joypad).
+- Structured the foundations for future cross platform support.
+- Implemented the instruction 'DAA' that was stubbed until now.
+- Fixed all processor flag checks in instructions, passing all cpu_instrs individual tests.
+- Improved Timer handling, but still not accurate enough to run timing tests.
+- Basic Serial I/O emulation, as if no external devices are connected.
+  
+  
 
 Version 0.0.4 (Alpha) - AUG/19/2017
 ===================================
