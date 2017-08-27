@@ -74,6 +74,14 @@ namespace xFF
                             m_dbg_FullRam[i] = 0xFF;
                         }
 
+                        // Fill default I/O area
+                        for (int i = 0xFF00; i < 0xFF80; ++i)
+                        {
+                            m_dbg_FullRam[i] = 0xFF;
+                        }
+
+                        m_dbg_FullRam[0xFF50] = 0;
+
                         // Temp Binding
                         m_bootRom = m_dbg_FullRam;
                     }

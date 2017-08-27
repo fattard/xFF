@@ -41,7 +41,8 @@ namespace xFF
                     CPU.RequestIRQFunc RequestIRQ;
 
                     int m_dividerCounter;
-                    int m_timerCounter;
+                    int m_timerClockCounter;
+                    int m_targetCounter;
 
                     int m_controllerData;
 
@@ -83,7 +84,8 @@ namespace xFF
                     public TimerController( )
                     {
                         m_dividerCounter = 0;
-                        m_timerCounter = 0;
+                        m_timerClockCounter = 0;
+                        m_targetCounter = 0;
                         SetControllerData(0);
                         SetTimerFreq();
 
@@ -97,19 +99,19 @@ namespace xFF
                         switch (InputClockSelector)
                         {
                             case 0:
-                                m_timerCounter = 1024;
+                                m_targetCounter = 1024;
                                 break;
 
                             case 1:
-                                m_timerCounter = 16;
+                                m_targetCounter = 16;
                                 break;
 
                             case 2:
-                                m_timerCounter = 64;
+                                m_targetCounter = 64;
                                 break;
 
                             case 3:
-                                m_timerCounter = 256;
+                                m_targetCounter = 256;
                                 break;
                         }
                     }
@@ -145,18 +147,18 @@ namespace xFF
                     public void CyclesStep(int aElapsedCycles)
                     {
                         m_dividerCounter += aElapsedCycles;
-                        if (m_dividerCounter >= 255)
+                        if (m_dividerCounter > 255)
                         {
                             Divider = (0xFF & (Divider + 1));
-                            m_dividerCounter = 0;
+                            m_dividerCounter -= 256;
                         }
 
 
                         if (IsTimerEnabled)
                         {
-                            m_timerCounter -= aElapsedCycles;
+                            m_timerClockCounter += aElapsedCycles;
 
-                            if (m_timerCounter <= 0)
+                            if (m_timerClockCounter >= m_targetCounter)
                             {
                                 if (TimerCounter == 255)
                                 {
@@ -169,6 +171,7 @@ namespace xFF
                                 }
 
                                 SetTimerFreq();
+                                m_timerClockCounter -= m_targetCounter;
                             }
                         }
                     }
