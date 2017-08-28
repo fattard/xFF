@@ -43,7 +43,8 @@ DPad Right | Arrow Right | DPad Right / Left Stick Right
 ## [BytePusher Emulation Status](BytePusher_Status.md) ##
 Special test core based on OISC ByteByteJump Processor.  
 It supports full graphics, keyboard and sound.  
-Sound might be stuttering, it's my first time coding procedural audio.
+I think the sound is not stuttering anymore, would appreciate feedback.  
+It's my first time coding procedural audio.
 <br>
 <br>
 Below is a montage of 4 programs running:

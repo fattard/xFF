@@ -1,3 +1,23 @@
+Version 0.0.6 (Alpha) - ???????????
+===================================
+
+Supported Cores:
+----------------
+- Game Boy - Classic GB emulator. Please, check the emulation
+  status (https://github.com/fattard/xFF/blob/0.0.4/GB_Status.md)
+  with details of what is supported, and what is in progress and known issues.
+- BytePusher - A special test core to help me creating the foundations
+  that will allow running all real cores.
+  More info: https://esolangs.org/wiki/BytePusher
+  
+[BytePusher] Core Updates:
+--------------------------
+- Modified the DSP class to use a AudioStream based on queue
+  that seems to have fixed the audio stuttering.
+
+
+
+
 Version 0.0.5 (Alpha) - AUG/26/2017
 ===================================
 
@@ -16,10 +36,12 @@ Supported Cores:
 - Structured the foundations for future cross platform support.
 - Implemented the instruction 'DAA' that was stubbed until now.
 - Fixed all processor flag checks in instructions, passing all cpu_instrs individual tests.
-- Improved Timer handling, but still not accurate enough to run timing tests.
+- Improved Timer handling, but still not accurate enough to pass timing tests.
 - Basic Serial I/O emulation, as if no external devices are connected.
-  
-  
+
+
+
+
 
 Version 0.0.4 (Alpha) - AUG/19/2017
 ===================================
