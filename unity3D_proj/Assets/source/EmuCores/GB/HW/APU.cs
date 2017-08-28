@@ -65,6 +65,7 @@ namespace xFF
 
                         set
                         {
+                            m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                             //SetReg(aAddress, value);
                         }
                     }
@@ -76,6 +77,12 @@ namespace xFF
                         //OutputSound(ref m_outputWave);
                     }
 
+
+
+                    public void CyclesStep(int aElapsedCycles)
+                    {
+
+                    }
                 }
 
 

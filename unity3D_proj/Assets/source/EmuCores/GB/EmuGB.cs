@@ -175,6 +175,7 @@ namespace xFF
                     m_mem.AttachJoypad(m_joypad);
                     m_mem.AttachSerialIO(m_serialIO);
                     m_cpu.ProcessorState.BindCyclesStep(m_ppu.CyclesStep);
+                    m_cpu.ProcessorState.BindCyclesStep(m_apu.CyclesStep);
                     m_cpu.ProcessorState.BindCyclesStep(m_dmaController.CyclesStep);
                     m_cpu.ProcessorState.BindCyclesStep(m_timerController.CyclesStep);
                     m_cpu.ProcessorState.BindCyclesStep(m_serialIO.CyclesStep);
