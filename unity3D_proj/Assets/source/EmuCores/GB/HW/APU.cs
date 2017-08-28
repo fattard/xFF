@@ -24,6 +24,11 @@
 *         reasonable ways as different from the original version.
 */
 
+using xFF.EmuCores.GB;
+using xFF.EmuCores.GB.Defs;
+using xFF.EmuCores.GB.HW;
+
+
 namespace xFF
 {
     namespace EmuCores
@@ -34,29 +39,43 @@ namespace xFF
             {
 
 
-                public class APU
+                public partial class APU
                 {
-                    int[] m_regs;
+                    
+                    byte[] m_outputWave;
+                    int[] m_regs = new int[0x30];
+                    
+
+                    public EmuGB.PlayAudioFunc PlayAudio = (aAPU) => { };
 
 
-                    public APU( )
+                    public byte[] OutputWave
                     {
-                        m_regs = new int[0x30];
+                        get { return m_outputWave; }
+                        set { m_outputWave = value; }
                     }
 
 
-                    public int this[int aIdx]
+                    public int this[int aAddress]
                     {
                         get
                         {
-                            return m_regs[aIdx];
+                            return m_regs[aAddress - RegsIO.NR10];
                         }
 
                         set
                         {
-                            m_regs[aIdx] = value;
+                            SetReg(aAddress, value);
                         }
                     }
+
+
+
+                    public void UpdateOutputWave( )
+                    {
+                        //OutputSound(ref m_outputWave);
+                    }
+
                 }
 
 

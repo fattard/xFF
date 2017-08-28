@@ -107,7 +107,7 @@ namespace xFF
 
                         else if (aAddress >= 0xFF10 && aAddress < 0xFF40)
                         {
-                            return m_apu[aAddress - 0xFF10];
+                            return m_apu[aAddress];
                         }
 
                         else if (aAddress == RegsIO.P1)
@@ -223,7 +223,7 @@ namespace xFF
 
                         else if (aAddress >= 0xFF10 && aAddress < 0xFF40)
                         {
-                            m_apu[aAddress - 0xFF10] = (0xFF & aValue);
+                            m_apu[aAddress] = aValue;
                         }
 
                         else if (aAddress == RegsIO.P1)

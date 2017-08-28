@@ -39,6 +39,7 @@ namespace xFF
             {
                 public delegate void DrawDisplayFunc(PPU aPPU);
                 public delegate void DrawDisplayLineFunc(PPU aPPU);
+                public delegate void PlayAudioFunc(APU aAPU);
                 public delegate int GetKeysStateFunc( );
                 public delegate void MsgHandler(object aMsg);
 
@@ -130,6 +131,12 @@ namespace xFF
                 }
 
 
+                public PlayAudioFunc PlayAudio
+                {
+                    set { m_apu.PlayAudio = value; }
+                }
+
+
                 public GetKeysStateFunc GetKeysState
                 {
                     set { m_joypad.BindGetKeysStateFunc(value); }
@@ -200,6 +207,8 @@ namespace xFF
                     m_cpu.Run();
 
                     //DrawDisplay(m_ppu);
+
+                    m_apu.PlayAudio(m_apu);
                 }
 
 
