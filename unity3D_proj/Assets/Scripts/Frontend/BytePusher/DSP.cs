@@ -27,6 +27,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System;
 
 
 namespace xFF
@@ -40,11 +42,12 @@ namespace xFF
 
                 public class DSP : MonoBehaviour
                 {
-                    byte[] m_audioBufferA = new byte[256];
-                    byte[] m_audioBufferB = new byte[256];
-                    int m_curBufferOffset = 0;
-                    byte[] m_curAudioBuffer;
-                    int m_buffIdx;
+                    float Gain = 0.05f;
+
+                    private int m_samplesBufferSize;
+                    AudioStream m_stream;
+                    byte[] m_audioBuffer;
+
 
                     void Awake()
                     {
@@ -55,9 +58,15 @@ namespace xFF
                         conf.speakerMode = AudioSpeakerMode.Mono;
                         conf.sampleRate = 15360;
 
+                        m_samplesBufferSize = conf.dspBufferSize;
+
+                        m_stream = new AudioStream();
+                        m_stream.MaxBufferLength = (m_samplesBufferSize) * 2;
+                        m_audioBuffer = new byte[m_samplesBufferSize];
+
                         AudioSettings.Reset(conf);
 
-                        m_curAudioBuffer = m_audioBufferA;
+                        Gain = 1;
                     }
     
 
@@ -68,6 +77,8 @@ namespace xFF
                         {
                             AudioConfiguration config = AudioSettings.GetConfiguration();
                             config.dspBufferSize = 256;
+                            config.speakerMode = AudioSpeakerMode.Mono;
+                            config.sampleRate = 15360;
                             AudioSettings.Reset(config);
                         }
                         GetComponent<AudioSource>().Play();
@@ -76,20 +87,173 @@ namespace xFF
 
                     void OnAudioFilterRead(float[] data, int channels)
                     {
-                        for (int i = 0; i < data.Length; i++)
+                        if (m_audioBuffer.Length != data.Length)
                         {
-                            data[i] = (((sbyte)m_curAudioBuffer[i]) / 128.0f);
+                            Debug.Log("Does DSPBufferSize or speakerMode changed? Audio disabled.");
+                            return;
+                        }
+
+                        int r = m_stream.Read(m_audioBuffer, 0, data.Length);
+                        for (int i = 0; i < r; ++i)
+                        {
+                            data[i] = Gain * (sbyte)(m_audioBuffer[i]) / 128.0f;
                         }
                     }
 
 
                     public void UpdateBuffer(byte[] aRAM, int aStartOffset)
                     {
-                        for (int i = 0; i < m_curAudioBuffer.Length; ++i)
+                        m_stream.Write(aRAM, aStartOffset, 256);
+                    }
+
+
+
+
+
+                    private class AudioStream : Stream
+                    {
+                        private readonly Queue<byte> m_buffer = new Queue<byte>();
+                        private long m_maxBufferLength = 8192;
+
+                        public long MaxBufferLength
                         {
-                            m_curAudioBuffer[i] = aRAM[i + aStartOffset];
+                            get { return m_maxBufferLength; }
+                            set { m_maxBufferLength = value; }
+                        }
+
+                        public new void Dispose()
+                        {
+                            m_buffer.Clear();
+                        }
+
+                        public override void Flush()
+                        {
+                        }
+
+                        public override long Seek(long aOffset, SeekOrigin aOrigin)
+                        {
+                            throw new NotImplementedException();
+                        }
+
+                        public override void SetLength(long aValue)
+                        {
+                            throw new NotImplementedException();
+                        }
+
+                        public override int Read(byte[] aBuffer, int aOffset, int aCount)
+                        {
+
+#if DEBUG
+                            if (aOffset != 0)
+                            {
+                                throw new NotImplementedException("Offsets with value of non-zero are not supported");
+                            }
+                            if (aBuffer == null)
+                            {
+                                throw new ArgumentException("Buffer is null");
+                            }
+                            if (aOffset + aCount > aBuffer.Length)
+                            {
+                                throw new ArgumentException("The sum of offset and count is greater than the buffer length. ");
+                            }
+                            if (aOffset < 0 || aCount < 0)
+                            {
+                                throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
+                            }
+#endif
+
+
+                            if (aCount == 0)
+                            {
+                                return 0;
+                            }
+
+                            int readLength = 0;
+
+                            lock (m_buffer)
+                            {
+                                // fill the read buffer
+                                for (; readLength < aCount && Length > 0; ++readLength)
+                                {
+                                    aBuffer[readLength] = m_buffer.Dequeue();
+                                }
+                            }
+
+                            return readLength;
+                        }
+
+                        private bool ReadAvailable(int aCount)
+                        {
+                            return (Length >= aCount);
+                        }
+
+                        public override void Write(byte[] aBuffer, int aOffset, int aCount)
+                        {
+
+#if DEBUG
+                            if (aBuffer == null)
+                            {
+                                throw new ArgumentException("Buffer is null");
+                            }
+                            if (aOffset + aCount > aBuffer.Length)
+                            {
+                                throw new ArgumentException("The sum of offset and count is greater than the buffer length. ");
+                            }
+                            if (aOffset < 0 || aCount < 0)
+                            {
+                                throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
+                            }
+#endif
+
+
+                            if (aCount == 0)
+                            {
+                                return;
+                            }
+
+                            lock (m_buffer)
+                            {
+                                while (Length >= m_maxBufferLength)
+                                {
+                                    return;
+                                }
+
+                                // queue up the buffer data
+                                for (int i = 0; i < aCount; ++i)
+                                {
+                                    m_buffer.Enqueue(aBuffer[i + aOffset]);
+                                }
+                            }
+                        }
+
+                        public override bool CanRead
+                        {
+                            get { return true; }
+                        }
+
+                        public override bool CanSeek
+                        {
+                            get { return false; }
+                        }
+
+                        public override bool CanWrite
+                        {
+                            get { return true; }
+                        }
+
+                        public override long Length
+                        {
+                            get { return m_buffer.Count; }
+                        }
+
+                        public override long Position
+                        {
+                            get { return 0; }
+                            set { throw new NotImplementedException(); }
                         }
                     }
+
+
                 }
 
 
