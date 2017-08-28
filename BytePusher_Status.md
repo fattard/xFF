@@ -20,7 +20,7 @@ Frame Buffer  | :heavy_check_mark:
 
 Audio | Status | Notes
 ----- | ------ | ---
-Channel 1 |:heavy_check_mark: | Sound works but I think its stuttering<br>a bit with current buffers configuration
+Channel 1 |:heavy_check_mark: | Needs more testing to check if it's stuttering
 
 Devices  | Status
 -------  | ------
