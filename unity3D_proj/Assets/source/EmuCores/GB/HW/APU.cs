@@ -65,7 +65,7 @@ namespace xFF
 
                         set
                         {
-                            SetReg(aAddress, value);
+                            //SetReg(aAddress, value);
                         }
                     }
 

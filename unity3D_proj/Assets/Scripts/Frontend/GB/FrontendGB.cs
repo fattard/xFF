@@ -44,6 +44,7 @@ namespace xFF
                 {
                     public ConfigsGB frontendConfigs;
                     public LCDDisplay lcdDisplay;
+                    public DSP dsp;
                     
 
                     PlatformSupport.IPlatform m_platform;
@@ -87,6 +88,8 @@ namespace xFF
                         m_emuGB = new EmuCores.GB.EmuGB(configsGB);
                         m_emuGB.DrawDisplay = lcdDisplay.DrawDisplay;
                         m_emuGB.DrawDisplayLine = lcdDisplay.DrawDisplayLine;
+                        m_emuGB.PlayAudio = dsp.PlayAudio;
+                        dsp.ConfigBuffers(m_emuGB.APU);
                         m_emuGB.GetKeysState = m_gbInput.GetKeysState;
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
