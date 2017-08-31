@@ -49,6 +49,41 @@ namespace xFF
                     public EmuGB.PlayAudioFunc PlayAudio = (aAPU) => { };
 
 
+                    public bool MasterSoundEnabled
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int OutputVolumeLeft
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public int OutputVolumeRight
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public bool ExternalInputLeftEnabled
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public bool ExternalInputRightEnabled
+                    {
+                        get;
+                        set;
+                    }
+
+
                     public byte[] OutputWave
                     {
                         get { return m_outputWave; }
@@ -60,13 +95,68 @@ namespace xFF
                     {
                         get
                         {
-                            return m_regs[aAddress - RegsIO.NR10];
+                            switch (aAddress)
+                            {
+                                case RegsIO.NR50:
+                                    return  (OutputVolumeRight) | (OutputVolumeLeft << 4)
+                                            | (ExternalInputRightEnabled ? (1 << 3) : 0)
+                                            | (ExternalInputLeftEnabled ? (1 << 7) : 0);
+
+
+                                case RegsIO.NR51:
+                                    //TODO: split to each channel
+                                    return m_regs[aAddress - RegsIO.NR10];
+
+
+                                case RegsIO.NR52:
+                                    return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
+                                            // TODO: get real flags
+                                            | (0x0F & m_regs[aAddress - RegsIO.NR10]);
+
+
+                                default:
+                                    return m_regs[aAddress - RegsIO.NR10];
+                            }
                         }
 
                         set
                         {
-                            m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
-                            //SetReg(aAddress, value);
+                            switch (aAddress)
+                            {
+                                case RegsIO.NR50:
+                                    {
+                                        OutputVolumeRight = (0x07 & value);
+                                        OutputVolumeLeft = (0x07 & (value >> 4));
+                                        ExternalInputRightEnabled = ((0x08 & value) > 0);
+                                        ExternalInputLeftEnabled = ((0x80 & value) > 0);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR51:
+                                    {
+                                        //TODO: split to each channel
+                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
+                                        //SetReg(aAddress, value);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR52:
+                                    {
+                                        MasterSoundEnabled = ((0x80 & value) > 0);
+                                        
+                                        //TODO: split channel On flags
+                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
+                                    }
+                                    break;
+
+
+                                default:
+                                    m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
+                                    //SetReg(aAddress, value);
+                                    break;
+                            }
                         }
                     }
 
