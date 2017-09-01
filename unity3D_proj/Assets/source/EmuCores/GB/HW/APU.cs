@@ -27,6 +27,7 @@
 using xFF.EmuCores.GB;
 using xFF.EmuCores.GB.Defs;
 using xFF.EmuCores.GB.HW;
+using xFF.EmuCores.GB.HW.audio;
 
 
 namespace xFF
@@ -44,6 +45,8 @@ namespace xFF
                     
                     byte[] m_outputWave;
                     int[] m_regs = new int[0x30];
+
+                    SoundChannel3 m_channel3 = new SoundChannel3();
                     
 
                     public EmuGB.PlayAudioFunc PlayAudio = (aAPU) => { };
@@ -97,6 +100,26 @@ namespace xFF
                         {
                             switch (aAddress)
                             {
+                                case RegsIO.NR30:
+                                    return 0x7F | (m_channel3.IsSoundOn ? (1 << 7) : 0);
+
+
+                                case RegsIO.NR31:
+                                    return m_channel3.SoundLength;
+
+
+                                case RegsIO.NR32:
+                                    return 0x9F | (m_channel3.OutputVolumeLevel << 5);
+
+
+                                case RegsIO.NR33:
+                                    return 0xFF;
+
+
+                                case RegsIO.NR34:
+                                    return 0xBF | (!m_channel3.IsContinuous ? (1 << 6) : 0);
+
+
                                 case RegsIO.NR50:
                                     return  (OutputVolumeRight) | (OutputVolumeLeft << 4)
                                             | (ExternalInputRightEnabled ? (1 << 3) : 0)
@@ -115,6 +138,11 @@ namespace xFF
 
 
                                 default:
+                                    if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
+                                    {
+                                        return m_channel3.WaveForm[aAddress - RegsIO.WAVE00];
+                                    }
+
                                     return m_regs[aAddress - RegsIO.NR10];
                             }
                         }
@@ -123,6 +151,48 @@ namespace xFF
                         {
                             switch (aAddress)
                             {
+                                case RegsIO.NR30:
+                                    {
+                                        m_channel3.IsSoundOn = ((0x80 & value) > 0);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR31:
+                                    {
+                                        m_channel3.SoundLength = (0xFF & value);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR32:
+                                    {
+                                        m_channel3.OutputVolumeLevel = (0x03 & (value >> 5));
+                                    }
+                                    break;
+                                    
+
+                                case RegsIO.NR33:
+                                    {
+                                        int freq = (0xFF & value) | (0x700 & m_channel3.Frequency);
+
+                                        m_channel3.Frequency = freq;
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR34:
+                                    {
+                                        int freq = (0xFF & m_channel3.Frequency) | ((0x07 & value) << 8);
+
+                                        m_channel3.Frequency = freq;
+
+                                        m_channel3.IsContinuous = ((0x40 & value) == 0);
+                                    }
+                                    break;
+                                    
+
+
                                 case RegsIO.NR50:
                                     {
                                         OutputVolumeRight = (0x07 & value);
@@ -153,8 +223,19 @@ namespace xFF
 
 
                                 default:
-                                    m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
-                                    //SetReg(aAddress, value);
+                                    // Waveform RAM
+                                    if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
+                                    {
+                                        int index = (aAddress - RegsIO.WAVE00);
+                                        m_channel3.WaveForm[index * 2] = (byte)((0xF0 & value) >> 4);
+                                        m_channel3.WaveForm[(index * 2) + 1] = (byte)(0x0F & value);
+                                    }
+
+                                    else
+                                    {
+                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
+                                        //SetReg(aAddress, value);
+                                    }
                                     break;
                             }
                         }
