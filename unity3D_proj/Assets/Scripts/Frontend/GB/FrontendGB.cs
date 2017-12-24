@@ -156,7 +156,10 @@ namespace xFF
 
                             if (!m_emuGB.LoadSimpleRom(romData))
                             {
-                                throw new System.ArgumentException("MBC mappers are not supported yet.\nPlease, be patient :)");
+                                if (!m_emuGB.LoadMBC1Rom(romData))
+                                {
+                                    throw new System.ArgumentException("Some MBC mappers are not supported yet.\nPlease, be patient :)");
+                                }
                             }
                         }
                         catch (System.Exception e)

@@ -49,7 +49,7 @@ namespace xFF
                     TimerController m_timerController;
                     Joypad m_joypad;
                     SerialIO m_serialIO;
-
+                    Cartridge m_cartROM;
 
 
                     public byte[] BootRomData
@@ -92,6 +92,11 @@ namespace xFF
                         if (aAddress < 0x100 && (m_dbg_FullRam[RegsIO.BOOT] == 0))
                         {
                             return m_bootRom[aAddress];
+                        }
+
+                        else if (aAddress < 0x8000)
+                        {
+                            return m_cartROM[aAddress];
                         }
 
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
@@ -202,7 +207,7 @@ namespace xFF
                     {
                         if (aAddress < 0x8000)
                         {
-                            return;
+                            m_cartROM[aAddress] = aValue;
                         }
 
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
@@ -366,14 +371,46 @@ namespace xFF
                     {
                         m_serialIO = aSerialIO;
                     }
-                    
 
+
+                    public void AttachCartridge(Cartridge aCart)
+                    {
+                        m_cartROM = aCart;
+                    }
+                    
 
                     public void LoadSimpleRom(byte[] aRomData)
                     {
-                        for (int i = 0; i < 0x8000; ++i)
+                        if (m_cartROM == null)
                         {
-                            m_dbg_FullRam[i] = aRomData[i];
+                            AttachCartridge(new Cartridge());
+                        }
+
+                        byte[] buffer = new byte[0x4000];
+
+                        System.Buffer.BlockCopy(aRomData, 0, buffer, 0, 0x4000);
+                        m_cartROM.SetROMBank(0, buffer);
+
+                        System.Buffer.BlockCopy(aRomData, 0x4000, buffer, 0, 0x4000);
+                        m_cartROM.SetROMBank(1, buffer);
+                    }
+
+
+                    public void LoadMBC1Rom(byte[] aRomData)
+                    {
+                        if (m_cartROM == null)
+                        {
+                            AttachCartridge(new Cartridge());
+                        }
+
+                        byte[] buffer = new byte[0x4000];
+
+                        int totalBanks = aRomData.Length / 0x4000;
+
+                        for (int i = 0; i < totalBanks; ++i)
+                        {
+                            System.Buffer.BlockCopy(aRomData, (i * 0x4000), buffer, 0, 0x4000);
+                            m_cartROM.SetROMBank(i, buffer);
                         }
                     }
                 }
