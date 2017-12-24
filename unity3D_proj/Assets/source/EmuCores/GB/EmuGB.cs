@@ -255,6 +255,19 @@ namespace xFF
                 }
 
 
+                public bool LoadMBC1Rom(byte[] aRomData)
+                {
+                    if (aRomData == null || aRomData.Length > (128 * 0x4000))
+                    {
+                        return false;
+                    }
+
+                    m_mem.LoadMBC1Rom(aRomData);
+
+                    return true;
+                }
+
+
                 public static bool IsValidROM(string aFilePath)
                 {
                     if (aFilePath.ToLower().EndsWith(".gb") || aFilePath.ToLower().EndsWith(".gbc"))

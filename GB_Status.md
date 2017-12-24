@@ -182,7 +182,7 @@ Channel 4
 
 ROM Mappers | Status
 ----------- | ------
-MBC1
+MBC1 | :soon:
 MBC3
 MBC5
 MBC5 (w/ Rumble)
