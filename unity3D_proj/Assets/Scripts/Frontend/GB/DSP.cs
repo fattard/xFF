@@ -113,8 +113,8 @@ namespace xFF
                     public void ConfigBuffers(APU aAPU)
                     {
                         aAPU.OutputWave = new byte[m_audioBuffer.Length];
-                        aAPU.SetSamplesAvailable(m_samplesBufferSize);
-                        aAPU.SetSampleRate(AudioSettings.outputSampleRate);
+                        //aAPU.SetSamplesAvailable(m_samplesBufferSize);
+                        //aAPU.SetSampleRate(AudioSettings.outputSampleRate);
                     }
 
 
