@@ -78,6 +78,10 @@ namespace xFF
                                 case 0x06: // 2MB (128 banks - 125 real banks)
                                     totalROMBanks = 128;
                                     break;
+
+                                default:
+                                    totalROMBanks = 2; // 32KB (2 banks)
+                                    break;
                             }
 
                             while (m_romBanks.Count < totalROMBanks)
@@ -118,6 +122,12 @@ namespace xFF
                                     m_ramBanks[m_ramBanks.Count - 1][i] = 0xFF;
                                 }
                             }
+
+
+                            m_curBank_lowBits = 1;
+                            m_curBank_highBits = 0;
+                            m_isRAMEnabled = false;
+                            m_curMode = 0;
                         }
 
 
