@@ -242,6 +242,12 @@ namespace xFF
                 }
 
 
+                public void LoadNoCart( )
+                {
+                    m_mem.LoadNoCart();
+                }
+
+
                 public bool LoadSimpleRom(CartridgeHeader aHeader, byte[] aRomData)
                 {
                     if (aRomData == null || aRomData.Length != 0x8000)

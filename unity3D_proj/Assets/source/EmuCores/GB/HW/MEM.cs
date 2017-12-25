@@ -410,6 +410,12 @@ namespace xFF
                     {
                         m_cartROM = aCart;
                     }
+
+
+                    public void LoadNoCart( )
+                    {
+                        LoadSimpleRom(null, m_dbg_FullRam);
+                    }
                     
 
                     public void LoadSimpleRom(CartridgeHeader aHeader, byte[] aRomData)
