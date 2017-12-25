@@ -231,27 +231,27 @@ namespace xFF
                 }
 
 
-                public bool LoadSimpleRom(byte[] aRomData)
+                public bool LoadSimpleRom(CartridgeHeader aHeader, byte[] aRomData)
                 {
                     if (aRomData == null || aRomData.Length != 0x8000)
                     {
                         return false;
                     }
 
-                    m_mem.LoadSimpleRom(aRomData);
+                    m_mem.LoadSimpleRom(aHeader, aRomData);
                     
                     return true;
                 }
 
 
-                public bool LoadMBC1Rom(byte[] aRomData)
+                public bool LoadMBC1Rom(CartridgeHeader aHeader, byte[] aRomData)
                 {
                     if (aRomData == null || aRomData.Length > (128 * 0x4000))
                     {
                         return false;
                     }
 
-                    m_mem.LoadMBC1Rom(aRomData);
+                    m_mem.LoadMBC1Rom(aHeader, aRomData);
 
                     return true;
                 }

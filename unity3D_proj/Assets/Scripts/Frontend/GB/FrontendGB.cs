@@ -110,6 +110,27 @@ namespace xFF
                     }
 
 
+                    private void OnDestroy()
+                    {
+                        if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
+                        {
+                            m_emuGB.MEM.Cartridge.SaveRAM(EmuEnvironment.RomFilePath.Replace(".gbc", ".sav"));
+                        }
+
+                        else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
+                        {
+                            m_emuGB.MEM.Cartridge.SaveRAM(EmuEnvironment.RomFilePath.Replace(".gb", ".sav"));
+                        }
+
+                        // Just append .sav to whatever name is
+                        else
+                        {
+                            m_emuGB.MEM.Cartridge.SaveRAM(EmuEnvironment.RomFilePath + ".sav");
+                        }
+                        
+                    }
+
+
                     void LoadBootRom( )
                     {
                         // Use internal boot rom
@@ -154,12 +175,27 @@ namespace xFF
 
                             byte[] romData = System.IO.File.ReadAllBytes(path);
 
-                            if (!m_emuGB.LoadSimpleRom(romData))
+                            EmuCores.GB.HW.CartridgeHeader cartridgeHeader = new EmuCores.GB.HW.CartridgeHeader(romData);
+
+                            if (EmuCores.GB.HW.MBC.Cartridge_Single.Validate(cartridgeHeader))
                             {
-                                if (!m_emuGB.LoadMBC1Rom(romData))
+                                if (!m_emuGB.LoadSimpleRom(cartridgeHeader, romData))
                                 {
-                                    throw new System.ArgumentException("Some MBC mappers are not supported yet.\nPlease, be patient :)");
+                                    throw new System.ArgumentException("Invalid ROM header info");
                                 }
+                            }
+
+                            else if (EmuCores.GB.HW.MBC.Cartridge_MBC1.Validate(cartridgeHeader))
+                            { 
+                                if (!m_emuGB.LoadMBC1Rom(cartridgeHeader, romData))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC1 ROM header info");
+                                }
+                            }
+
+                            else
+                            {
+                                throw new System.ArgumentException("Some MBC mappers are not supported yet.\nPlease, be patient :)");
                             }
                         }
                         catch (System.Exception e)

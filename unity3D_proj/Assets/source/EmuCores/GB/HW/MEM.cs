@@ -64,6 +64,12 @@ namespace xFF
                     }
 
 
+                    public Cartridge Cartridge
+                    {
+                        get { return m_cartROM; }
+                    }
+
+
                     public MEM( )
                     {
                         m_dbg_FullRam = new byte[0x10000]; // 64 KB
@@ -102,6 +108,11 @@ namespace xFF
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
                         {
                             return m_ppu.VRAM[aAddress & 0x1FFF];
+                        }
+
+                        else if (aAddress >= 0xA000 && aAddress < 0xC000)
+                        {
+                            return m_cartROM[aAddress];
                         }
 
                         else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
@@ -213,6 +224,11 @@ namespace xFF
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
                         {
                             m_ppu.VRAM[aAddress & 0x1FFF] = (byte)aValue;
+                        }
+
+                        else if (aAddress >= 0xA000 && aAddress < 0xC000)
+                        {
+                            m_cartROM[aAddress] = aValue;
                         }
 
                         else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
@@ -379,11 +395,11 @@ namespace xFF
                     }
                     
 
-                    public void LoadSimpleRom(byte[] aRomData)
+                    public void LoadSimpleRom(CartridgeHeader aHeader, byte[] aRomData)
                     {
                         if (m_cartROM == null)
                         {
-                            AttachCartridge(new Cartridge());
+                            AttachCartridge(new MBC.Cartridge_Single(aHeader));
                         }
 
                         byte[] buffer = new byte[0x4000];
@@ -396,11 +412,11 @@ namespace xFF
                     }
 
 
-                    public void LoadMBC1Rom(byte[] aRomData)
+                    public void LoadMBC1Rom(CartridgeHeader aHeader, byte[] aRomData)
                     {
                         if (m_cartROM == null)
                         {
-                            AttachCartridge(new Cartridge());
+                            AttachCartridge(new MBC.Cartridge_MBC1(aHeader));
                         }
 
                         byte[] buffer = new byte[0x4000];
@@ -411,6 +427,22 @@ namespace xFF
                         {
                             System.Buffer.BlockCopy(aRomData, (i * 0x4000), buffer, 0, 0x4000);
                             m_cartROM.SetROMBank(i, buffer);
+                        }
+
+                        if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
+                        {
+                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gbc", ".sav"));
+                        }
+
+                        else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
+                        {
+                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gb", ".sav"));
+                        }
+
+                        // Just append .sav to whatever name is
+                        else
+                        {
+                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath + ".sav");
                         }
                     }
                 }
