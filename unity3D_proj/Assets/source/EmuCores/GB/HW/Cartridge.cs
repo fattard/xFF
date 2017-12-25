@@ -35,81 +35,130 @@ namespace xFF
         {
             namespace HW
             {
-
-
-                public class Cartridge
+                public class CartridgeHeader
                 {
-                    List<byte[]> m_romBanks;
-                    int m_curSelectedBank;
-                    int m_opMode;
+                    string m_title;
+                    string m_manufacturer;
+                    int m_cgbFlag;
+                    string m_newLicenseCode;
+                    int m_sgbFlag;
+                    int m_cartType;
+                    int m_romSize;
+                    int m_ramSize;
+                    int m_destinationCode;
+                    int m_oldLicenseCode;
+                    int m_maskRomVersion;
+                    int m_headerChecksum;
+                    int m_globalChecksum;
 
-
-                    public int this[int aOffset]
+                    public CartridgeHeader(byte[] aData)
                     {
-                        get
+                        if (aData.Length < 0x150)
                         {
-                            if (aOffset < 0x4000)
-                            {
-                                return m_romBanks[0][aOffset];
-                            }
-
-                            else
-                            {
-                                return m_romBanks[m_curSelectedBank][aOffset - 0x4000];
-                            }
+                            throw new System.ArgumentException("Invalid data size");
                         }
 
-                        set
+
+                        char[] aTitle = new char[16];
+                        for (int i = 0; i < aTitle.Length; ++i)
                         {
-                            // Ignore on simple ROMs
-                            if (m_romBanks.Count <= 2)
-                            {
-                                return;
-                            }
-
-
-                            if (aOffset >= 0x2000 && aOffset <= 0x3FFF)
-                            {
-                                int lowBits = (0x1F & value);
-                                if(lowBits == 0)
-                                {
-                                    lowBits = 1;
-                                }
-
-                                m_curSelectedBank = (0x60 & m_curSelectedBank) | lowBits;
-                            }
-
-                            else if (aOffset >= 0x4000 && aOffset <= 0x5FFF)
-                            {
-                                int highBits = (0x3 & value);
-
-                                m_curSelectedBank = (0x1F & m_curSelectedBank) | (highBits << 5);
-                            }
+                            aTitle[i] = (char)aData[0x134 + i];
                         }
+                        m_title = new string(aTitle);
+
+                        char[] aManufacturer = new char[4];
+                        for (int i = 0; i < aManufacturer.Length; ++i)
+                        {
+                            aManufacturer[i] = (char)aData[0x13F + i];
+                        }
+                        m_manufacturer = new string(aManufacturer);
+
+                        m_cgbFlag = aData[0x143];
+
+                        char[] aNewLicenseCode = new char[2];
+                        for (int i = 0; i < aNewLicenseCode.Length; ++i)
+                        {
+                            aNewLicenseCode[i] = (char)aData[0x144 + i];
+                        }
+                        m_newLicenseCode = new string(aNewLicenseCode);
+
+                        m_sgbFlag = aData[0x146];
+
+                        m_cartType = aData[0x147];
+
+                        m_romSize = aData[0x148];
+
+                        m_ramSize = aData[0x149];
+
+                        m_destinationCode = aData[0x14A];
+
+                        m_oldLicenseCode = aData[0x14B];
+
+                        m_maskRomVersion = aData[0x14C];
+
+                        m_headerChecksum = aData[0x14D];
+
+                        m_globalChecksum = (aData[0x14E] << 8) + (aData[0x14F]);
                     }
 
+
+                    public string Title
+                    {
+                        get { return m_title; }
+                    }
+
+
+                    public int CartType
+                    {
+                        get { return m_cartType; }
+                    }
+
+
+                    public int ROMSize
+                    {
+                        get { return m_romSize; }
+                    }
+
+
+                    public int RAMSize
+                    {
+                        get { return m_ramSize; }
+                    }
+                }
+
+
+
+                public abstract class Cartridge
+                {
+                    protected CartridgeHeader m_cartHeader;
+                    protected List<byte[]> m_ramBanks;
+                    protected List<byte[]> m_romBanks;
 
                     public Cartridge( )
                     {
-                        m_romBanks = new List<byte[]>(128)
-                        {
-                            new byte[0x4000], // BANK0
-                            new byte[0x4000]  // BANK1
-                        };
-
-                        m_curSelectedBank = 1;
+                        m_romBanks = new List<byte[]>(128);
+                        m_ramBanks = new List<byte[]>(4);
                     }
 
+                    public abstract int this[int aOffset]
+                    {
+                        get;
+                        set;
+                    }
 
                     public void SetROMBank(int aBankNum, byte[] aData)
                     {
-                        while (aBankNum >= m_romBanks.Count)
+                        /*while (aBankNum >= m_romBanks.Count)
                         {
                             m_romBanks.Add(new byte[0x4000]);
-                        }
+                        }*/
 
                         System.Buffer.BlockCopy(aData, 0, m_romBanks[aBankNum], 0, aData.Length);
                     }
+
+
+                    public abstract void SaveRAM(string filePath);
+                    public abstract void LoadRAM(string filePath);
                 }
 
 
