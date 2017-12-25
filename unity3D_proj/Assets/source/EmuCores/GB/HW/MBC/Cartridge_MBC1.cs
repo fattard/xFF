@@ -45,6 +45,7 @@ namespace xFF
                         int m_curBank_highBits;
                         bool m_isRAMEnabled;
                         int m_curMode;
+                        int m_mask;
                         
 
                         public Cartridge_MBC1(CartridgeHeader aHeader)
@@ -84,6 +85,8 @@ namespace xFF
                                     break;
                             }
 
+                            m_mask = (totalROMBanks - 1);
+
                             while (m_romBanks.Count < totalROMBanks)
                             {
                                 m_romBanks.Add(new byte[0x4000]);
@@ -109,6 +112,10 @@ namespace xFF
 
                                 case 3:
                                     totalRAMBanks = 4;
+                                    break;
+
+                                case 4:
+                                    totalRAMBanks = 16;
                                     break;
                             }
 
@@ -143,7 +150,7 @@ namespace xFF
                                     }
                                     else
                                     {
-                                        return m_romBanks[(m_curBank_highBits << 5)][aOffset];
+                                        return m_romBanks[m_mask & (m_curBank_highBits << 5)][aOffset];
                                     }
                                 }
 
@@ -228,7 +235,7 @@ namespace xFF
                         {
                             get
                             {
-                                return m_curBank_lowBits | (m_curBank_highBits << 5);
+                                return (m_mask & (m_curBank_lowBits | (m_curBank_highBits << 5)));
                             }
                         }
 
@@ -283,7 +290,7 @@ namespace xFF
                                 return false;
                             }
 
-                            if (aHeader.RAMSize > 0x03) // Limited to 4 banks of 8KB
+                            if (aHeader.RAMSize > 0x04) // Limited to 16 banks of 8KB
                             {
                                 return false;
                             }
