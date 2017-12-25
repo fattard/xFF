@@ -196,6 +196,22 @@ namespace xFF
                                 }
                             }
 
+                            else if (EmuCores.GB.HW.MBC.Cartridge_MBC3.Validate(cartridgeHeader))
+                            {
+                                if (!m_emuGB.LoadMBC3Rom(cartridgeHeader, romData))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC3 ROM header info");
+                                }
+                            }
+
+                            else if (EmuCores.GB.HW.MBC.Cartridge_MBC5.Validate(cartridgeHeader))
+                            {
+                                if (!m_emuGB.LoadMBC5Rom(cartridgeHeader, romData))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC5 ROM header info");
+                                }
+                            }
+
                             else
                             {
                                 throw new System.ArgumentException("Some MBC mappers are not supported yet.\nPlease, be patient :)");

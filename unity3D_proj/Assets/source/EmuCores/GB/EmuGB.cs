@@ -274,6 +274,32 @@ namespace xFF
                 }
 
 
+                public bool LoadMBC3Rom(CartridgeHeader aHeader, byte[] aRomData)
+                {
+                    if (aRomData == null || aRomData.Length > (128 * 0x4000))
+                    {
+                        return false;
+                    }
+
+                    m_mem.LoadMBC3Rom(aHeader, aRomData);
+
+                    return true;
+                }
+
+
+                public bool LoadMBC5Rom(CartridgeHeader aHeader, byte[] aRomData)
+                {
+                    if (aRomData == null || aRomData.Length > (512 * 0x4000))
+                    {
+                        return false;
+                    }
+
+                    m_mem.LoadMBC5Rom(aHeader, aRomData);
+
+                    return true;
+                }
+
+
                 public static bool IsValidROM(string aFilePath)
                 {
                     if (aFilePath.ToLower().EndsWith(".gb") || aFilePath.ToLower().EndsWith(".gbc"))
