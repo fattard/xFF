@@ -201,6 +201,7 @@ namespace xFF
                         catch (System.Exception e)
                         {
                             EmuEnvironment.ShowErrorBox("GB Emu Error", "Failed loading rom:\n" + e.Message);
+                            m_emuGB.LoadNoCart();
                         }
                     }
 
