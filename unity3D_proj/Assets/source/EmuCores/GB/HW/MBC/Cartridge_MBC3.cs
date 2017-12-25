@@ -45,6 +45,7 @@ namespace xFF
                         int m_curBank_sram;
                         bool m_isRAMEnabled;
                         int m_clockLatch;
+                        int m_mask;
 
 
                         public Cartridge_MBC3(CartridgeHeader aHeader)
@@ -71,14 +72,20 @@ namespace xFF
                                     totalROMBanks = 32;
                                     break;
 
-                                case 0x05: // 1MB (64 banks - 63 real banks)
+                                case 0x05: // 1MB (64 banks)
                                     totalROMBanks = 64;
                                     break;
 
-                                case 0x06: // 2MB (128 banks - 125 real banks)
+                                case 0x06: // 2MB (128 banks)
                                     totalROMBanks = 128;
                                     break;
+
+                                default:
+                                    totalROMBanks = 2; // 32KB (2 banks)
+                                    break;
                             }
+
+                            m_mask = (totalROMBanks - 1);
 
                             while (m_romBanks.Count < totalROMBanks)
                             {
@@ -106,6 +113,10 @@ namespace xFF
                                 case 3:
                                     totalRAMBanks = 4;
                                     break;
+
+                                default:
+                                    totalRAMBanks = 4;
+                                    break;
                             }
 
                             while (m_ramBanks.Count < totalRAMBanks)
@@ -118,6 +129,11 @@ namespace xFF
                                     m_ramBanks[m_ramBanks.Count - 1][i] = 0xFF;
                                 }
                             }
+
+                            m_curBank_rom = 1;
+                            m_curBank_sram = 0;
+                            m_isRAMEnabled = false;
+                            m_clockLatch = 0;
                         }
 
 
@@ -132,7 +148,7 @@ namespace xFF
 
                                 else if (aOffset < 0x8000)
                                 {
-                                    return m_romBanks[m_curBank_rom][aOffset - 0x4000];
+                                    return m_romBanks[(m_mask & m_curBank_rom)][aOffset - 0x4000];
                                 }
 
                                 // SRAM
@@ -242,7 +258,7 @@ namespace xFF
                                 return false;
                             }
 
-                            if (aHeader.RAMSize > 0x03) // Limited to 4 banks of 8KB
+                            if (aHeader.RAMSize > 0x04) // Limited to 4 banks of 8KB
                             {
                                 return false;
                             }

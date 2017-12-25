@@ -45,8 +45,8 @@ namespace xFF
                         int m_curBank_highBits;
                         int m_curBank_sram;
                         bool m_isRAMEnabled;
-                        int m_curMode;
-                        
+                        int m_mask;
+
 
                         public Cartridge_MBC5(CartridgeHeader aHeader)
                         {
@@ -87,7 +87,13 @@ namespace xFF
                                 case 0x08: // 8MB (512 banks)
                                     totalROMBanks = 512;
                                     break;
+
+                                default:
+                                    totalROMBanks = 2; // 32KB (2 banks)
+                                    break;
                             }
+
+                            m_mask = (totalROMBanks - 1);
 
                             while (m_romBanks.Count < totalROMBanks)
                             {
@@ -122,6 +128,10 @@ namespace xFF
 
                                 case 5:
                                     totalRAMBanks = 8;
+                                    break;
+
+                                default:
+                                    totalRAMBanks = 16;
                                     break;
                             }
 
@@ -160,14 +170,9 @@ namespace xFF
                                         return 0xFF;
                                     }
 
-                                    if (m_curMode == 0 || m_ramBanks.Count == 1)
-                                    {
-                                        return m_ramBanks[0][aOffset - 0xA000];
-                                    }
-
                                     else
                                     {
-                                        return m_ramBanks[m_curBank_highBits][aOffset - 0xA000];
+                                        return m_ramBanks[m_curBank_sram][aOffset - 0xA000];
                                     }
                                 }
 
@@ -216,7 +221,7 @@ namespace xFF
                         {
                             get
                             {
-                                return m_curBank_lowBits | (m_curBank_highBits << 8);
+                                return (m_mask & (m_curBank_lowBits | (m_curBank_highBits << 8)));
                             }
                         }
 
