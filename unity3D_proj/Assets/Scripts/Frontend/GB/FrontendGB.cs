@@ -240,6 +240,13 @@ namespace xFF
                         }
                         catch (System.Exception e)
                         {
+                            EmuEnvironment.ShowErrorBox("GB Emu Error", "Invalid data in config file \"core_gb.cfg\"\n\n" + e.Message);
+                            if (!Application.isEditor)
+                            {
+                                Application.Quit();
+                                return null;
+                            }
+
                             return new EmuCores.GB.ConfigsGB();
                         }
                     }
