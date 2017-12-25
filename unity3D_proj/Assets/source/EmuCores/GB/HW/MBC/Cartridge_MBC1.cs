@@ -186,7 +186,7 @@ namespace xFF
                                     m_curBank_highBits = (0x3 & value);
                                 }
 
-                                else if (aOffset >= 6000 && aOffset <= 0x7FFF)
+                                else if (aOffset >= 0x6000 && aOffset <= 0x7FFF)
                                 {
                                     m_curMode = (0x1 & value);
                                 }
