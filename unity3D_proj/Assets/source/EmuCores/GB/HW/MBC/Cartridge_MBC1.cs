@@ -114,8 +114,8 @@ namespace xFF
                                     totalRAMBanks = 4;
                                     break;
 
-                                case 4:
-                                    totalRAMBanks = 16;
+                                default:
+                                    totalRAMBanks = 4;
                                     break;
                             }
 
@@ -290,7 +290,7 @@ namespace xFF
                                 return false;
                             }
 
-                            if (aHeader.RAMSize > 0x04) // Limited to 16 banks of 8KB
+                            if (aHeader.RAMSize > 0x04) // Limited to 4 banks of 8KB
                             {
                                 return false;
                             }
