@@ -71,7 +71,7 @@ namespace xFF
                                 m_soundLength = value;
                                 m_lengthCounter = (256 - value);
 
-                                //SetLength(value);
+                                SetLength(value);
                             }
                         }
 
@@ -112,7 +112,7 @@ namespace xFF
                                 m_frequency = (65536 / (2048 - value));
                                 m_period = 4194304 / m_frequency;
 
-                                //SetFrequency(value);
+                                SetFrequency(value);
 
 
                             }
