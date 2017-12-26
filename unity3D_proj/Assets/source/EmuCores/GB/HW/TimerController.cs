@@ -41,22 +41,44 @@ namespace xFF
                     CPU.RequestIRQFunc RequestIRQ;
 
                     int m_dividerCounter;
-                    int m_timerClockCounter;
                     int m_targetCounter;
+                    int m_internalCounter;
+
+                    int m_timerCounter;
+                    int m_timerCounter_reloadingCycles;
 
                     int m_controllerData;
 
                     public int Divider
                     {
-                        get;
-                        set;
+                        get { return m_dividerCounter; }
+                        set
+                        {
+                            m_dividerCounter = 0;
+                            m_internalCounter = 0;
+                        }
                     }
 
 
                     public int TimerCounter
                     {
-                        get;
-                        set;
+                        get
+                        {
+                            if (m_timerCounter_reloadingCycles > 0)
+                            {
+                                return 0;
+                            }
+
+                            return m_timerCounter;
+                        }
+                        set
+                        {
+                            if (m_timerCounter_reloadingCycles > 0)
+                            {
+                                return;
+                            }
+                            m_timerCounter = (0xFF & value);
+                        }
                     }
 
 
@@ -84,13 +106,14 @@ namespace xFF
                     public TimerController( )
                     {
                         m_dividerCounter = 0;
-                        m_timerClockCounter = 0;
                         m_targetCounter = 0;
                         SetControllerData(0);
                         SetTimerFreq();
 
                         // Temp binding
                         RequestIRQ = (aIRQ_flag) => { };
+
+                        m_timerCounter_reloadingCycles = 8;
                     }
 
 
@@ -146,24 +169,24 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        m_dividerCounter += aElapsedCycles;
-                        if (m_dividerCounter > 255)
+                        //m_internalCounter += aElapsedCycles;
+                        if (((m_internalCounter & 0xFF) + aElapsedCycles)  > 255)
                         {
-                            Divider = (0xFF & (Divider + 1));
-                            m_dividerCounter -= 256;
+                            m_dividerCounter = (0xFF & (m_dividerCounter + 1));
                         }
 
 
                         if (IsTimerEnabled)
                         {
-                            m_timerClockCounter += aElapsedCycles;
+                            //m_timerClockCounter += aElapsedCycles;
 
-                            if (m_timerClockCounter >= m_targetCounter)
+                            if ((m_internalCounter & (m_targetCounter - 1)) + aElapsedCycles >= m_targetCounter)
                             {
                                 if (TimerCounter == 255)
                                 {
                                     TimerCounter = TimerModulo;
                                     RequestIRQ(RegsIO_Bits.IF_TIMER);
+                                    m_timerCounter_reloadingCycles = 8;
                                 }
                                 else
                                 {
@@ -171,8 +194,14 @@ namespace xFF
                                 }
 
                                 SetTimerFreq();
-                                m_timerClockCounter -= m_targetCounter;
                             }
+                        }
+
+                        m_internalCounter += aElapsedCycles;
+
+                        if (m_timerCounter_reloadingCycles > 0)
+                        {
+                            m_timerCounter_reloadingCycles -= aElapsedCycles;
                         }
                     }
                 }
