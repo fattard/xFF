@@ -55,7 +55,7 @@ namespace xFF
                             length = aLength;
                             controller = aController;
                             elapsedCycles = 0;
-                            totalElapsedCycles = 0;
+                            totalElapsedCycles = 4;
                         }
 
 
@@ -74,46 +74,36 @@ namespace xFF
 
                             if (totalElapsedCycles >= 671)
                             {
-                                controller.m_jobs.Remove(this);
-                                controller.m_availableJobs.Add(this);
+                                totalElapsedCycles = 0;
                             }
+                        }
+
+
+                        public bool IsBusy
+                        {
+                            get { return (totalElapsedCycles > 0 && totalElapsedCycles < 671); }
                         }
                     }
 
 
                     MEM m_mem;
-
-                    List<DMAJob> m_jobs;
-                    List<DMAJob> m_availableJobs;
+                    DMAJob m_job;
 
                     public bool IsBusy
                     {
-                        get { return m_jobs.Count > 0; }
+                        get { return m_job.IsBusy; }
                     }
 
                     
                     public DMAController( )
                     {
-                        m_jobs = new List<DMAJob>();
-                        m_availableJobs = new List<DMAJob>();
-
-                        m_availableJobs.Add(new DMAJob());
+                        m_job = new DMAJob();
                     }
 
 
                     public void StartDMA_OAM(int aStartAddress)
                     {
-                        if (m_availableJobs.Count == 0)
-                        {
-                            return;
-                        }
-
-                        DMAJob job = m_availableJobs[0];
-                        m_availableJobs.RemoveAt(0);
-
-                        job.Prepare(this, aStartAddress, 0xFE00, 160);
-
-                        m_jobs.Add(job);
+                        m_job.Prepare(this, aStartAddress, 0xFE00, 160);
                     }
 
 
@@ -126,10 +116,7 @@ namespace xFF
                     {
                         if (IsBusy)
                         {
-                            for (int i = 0; i < m_jobs.Count; ++i)
-                            {
-                                m_jobs[i].Run(aElapsedCycles);
-                            }
+                            m_job.Run(aElapsedCycles);
                         }
                     }
                 }

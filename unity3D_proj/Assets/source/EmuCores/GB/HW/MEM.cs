@@ -117,6 +117,11 @@ namespace xFF
 
                         else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
                         {
+                            if (m_dmaController.IsBusy)
+                            {
+                                return 0xFF;
+                            }
+
                             return m_ppu.OAM[aAddress & 0xFF];
                         }
 
