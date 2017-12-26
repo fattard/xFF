@@ -177,7 +177,7 @@ Audio | Status
 ----- | ------
 Channel 1
 Channel 2
-Channel 3
+Channel 3 | :soon:
 Channel 4
 
 ROM Mappers | Status

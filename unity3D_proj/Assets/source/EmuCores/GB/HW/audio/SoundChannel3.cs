@@ -47,7 +47,9 @@ namespace xFF
                         int m_volumeLevel;
                         int m_volumeShift;
                         int m_soundLength;
+                        int m_lengthCounter;
                         int m_frequency;
+                        int m_period;
 
 
                         int[] m_samples;
@@ -67,6 +69,7 @@ namespace xFF
                             set
                             {
                                 m_soundLength = value;
+                                m_lengthCounter = (256 - value);
 
                                 //SetLength(value);
                             }
@@ -106,9 +109,12 @@ namespace xFF
                             get { return m_frequency; }
                             set
                             {
-                                m_frequency = value;
+                                m_frequency = (65536 / (2048 - value));
+                                m_period = 4194304 / m_frequency;
 
                                 //SetFrequency(value);
+
+
                             }
                         }
 
@@ -141,6 +147,18 @@ namespace xFF
                         }
 
 
+                        public void CyclesStep(int aElapsedCycles)
+                        {
+                            m_period -= aElapsedCycles;
+
+                            if (m_period < 0)
+                            {
+                                if (m_lengthCounter > 0 || IsContinuous)
+                                {
+                                    --m_lengthCounter;
+                                }
+                            }
+                        }
                     }
                     
 
