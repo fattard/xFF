@@ -207,7 +207,7 @@ namespace xFF
                                     {
                                         //TODO: split to each channel
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
-                                        //SetReg(aAddress, value);
+                                        //SetReg_TMP(aAddress, value);
                                     }
                                     break;
 
@@ -234,7 +234,7 @@ namespace xFF
                                     else
                                     {
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
-                                        //SetReg(aAddress, value);
+                                        //SetReg_TMP(aAddress, value);
                                     }
                                     break;
                             }
@@ -268,7 +268,11 @@ namespace xFF
                     }
 
 
+                    
+                    bool channel1Enable = true;
+                    bool channel2Enable = true;
                     bool channel3Enable = true;
+                    bool channel4Enable = true;
 
 
 
@@ -278,6 +282,8 @@ namespace xFF
 
 
                         m_channel3.SetSampleRate(sr);
+
+                        //SetSampleRate_TMP(sr);
                     }
 
                     public void OutputSound(ref byte[] b)
@@ -295,6 +301,8 @@ namespace xFF
                             b[i] = 0;
                         }
 
+                        //OutputSound_TMP(ref b);
+                        
                         if (m_channel3.IsSoundOn)
                         {
                             m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
