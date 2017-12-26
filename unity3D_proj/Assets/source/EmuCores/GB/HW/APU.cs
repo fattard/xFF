@@ -245,7 +245,7 @@ namespace xFF
 
                     public void UpdateOutputWave( )
                     {
-                        //OutputSound(ref m_outputWave);
+                        OutputSound(ref m_outputWave);
                     }
 
 
@@ -254,6 +254,53 @@ namespace xFF
                     {
 
                     }
+
+
+
+                    // TEMP
+
+                    int m_samplesAvailable;
+                    int m_sampleRate = 44100;
+
+                    public void SetSamplesAvailable(int aSamples)
+                    {
+                        m_samplesAvailable = aSamples;
+                    }
+
+
+                    bool channel3Enable = true;
+
+
+
+                    public void SetSampleRate(int sr)
+                    {
+                        m_sampleRate = sr;
+
+
+                        m_channel3.SetSampleRate(sr);
+                    }
+
+                    public void OutputSound(ref byte[] b)
+                    {
+                        if (!MasterSoundEnabled)
+                            return;
+
+                        int numChannels = 2; // Always stereo for Game Boy
+                        int numSamples = m_samplesAvailable;
+
+                        /*byte[]*/
+                        //b = new byte[numChannels * numSamples];
+                        for (int i = 0; i < b.Length; ++i)
+                        {
+                            b[i] = 0;
+                        }
+
+                        if (m_channel3.IsSoundOn)
+                        {
+                            m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
+                        }
+                    }
+
                 }
 
 
