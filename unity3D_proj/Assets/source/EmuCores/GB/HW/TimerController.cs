@@ -36,56 +36,128 @@ namespace xFF
             {
 
 
+                /// <summary>
+                /// Class to control Timer module and its internal Regs and counters.
+                /// 
+                /// There are several obscure behaviours that were documented by AntonioND,
+                /// author of emulator GiiBiiAdvance, in the "The Cycle-Accurate Game Boy Docs",
+                /// that can be found on "https://github.com/AntonioND/giibiiadvance/raw/master/docs/TCAGBD.pdf"
+                /// 
+                /// Please, read that document before trying to read the sourcecode.
+                /// 
+                /// </summary>
                 public class TimerController
                 {
                     CPU.RequestIRQFunc RequestIRQ;
 
-                    int m_dividerCounter;
-                    int m_targetCounter;
                     int m_internalCounter;
+                    int m_timerModulo;
+
+                    bool m_shouldResetInternalCounter;
+
+                    int m_targetCounterMask;
 
                     int m_timerCounter;
                     int m_timerCounter_reloadingCycles;
 
                     int m_controllerData;
 
+                    int m_timerEnabledMask;
+
+
+                    /// <summary>
+                    /// Accessor for the Reg DIV (0xFF04)
+                    /// Reading from it returns the high-byte
+                    /// of the 16 bits internal counter.
+                    /// Writing any value to it will reset
+                    /// the internal counter, affecting all
+                    /// the Timer operations.
+                    /// </summary>
                     public int Divider
                     {
-                        get { return m_dividerCounter; }
+                        get
+                        {
+                            // The high-byte
+                            return (0xFF & (m_internalCounter >> 8));
+
+                            //TODO: check if the low-byte is exposed to address 0xFF03
+                        }
                         set
                         {
-                            m_dividerCounter = 0;
-                            m_internalCounter = 0;
+                            // Mark a flag to reset counter in the next cycles-step
+                            m_shouldResetInternalCounter = true;
                         }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for the Reg TIMA (0xFF05)
+                    /// This register holds the Timer Counter,
+                    /// which will be incremented at chosen
+                    /// frequency, until it overflows.
+                    /// Then, the value of register TMA will
+                    /// be loaded into TIMA and the Timer
+                    /// IRQ will be requested, if enabled.
+                    /// </summary>
                     public int TimerCounter
                     {
                         get
                         {
-                            if (m_timerCounter_reloadingCycles > 0)
-                            {
-                                return 0;
-                            }
+                            // Note: During reload cycles, this register should reads as 0x00
 
                             return m_timerCounter;
                         }
                         set
                         {
+                            // During reload cycles, any write to this register is ignored
                             if (m_timerCounter_reloadingCycles > 0)
                             {
                                 return;
                             }
+
                             m_timerCounter = (0xFF & value);
                         }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for the Reg TMA (0xFF06)
+                    /// This register holds the value that
+                    /// is loaded into TIMA when it overflows.
+                    /// </summary>
                     public int TimerModulo
                     {
-                        get;
-                        set;
+                        get { return m_timerModulo; }
+                        set
+                        {
+                            m_timerModulo = (0xFF & value);
+                        }
+                    }
+
+
+                    /// <summary>
+                    /// Accessor for the Reg TAC (0xFF07)
+                    /// </summary>
+                    public int TimerControllerData
+                    {
+                        get
+                        {
+                            return (0xF8 | m_controllerData);
+                        }
+
+                        set
+                        {
+                            m_controllerData = (0x07 & value);
+
+                            int newSelector = (RegsIO_Bits.TAC_CLK & value);
+                            if (newSelector != InputClockSelector)
+                            {
+                                InputClockSelector = newSelector;
+                                SetTimerFreqMaskCheck();
+                            }
+
+                            IsTimerEnabled = ((RegsIO_Bits.TAC_EN & value) > 0);
+                        }
                     }
 
 
@@ -98,67 +170,44 @@ namespace xFF
 
                     public bool IsTimerEnabled
                     {
-                        get;
-                        set;
+                        get { return m_timerEnabledMask != 0; }
+                        set { m_timerEnabledMask = 0xFFFF; }
                     }
 
 
-                    public TimerController( )
+                    public TimerController()
                     {
-                        m_dividerCounter = 0;
-                        m_targetCounter = 0;
-                        SetControllerData(0);
-                        SetTimerFreq();
+                        m_targetCounterMask = 0;
+                        TimerControllerData = 0;
+                        SetTimerFreqMaskCheck();
 
                         // Temp binding
                         RequestIRQ = (aIRQ_flag) => { };
-
-                        m_timerCounter_reloadingCycles = 8;
+                        
                     }
 
 
-                    void SetTimerFreq( )
+                    void SetTimerFreqMaskCheck()
                     {
                         switch (InputClockSelector)
                         {
-                            case 0:
-                                m_targetCounter = 1024;
+                            case 0: // 4096 Hz (1024 clocks)
+                                m_targetCounterMask = (1 << 9); // Checks for bit 9 overflowing to bit 10
                                 break;
 
-                            case 1:
-                                m_targetCounter = 16;
+                            case 1: // 262144 Hz (16 clocks)
+                                m_targetCounterMask = (1 << 3); // Checks for bit 3 overflowing to bit 4
                                 break;
 
-                            case 2:
-                                m_targetCounter = 64;
+                            case 2: // 65536 Hz (64 clocks)
+                                m_targetCounterMask = (1 << 5); // Checks for bit 5 overflowing to bit 6
                                 break;
 
-                            case 3:
-                                m_targetCounter = 256;
+                            case 3: // 16386 Hz (256 clocks)
+                                m_targetCounterMask = (1 << 7); // Checks for bit 7 overflowing to bit 8
                                 break;
                         }
                     }
-
-
-                    public void SetControllerData(int aData)
-                    {
-                        m_controllerData = aData;
-
-                        int newSelector = (RegsIO_Bits.TAC_CLK & aData);
-                        if (newSelector != InputClockSelector)
-                        {
-                            InputClockSelector = newSelector;
-                            SetTimerFreq();
-                        }
-                        IsTimerEnabled = ((RegsIO_Bits.TAC_EN & aData) > 0);
-                    }
-
-
-                    public int GetControllerData( )
-                    {
-                        return m_controllerData;
-                    }
-                    
 
 
                     public void BindRequestIRQ(CPU.RequestIRQFunc aRequestIRQFunc)
@@ -169,41 +218,68 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        //m_internalCounter += aElapsedCycles;
-                        if (((m_internalCounter & 0xFF) + aElapsedCycles)  > 255)
+                        // Sync cycles
+                        while (aElapsedCycles > 0)
                         {
-                            m_dividerCounter = (0xFF & (m_dividerCounter + 1));
-                        }
+                            // Store current internal counter before any modification
+                            int prevInternalCounter = m_internalCounter;
 
 
-                        if (IsTimerEnabled)
-                        {
-                            //m_timerClockCounter += aElapsedCycles;
-
-                            if ((m_internalCounter & (m_targetCounter - 1)) + aElapsedCycles >= m_targetCounter)
+                            // Reset internal counter
+                            if (m_shouldResetInternalCounter)
                             {
-                                if (TimerCounter == 255)
-                                {
-                                    TimerCounter = TimerModulo;
-                                    RequestIRQ(RegsIO_Bits.IF_TIMER);
-                                    m_timerCounter_reloadingCycles = 8;
-                                }
-                                else
-                                {
-                                    TimerCounter = (0xFF & (TimerCounter + 1));
-                                }
-
-                                SetTimerFreq();
+                                m_internalCounter = 0;
+                                m_shouldResetInternalCounter = false;
                             }
-                        }
 
-                        m_internalCounter += aElapsedCycles;
 
-                        if (m_timerCounter_reloadingCycles > 0)
-                        {
-                            m_timerCounter_reloadingCycles -= aElapsedCycles;
+                            // Consume reloading cycles
+                            if (m_timerCounter_reloadingCycles > 0)
+                            {
+                                m_timerCounter_reloadingCycles -= 4;
+
+                                // If reloading finished, feed from TMA and do IRQ request
+                                if (m_timerCounter_reloadingCycles <= 0)
+                                {
+                                    m_timerCounter = m_timerModulo;
+                                    RequestIRQ(RegsIO_Bits.IF_TIMER);
+                                    SetTimerFreqMaskCheck();
+                                }
+                            }
+
+
+                            // Increase internal counter (16 bits)
+                            m_internalCounter = (0xFFFF & (m_internalCounter + 4));
+
+                            int prevBit = (prevInternalCounter & m_targetCounterMask);
+                            int curBit = (m_internalCounter & m_targetCounterMask);
+
+                            // Performs AND operation between curBit and TAC Enable flag
+                            curBit &= m_timerEnabledMask;
+
+                            // Note1: even if the internal counter was reset, falling edge should trigger
+                            // Note2: if Timer is disabled but prevBit was set, falling edge should trigger
+
+                            // Falling edge detector - checks if bit from freq check mask changes from 1 to 0 (had overflow)
+                            if ((prevBit != 0) && (curBit == 0))
+                            {
+                                // Increase TimerCounter
+                                m_timerCounter = (0xFF & (m_timerCounter + 1));
+
+
+                                // Checks if overflows and init reloading operation
+                                if (m_timerCounter == 0)
+                                {
+                                    m_timerCounter_reloadingCycles = 4;
+                                }
+                            }
+
+                            // Consume elapsed cycles
+                            aElapsedCycles -= 4;
                         }
                     }
+
+                    
                 }
 
 

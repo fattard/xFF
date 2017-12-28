@@ -137,7 +137,7 @@ namespace xFF
 
 
                     // BOOT
-                    public const int BOOT_LOCK = (1 << 0);
+                    public const int BOOT_OFF = (1 << 0);
                 }
 
 
