@@ -99,7 +99,7 @@ namespace xFF
                             m_regs.F.H = 0;
 
                             //TODO: increase accuracy
-                            CyclesStep(2);
+                            CyclesStep(8);
                         };
                         // rlc B
                         m_extendedInstructionHandler[0x00] = m_extendedInstructionHandler[0x07];
