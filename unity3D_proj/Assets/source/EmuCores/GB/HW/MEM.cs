@@ -118,6 +118,11 @@ namespace xFF
 
                         else if (aAddress >= 0xFE00 && aAddress < 0xFEA0)
                         {
+                            if (m_dmaController.IsBusy)
+                            {
+                                return 0xFF;
+                            }
+
                             return m_ppu.OAM[aAddress & 0xFF];
                         }
 
@@ -203,7 +208,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.TAC)
                         {
-                            return m_timerController.GetControllerData();
+                            return m_timerController.TimerControllerData;
                         }
 
                         else if (aAddress == RegsIO.SB)
@@ -249,7 +254,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.P1)
                         {
-                            m_joypad.SelectedOutPort = (0x30 & aValue);
+                            m_joypad.SelectedOutPort = aValue;
                         }
 
                         else if (aAddress == RegsIO.LCDC)
@@ -321,22 +326,22 @@ namespace xFF
 
                         else if (aAddress == RegsIO.TIMA)
                         {
-                            m_timerController.TimerCounter = (0xFF & aValue);
+                            m_timerController.TimerCounter = aValue;
                         }
 
                         else if (aAddress == RegsIO.TMA)
                         {
-                            m_timerController.TimerModulo = (0xFF & aValue);
+                            m_timerController.TimerModulo = aValue;
                         }
 
                         else if (aAddress == RegsIO.TAC)
                         {
-                            m_timerController.SetControllerData(0x07 & aValue);
+                            m_timerController.TimerControllerData = aValue;
                         }
 
                         else if (aAddress == RegsIO.BOOT)
                         {
-                            m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_LOCK & aValue);
+                            m_dbg_FullRam[aAddress] |= (byte)(RegsIO_Bits.BOOT_OFF & aValue);
                         }
 
                         else if (aAddress == RegsIO.SB)
