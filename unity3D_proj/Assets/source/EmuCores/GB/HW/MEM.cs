@@ -215,6 +215,16 @@ namespace xFF
                             return m_serialIO.GetControlData();
                         }
 
+                        else if (aAddress == RegsIO.IF)
+                        {
+                            return m_cpu.InterruptsRequests;
+                        }
+
+                        else if (aAddress == RegsIO.IE)
+                        {
+                            return m_cpu.InterruptsEnables;
+                        }
+
                         return m_dbg_FullRam[aAddress];
                     }
 
@@ -341,6 +351,16 @@ namespace xFF
                         else if (aAddress == RegsIO.SC)
                         {
                             m_serialIO.SetControlData(aValue);
+                        }
+
+                        else if (aAddress == RegsIO.IF)
+                        {
+                            m_cpu.InterruptsRequests = aValue;
+                        }
+
+                        else if (aAddress == RegsIO.IE)
+                        {
+                            m_cpu.InterruptsEnables = aValue;
                         }
 
                         else

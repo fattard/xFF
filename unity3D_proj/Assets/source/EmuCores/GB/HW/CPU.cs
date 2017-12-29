@@ -51,6 +51,24 @@ namespace xFF
                     uint m_cyclesElapsed;
                     uint m_userCyclesRate;
 
+                    int m_interruptsRequests;
+                    int m_interruptsEnables;
+
+
+                    public int InterruptsRequests
+                    {
+                        get { return (0xE0 | (0x1F & m_interruptsRequests)); }
+                        set { m_interruptsRequests = (0x1F & value); }
+                    }
+
+
+                    public int InterruptsEnables
+                    {
+                        get { return m_interruptsEnables; }
+                        set { m_interruptsEnables = (0xFF & value); }
+                    }
+
+
                     public uint UserCyclesRate
                     {
                         get { return m_userCyclesRate; }
