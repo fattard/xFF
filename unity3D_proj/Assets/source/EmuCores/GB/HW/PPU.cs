@@ -46,6 +46,8 @@ namespace xFF
 
                     int m_lcdc;
                     int m_stat;
+                    int m_curScanline;
+                    int m_scanlineToCompare;
                     int m_operationMode;
 
                     CPU.RequestIRQFunc RequestIRQ;
@@ -113,35 +115,64 @@ namespace xFF
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg LY (0xFF44)
+                    /// </summary>
                     public int CurScanline
                     {
-                        get;
-                        set;
+                        get
+                        {
+                            // If LCD is disabled, always return 0
+                            if ((LCDControl & (1 << 7)) == 0)
+                            {
+                                return 0;
+                            }
+
+                            return m_curScanline;
+                        }
+
+                        set { m_curScanline = (0xFF & value); }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg LYC (0xFF45)
+                    /// </summary>
                     public int ScanlineComparer
                     {
-                        get;
-                        set;
+                        get { return m_scanlineToCompare; }
+                        set { m_scanlineToCompare = (0xFF & value); }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg LCDC (0xFF40)
+                    /// </summary>
                     public int LCDControl
                     {
                         get { return m_lcdc; }
                         set
                         {
                             m_lcdc = (0xFF & value);
-
-                            //BGDisplayOn = (value & RegsIO_Bits.LCDC_BGEN);
                         }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg STAT (0xFF41)
+                    /// </summary>
                     public int LCDControllerStatus
                     {
-                        get { return (0x80 | m_stat); }
+                        get
+                        {
+                            // If LCD is disabled, Mode is always 0
+                            if ((LCDControl & (1 << 7)) == 0)
+                            {
+                                return (0x80 | (0x7C & m_stat));
+                            }
+
+                            return (0x80 | m_stat);
+                        }
                         set
                         {
                             m_stat = (0x7F & value);
