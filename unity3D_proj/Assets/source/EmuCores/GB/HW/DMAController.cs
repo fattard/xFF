@@ -43,8 +43,9 @@ namespace xFF
                         int lastSourceAddress;
                         int lastTargetAddress;
                         int length;
-                        int elapsedCycles;
                         int totalElapsedCycles;
+                        bool isBusy;
+                        bool isRunning;
                         DMAController controller;
 
 
@@ -54,66 +55,77 @@ namespace xFF
                             lastTargetAddress = aTargetAddress;
                             length = aLength;
                             controller = aController;
-                            elapsedCycles = 0;
                             totalElapsedCycles = 0;
+                            isRunning = true;
                         }
 
 
                         public void Run(int aElapsedCycles)
                         {
-                            elapsedCycles += aElapsedCycles;
-                            totalElapsedCycles += aElapsedCycles;
-
-                            while (elapsedCycles >= 4 && length > 0)
+                            while (aElapsedCycles > 0 && isRunning)
                             {
-                                controller.m_mem.Write8(lastTargetAddress++, controller.m_mem.Read8(lastSourceAddress++));
-                                --length;
+                                totalElapsedCycles += 4;
 
-                                elapsedCycles -= 4;
-                            }
+                                // Start up cycle
+                                if (totalElapsedCycles < (8 + 4)) // 4 setup cycles + 8 cycles from 'ldh [DMA], a'
+                                {
+                                    aElapsedCycles -= 4;
+                                    continue;
+                                }
 
-                            if (totalElapsedCycles >= 671)
-                            {
-                                controller.m_jobs.Remove(this);
-                                controller.m_availableJobs.Add(this);
+                                isBusy = true;
+
+                                if (length > 0)
+                                {
+                                    controller.m_mem.Write8(lastTargetAddress++, controller.m_mem.Read8(lastSourceAddress++));
+                                    --length;
+                                }
+
+
+                                // Finish cycle
+                                if (length == 0 && totalElapsedCycles > 648)
+                                {
+                                    isBusy = false;
+                                    isRunning = false;
+                                }
+
+
+                                aElapsedCycles -= 4;
                             }
+                        }
+
+
+                        public bool IsBusy
+                        {
+                            get { return isBusy; }
+                        }
+
+
+                        public bool IsRunning
+                        {
+                            get { return isRunning; }
                         }
                     }
 
 
                     MEM m_mem;
-
-                    List<DMAJob> m_jobs;
-                    List<DMAJob> m_availableJobs;
+                    DMAJob m_job;
 
                     public bool IsBusy
                     {
-                        get { return m_jobs.Count > 0; }
+                        get { return m_job.IsBusy; }
                     }
 
                     
                     public DMAController( )
                     {
-                        m_jobs = new List<DMAJob>();
-                        m_availableJobs = new List<DMAJob>();
-
-                        m_availableJobs.Add(new DMAJob());
+                        m_job = new DMAJob();
                     }
 
 
                     public void StartDMA_OAM(int aStartAddress)
                     {
-                        if (m_availableJobs.Count == 0)
-                        {
-                            return;
-                        }
-
-                        DMAJob job = m_availableJobs[0];
-                        m_availableJobs.RemoveAt(0);
-
-                        job.Prepare(this, aStartAddress, 0xFE00, 160);
-
-                        m_jobs.Add(job);
+                        m_job.Prepare(this, aStartAddress, 0xFE00, 160);
                     }
 
 
@@ -124,12 +136,9 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        if (IsBusy)
+                        if (m_job.IsRunning)
                         {
-                            for (int i = 0; i < m_jobs.Count; ++i)
-                            {
-                                m_jobs[i].Run(aElapsedCycles);
-                            }
+                            m_job.Run(aElapsedCycles);
                         }
                     }
                 }

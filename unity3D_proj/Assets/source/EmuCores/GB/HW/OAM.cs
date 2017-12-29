@@ -89,6 +89,9 @@ namespace xFF
                         }
 
 
+                        private int m_fullMiscData;
+
+
                         public ObjAttributes(int aID)
                         {
                             ID = aID;
@@ -103,11 +106,13 @@ namespace xFF
                             FlipH = (aValue & (1 << 5)) > 0;
                             FlipV = (aValue & (1 << 6)) > 0;
                             BGPriority = 0x01 & (aValue >> 7);
+
+                            m_fullMiscData = aValue;
                         }
 
                         public int GetMiscData( )
                         {
-                            return (ObjPalIdx << 4) | ((FlipH) ? (1 << 5) : 0) | ((FlipV) ? (1 << 6) : 0) | (BGPriority << 7);
+                            return m_fullMiscData;
                         }
 
 

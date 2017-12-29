@@ -3794,6 +3794,7 @@ namespace xFF
                         m_instructionHandler[0xF3] = () =>
                         {
                             m_interruptsMasterFlagEnabled = false;
+                            m_cyclesToIME = 0;
 
                             //TODO: increase accuracy
                             CyclesStep(4);
@@ -3824,10 +3825,10 @@ namespace xFF
                         // ei
                         m_instructionHandler[0xFB] = () =>
                         {
-                            m_interruptsMasterFlagEnabled = true;
-
                             //TODO: increase accuracy
                             CyclesStep(4);
+
+                            m_cyclesToIME = 4;
                         };
                     }
                     #endregion ei
