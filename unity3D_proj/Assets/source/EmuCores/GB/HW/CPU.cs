@@ -149,13 +149,14 @@ namespace xFF
 
                                     if (!m_gb_core.IsInterruptsMasterFlagEnabled)
                                     {
-                                        return;
+                                        break;
                                     }
                                 }
                                 // Disable request flag
                                 m_mem.Write8(RegsIO.IF, interruptRequests & (~(1 << irq)));
 
                                 m_gb_core.ServiceIRQ(irq);
+                                break;
                             }
                         }
                     }
