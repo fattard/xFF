@@ -3824,10 +3824,10 @@ namespace xFF
                         // ei
                         m_instructionHandler[0xFB] = () =>
                         {
-                            m_interruptsMasterFlagEnabled = true;
-
                             //TODO: increase accuracy
                             CyclesStep(4);
+
+                            m_cyclesToIME = 4;
                         };
                     }
                     #endregion ei

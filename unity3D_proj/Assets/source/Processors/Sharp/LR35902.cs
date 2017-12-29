@@ -60,6 +60,7 @@ namespace xFF
                 bool m_inHaltMode;
                 bool m_inStopMode;
                 bool m_interruptsMasterFlagEnabled;
+                int m_cyclesToIME;
 
                 InstructionHandler[] m_instructionHandler;
                 InstructionHandler[] m_extendedInstructionHandler;
@@ -126,7 +127,7 @@ namespace xFF
                     // Temp binding
                     Read8 = (int aAddress) => { return 0xFF; };
                     Write8 = (int aAddress, int aAvalue) => { };
-                    CyclesStep += _DummyCyclesStep;
+                    CyclesStep += InternalCyclesStep;
 
                     Reset();
                 }
@@ -178,7 +179,6 @@ namespace xFF
                 public void BindCyclesStep(CyclesStepFunc aCyclesStep)
                 {
                     CyclesStep += aCyclesStep;
-                    CyclesStep -= _DummyCyclesStep;
                 }
 
 
@@ -252,6 +252,9 @@ namespace xFF
                             m_regs.PC = 0x0040;
                             break;
                     }
+
+                    //TODO: increase accuracy
+                    CyclesStep(20);
                 }
 
 
@@ -339,9 +342,22 @@ namespace xFF
                 }
 
 
-                private void _DummyCyclesStep(int aElapsedCycles)
+                private void InternalCyclesStep(int aElapsedCycles)
                 {
+                    while (aElapsedCycles > 0)
+                    {
+                        if (m_cyclesToIME > 0)
+                        {
+                            m_cyclesToIME -= 4;
 
+                            if (m_cyclesToIME == 0)
+                            {
+                                m_interruptsMasterFlagEnabled = true;
+                            }
+                        }
+
+                        aElapsedCycles -= 4;
+                    }
                 }
             }
 
