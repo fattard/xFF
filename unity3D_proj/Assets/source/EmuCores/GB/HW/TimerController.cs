@@ -53,6 +53,8 @@ namespace xFF
                     int m_internalCounter;
                     int m_timerModulo;
 
+                    int m_prevCheckBit;
+
                     bool m_shouldResetInternalCounter;
 
                     int m_targetCounterMask;
@@ -171,7 +173,7 @@ namespace xFF
                     public bool IsTimerEnabled
                     {
                         get { return m_timerEnabledMask != 0; }
-                        set { m_timerEnabledMask = 0xFFFF; }
+                        set { m_timerEnabledMask = (value) ? 0xFFFF : 0; }
                     }
 
 
@@ -221,18 +223,6 @@ namespace xFF
                         // Sync cycles
                         while (aElapsedCycles > 0)
                         {
-                            // Store current internal counter before any modification
-                            int prevInternalCounter = m_internalCounter;
-
-
-                            // Reset internal counter
-                            if (m_shouldResetInternalCounter)
-                            {
-                                m_internalCounter = 0;
-                                m_shouldResetInternalCounter = false;
-                            }
-
-
                             // Consume reloading cycles
                             if (m_timerCounter_reloadingCycles > 0)
                             {
@@ -248,20 +238,26 @@ namespace xFF
                             }
 
 
+                            // Reset internal counter
+                            if (m_shouldResetInternalCounter)
+                            {
+                                m_internalCounter = 0;
+                                m_shouldResetInternalCounter = false;
+                            }
+
                             // Increase internal counter (16 bits)
                             m_internalCounter = (0xFFFF & (m_internalCounter + 4));
 
-                            int prevBit = (prevInternalCounter & m_targetCounterMask);
                             int curBit = (m_internalCounter & m_targetCounterMask);
 
-                            // Performs AND operation between curBit and TAC Enable flag
+                            // Performs AND operation between freq bit and TAC Enable flag
                             curBit &= m_timerEnabledMask;
 
-                            // Note1: even if the internal counter was reset, falling edge should trigger
-                            // Note2: if Timer is disabled but prevBit was set, falling edge should trigger
+                            // Note1: even if the internal counter was reset but prevBit was set, falling edge should trigger!
+                            // Note2: even if Timer was disabled but prevBit was set, falling edge should trigger!
 
                             // Falling edge detector - checks if bit from freq check mask changes from 1 to 0 (had overflow)
-                            if ((prevBit != 0) && (curBit == 0))
+                            if ((m_prevCheckBit != 0) && (curBit == 0))
                             {
                                 // Increase TimerCounter
                                 m_timerCounter = (0xFF & (m_timerCounter + 1));
@@ -273,6 +269,9 @@ namespace xFF
                                     m_timerCounter_reloadingCycles = 4;
                                 }
                             }
+
+                            // Store curBit for next cycle check
+                            m_prevCheckBit = curBit;
 
                             // Consume elapsed cycles
                             aElapsedCycles -= 4;
