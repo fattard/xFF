@@ -3794,6 +3794,7 @@ namespace xFF
                         m_instructionHandler[0xF3] = () =>
                         {
                             m_interruptsMasterFlagEnabled = false;
+                            m_cyclesToIME = 0;
 
                             //TODO: increase accuracy
                             CyclesStep(4);
