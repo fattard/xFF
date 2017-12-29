@@ -141,7 +141,7 @@ namespace xFF
 
                     public int LCDControllerStatus
                     {
-                        get { return m_stat; }
+                        get { return (0x80 | m_stat); }
                         set
                         {
                             m_stat = (0x7F & value);
