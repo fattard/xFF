@@ -43,8 +43,9 @@ namespace xFF
                         int lastSourceAddress;
                         int lastTargetAddress;
                         int length;
-                        int elapsedCycles;
                         int totalElapsedCycles;
+                        bool isBusy;
+                        bool isRunning;
                         DMAController controller;
 
 
@@ -54,34 +55,55 @@ namespace xFF
                             lastTargetAddress = aTargetAddress;
                             length = aLength;
                             controller = aController;
-                            elapsedCycles = 0;
-                            totalElapsedCycles = 4;
+                            totalElapsedCycles = 0;
+                            isRunning = true;
                         }
 
 
                         public void Run(int aElapsedCycles)
                         {
-                            elapsedCycles += aElapsedCycles;
-                            totalElapsedCycles += aElapsedCycles;
-
-                            while (elapsedCycles >= 4 && length > 0)
+                            while (aElapsedCycles > 0 && isRunning)
                             {
-                                controller.m_mem.Write8(lastTargetAddress++, controller.m_mem.Read8(lastSourceAddress++));
-                                --length;
+                                totalElapsedCycles += 4;
 
-                                elapsedCycles -= 4;
-                            }
+                                // Start up cycle
+                                if (totalElapsedCycles < (8 + 4)) // 4 setup cycles + 8 cycles from 'ldh [DMA], a'
+                                {
+                                    aElapsedCycles -= 4;
+                                    continue;
+                                }
 
-                            if (totalElapsedCycles >= 671)
-                            {
-                                totalElapsedCycles = 0;
+                                isBusy = true;
+
+                                if (length > 0)
+                                {
+                                    controller.m_mem.Write8(lastTargetAddress++, controller.m_mem.Read8(lastSourceAddress++));
+                                    --length;
+                                }
+
+
+                                // Finish cycle
+                                if (length == 0 && totalElapsedCycles > 648)
+                                {
+                                    isBusy = false;
+                                    isRunning = false;
+                                }
+
+
+                                aElapsedCycles -= 4;
                             }
                         }
 
 
                         public bool IsBusy
                         {
-                            get { return (totalElapsedCycles > 0 && totalElapsedCycles < 671); }
+                            get { return isBusy; }
+                        }
+
+
+                        public bool IsRunning
+                        {
+                            get { return isRunning; }
                         }
                     }
 
@@ -114,7 +136,7 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        if (IsBusy)
+                        if (m_job.IsRunning)
                         {
                             m_job.Run(aElapsedCycles);
                         }
