@@ -64,6 +64,8 @@ namespace xFF
                         WindowBaseMapAddress = ((aValue & RegsIO_Bits.LCDC_WMAP) > 0) ? 0x1C00 : 0x1800;
                         BgBaseMapAddress = ((aValue & RegsIO_Bits.LCDC_BGMAP) > 0) ? 0x1C00 : 0x1800;
 
+                        SpriteMode = ((aValue & RegsIO_Bits.LCDC_OBJSIZE) > 0) ? 16 : 8;
+
                         BaseTilesAddress = ((aValue & RegsIO_Bits.LCDC_TILE) > 0) ? 0x0000 : 0x0800;
                     }
                 }

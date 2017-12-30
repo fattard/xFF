@@ -83,7 +83,7 @@ namespace xFF
                         byte[] vram = aPPU.VRAM;
                         int texWid = gbDisplay.TextureWidth;
 
-                        if ((aPPU.LCDControl & (1 << 7)) == 0)
+                        if (!aPPU.LCDControlInfo.IsLCDEnabled)
                         {
                             for (int i = 0; i < 144; ++i)
                             {
@@ -106,12 +106,12 @@ namespace xFF
 
                         int palData = aPPU.BackgroundPalette;
 
-                        int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
-                        int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
-                        int windowDataOffset = ((aPPU.LCDControl & (1 << 6)) > 0) ? 0x1C00 : 0x1800;
-                        bool isWindowEnabled = ((aPPU.LCDControl & (1 << 5)) > 0);
-                        bool isBGEnabled = ((aPPU.LCDControl & (1 << 0)) > 0);
-                        bool isObjsEnabled = ((aPPU.LCDControl & (1 << 1)) > 0);
+                        int mapDataOffset = aPPU.LCDControlInfo.BgBaseMapAddress;
+                        int tileDataOffset = aPPU.LCDControlInfo.BaseTilesAddress;
+                        int windowDataOffset = aPPU.LCDControlInfo.WindowBaseMapAddress;
+                        bool isWindowEnabled = aPPU.LCDControlInfo.IsWindowEnabled;
+                        bool isBGEnabled = aPPU.LCDControlInfo.IsBGEnabled;
+                        bool isObjsEnabled = aPPU.LCDControlInfo.IsSpritesEnabled;
 
 
 
@@ -208,9 +208,7 @@ namespace xFF
 
                         OAM aOAM = aPPU.OAM;
                         
-                        
-                        int spriteMode = ((aPPU.LCDControl & RegsIO_Bits.LCDC_OBJSIZE) > 0) ? 1 : 0;
-                        int objHeight = (spriteMode == 1) ? 16 : 8;
+                        int objHeight = aPPU.LCDControlInfo.SpriteMode;
 
                         int i = aPPU.CurScanline;
                         int renderedObj = 0;
@@ -312,8 +310,8 @@ namespace xFF
 
                         int palData = aPPU.BackgroundPalette;
 
-                        int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
-                        int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
+                        int mapDataOffset = aPPU.LCDControlInfo.BgBaseMapAddress;
+                        int tileDataOffset = aPPU.LCDControlInfo.BaseTilesAddress;
 
 
                         for (int i = 0; i < 256; ++i)
