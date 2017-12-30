@@ -28,56 +28,13 @@
 
 
 
-.MEMORYMAP
-SLOTSIZE $4000
-DEFAULTSLOT 0
-SLOT 0 $0000
-SLOT 1 $4000
-.ENDME
-
-.ROMBANKSIZE $4000
-.ROMBANKS 2
-
-.RAMSIZE 0
-.EMPTYFILL $FF
-.CARTRIDGETYPE 0
-.COMPUTEGBCHECKSUM
-.COMPUTEGBCOMPLEMENTCHECK
-.ROMDMG
-.NAME "TEST ROM"
+.IFDEF BOOT_TEST
+  .INCLUDE "..\common\bootDefs.inc"
+.ELSE
+  .INCLUDE "..\common\cartDefs.inc"
+.ENDIF
 
 
-
-
-; --- Cartridge header ---
-
-.bank 0 slot 0
-
-.org $000
-.section "Bootstrap-Jump"
-  nop
-  jp $150
-.ends
-
-.org $100
-.section "Header" force
-  nop
-  jp $150
-.ends
-
-
-.org $104
-.section "Nintendo-Logo" force
-
-.DB $CE $ED $66 $66 $CC $0D $00 $0B $03 $73 $00 $83 $00 $0C $00 $0D
-.DB $00 $08 $11 $1F $88 $89 $00 $0E $DC $CC $6E $E6 $DD $DD $D9 $99
-.DB $BB $BB $67 $63 $6E $0E $EC $CC $DD $DC $99 $9F $BB $B9 $33 $3E
-.ends
-
-.org $14C
-.section "Header-Extra" force
-  .db $00 ; ROM version
-.ends
-
-
-.orga $150
+Loop:
+    jr Loop
+    

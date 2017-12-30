@@ -2,8 +2,14 @@
 ; wla symbolic information for "Sprite_T04.gb".
 
 [labels]
-0000:0152 Wait_VBL
-0000:0168 Clear_VRAM
-0000:0174 Clear_OAM
-0000:0185 Fill_Tile0
-0000:01f5 Loop
+00:0152 Wait_VBL
+00:0168 Clear_VRAM
+00:0174 Clear_OAM
+00:0185 Fill_Tile0
+00:01f5 Loop
+
+[definitions]
+00000016 _sizeof_Wait_VBL
+0000000c _sizeof_Clear_VRAM
+00000011 _sizeof_Clear_OAM
+00000070 _sizeof_Fill_Tile0
