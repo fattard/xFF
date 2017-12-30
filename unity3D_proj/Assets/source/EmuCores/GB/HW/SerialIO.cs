@@ -114,6 +114,9 @@ namespace xFF
                                 SerialTransferEnabled = false;
 
                                 RequestIRQ(RegsIO_Bits.IF_SERIAL);
+
+                                //TODO: quick hack to stop serial IRQ spam
+                                m_transferCounter = 512;
                             }
                         }
                     }
