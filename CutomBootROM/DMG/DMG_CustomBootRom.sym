@@ -1,0 +1,23 @@
+; this file was created with wlalink by ville helin <vhelin@iki.fi>.
+; wla symbolic information for "DMG_CustomBootRom.bin".
+
+[labels]
+00:0000 Start
+00:0007 clearVRAMLoop
+00:0034 InvalidROMInserted
+00:0037 bootTrapped
+00:0039 FinishSetup
+00:004d TurnOnLCD
+00:0051 _wait_ly_143
+00:0057 _wait_ly_144
+00:00fe BootEnd
+
+[definitions]
+00000007 _sizeof_Start
+0000002d _sizeof_clearVRAMLoop
+00000003 _sizeof_InvalidROMInserted
+00000002 _sizeof_bootTrapped
+00000014 _sizeof_FinishSetup
+00000004 _sizeof_TurnOnLCD
+00000006 _sizeof__wait_ly_143
+000000a7 _sizeof__wait_ly_144
