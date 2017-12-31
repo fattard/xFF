@@ -95,9 +95,12 @@ namespace xFF
                     {
                         SerialClockMode = (0x01 & aData);
                         SerialTransferEnabled = ((0x80 & aData) > 0);
-                        m_shiftsCount = 0;
-
-                        m_transferData = m_syncSysClockCounter;
+                            
+                        if (SerialTransferEnabled && SerialClockMode == 1)
+                        {
+                            m_shiftsCount = 0;
+                            m_internalTransferCounter = m_syncSysClockCounter;
+                        }
                     }
 
 
@@ -120,10 +123,9 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-
                         while (aElapsedCycles > 0)
                         {
-                            if (SerialTransferEnabled)
+                            if (SerialTransferEnabled && SerialClockMode == 1)
                             {
                                 m_internalTransferCounter++;
 
