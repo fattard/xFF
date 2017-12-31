@@ -77,15 +77,16 @@ namespace xFF
                     }
 
 
-                    public void DrawDisplayLine(PPU aPPU)
+                    public void DrawDisplayLine(PPU aPPU, int aScanline)
                     {
                         Color[] displayPixels = gbDisplay.Pixels;
                         byte[] vram = aPPU.VRAM;
                         int texWid = gbDisplay.TextureWidth;
+                        int i = aScanline;
 
                         if (!aPPU.LCDControlInfo.IsLCDEnabled)
                         {
-                            for (int i = 0; i < 144; ++i)
+                            //for (int i = 0; i < 144; ++i)
                             {
                                 for (int j = 0; j < 160; ++j)
                                 {
@@ -117,7 +118,6 @@ namespace xFF
 
                         //for (int i = 0; i < 144; ++i)
                         {
-                            int i = aPPU.CurScanline;
                             for (int j = 0; j < 160; ++j)
                             {
                                 int yPos = ((i + scrollY) % 256);
@@ -194,13 +194,13 @@ namespace xFF
 
                             if (isObjsEnabled)
                             {
-                                RenderSprites(aPPU);
+                                RenderSprites(aPPU, aScanline);
                             }
                         }
                     }
 
 
-                    public void RenderSprites(PPU aPPU)
+                    public void RenderSprites(PPU aPPU, int aScanline)
                     {
                         Color[] displayPixels = gbDisplay.Pixels;
                         byte[] vram = aPPU.VRAM;
@@ -210,7 +210,7 @@ namespace xFF
                         
                         int objHeight = aPPU.LCDControlInfo.SpriteMode;
 
-                        int i = aPPU.CurScanline;
+                        int i = aScanline;
                         int renderedObj = 0;
 
                         aOAM.SortByPosX();
@@ -290,13 +290,10 @@ namespace xFF
 
                     public void DrawDisplay(PPU aPPU)
                     {
-                        int oldScanline = aPPU.CurScanline;
                         for (int i = 0; i < 144; ++i)
                         {
-                            aPPU.CurScanline = i;
-                            DrawDisplayLine(aPPU);
+                            DrawDisplayLine(aPPU, i);
                         }
-                        aPPU.CurScanline = oldScanline;
                     }
 
 

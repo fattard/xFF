@@ -286,7 +286,7 @@ namespace xFF
                                     }
                                     if (m_scanlineTotalCyclesElapsed >= 456)
                                     {
-                                        DrawDisplayLine(this);
+                                        DrawDisplayLine(this, CurScanline);
 
                                         CurScanline = (CurScanline + 1) % 153;
                                         m_scanlineTotalCyclesElapsed -= 456;
