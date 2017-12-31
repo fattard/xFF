@@ -38,7 +38,7 @@ namespace xFF
             public class EmuGB
             {
                 public delegate void DrawDisplayFunc(PPU aPPU);
-                public delegate void DrawDisplayLineFunc(PPU aPPU);
+                public delegate void DrawDisplayLineFunc(PPU aPPU, int aScanline);
                 public delegate void PlayAudioFunc(APU aAPU);
                 public delegate int GetKeysStateFunc( );
                 public delegate void MsgHandler(object aMsg);
@@ -164,7 +164,7 @@ namespace xFF
 
                     // Temp binding
                     DrawDisplay = (aPPU) => { };
-                    DrawDisplayLine = (aPPU) => { };
+                    DrawDisplayLine = (aPPU, aScanline) => { };
 
 
                     m_mem.AttachCPU(m_cpu);
@@ -207,7 +207,11 @@ namespace xFF
 
                     m_cpu.Run();
 
-                    //DrawDisplay(m_ppu);
+                    // Force redraw
+                    if (!m_ppu.LCDControlInfo.IsLCDEnabled)
+                    {
+                        DrawDisplay(m_ppu);
+                    }
 
                     m_apu.PlayAudio(m_apu);
                 }

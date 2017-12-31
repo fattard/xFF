@@ -36,17 +36,61 @@ namespace xFF
             {
 
 
+                /// <summary>
+                /// Wrapper class to Reg LCDC
+                /// </summary>
+                public class LCDControlInfo
+                {
+                    public bool IsLCDEnabled { get; private set; }
+                    public bool IsWindowEnabled { get; private set; }
+                    public bool IsSpritesEnabled { get; private set; }
+                    public bool IsBGEnabled { get; private set; }
+
+                    public int WindowBaseMapAddress { get; private set; }
+                    public int BgBaseMapAddress { get; private set; }
+
+                    public int SpriteMode { get; private set; }
+
+                    public int BaseTilesAddress { get; private set; }
+
+
+                    public void Set(int aValue)
+                    {
+                        IsLCDEnabled = ((aValue & RegsIO_Bits.LCDC_EN) > 0);
+                        IsWindowEnabled = ((aValue & RegsIO_Bits.LCDC_WEN) > 0);
+                        IsSpritesEnabled = ((aValue & RegsIO_Bits.LCDC_OBJEN) > 0);
+                        IsBGEnabled = ((aValue & RegsIO_Bits.LCDC_BGEN) > 0);
+
+                        WindowBaseMapAddress = ((aValue & RegsIO_Bits.LCDC_WMAP) > 0) ? 0x1C00 : 0x1800;
+                        BgBaseMapAddress = ((aValue & RegsIO_Bits.LCDC_BGMAP) > 0) ? 0x1C00 : 0x1800;
+
+                        SpriteMode = ((aValue & RegsIO_Bits.LCDC_OBJSIZE) > 0) ? 16 : 8;
+
+                        BaseTilesAddress = ((aValue & RegsIO_Bits.LCDC_TILE) > 0) ? 0x0000 : 0x0800;
+                    }
+                }
+
+
                 public class PPU
                 {
+                    const int kTotalOperationCycles = 70224;
+
+
                     byte[] m_VRAM;
                     OAM m_OAM;
 
                     uint m_cyclesElapsed;
                     uint m_scanlineTotalCyclesElapsed;
 
+                    int m_totalOperationCycles;
+
                     int m_lcdc;
                     int m_stat;
+                    int m_curScanline;
+                    int m_scanlineToCompare;
                     int m_operationMode;
+
+                    LCDControlInfo m_lcdControlInfo;
 
                     CPU.RequestIRQFunc RequestIRQ;
                     EmuGB.DrawDisplayLineFunc DrawDisplayLine;
@@ -113,35 +157,74 @@ namespace xFF
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg LY (0xFF44)
+                    /// </summary>
                     public int CurScanline
                     {
-                        get;
-                        set;
+                        get
+                        {
+                            // If LCD is disabled, always return 0
+                            if (!m_lcdControlInfo.IsLCDEnabled)
+                            {
+                                return 0;
+                            }
+
+                            return m_curScanline;
+                        }
+
+                        set { m_curScanline = (0xFF & value); }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg LYC (0xFF45)
+                    /// </summary>
                     public int ScanlineComparer
                     {
-                        get;
-                        set;
+                        get { return m_scanlineToCompare; }
+                        set { m_scanlineToCompare = (0xFF & value); }
                     }
 
 
+                    /// <summary>
+                    /// Accessor for Reg LCDC (0xFF40)
+                    /// </summary>
                     public int LCDControl
                     {
                         get { return m_lcdc; }
                         set
                         {
                             m_lcdc = (0xFF & value);
-
-                            //BGDisplayOn = (value & RegsIO_Bits.LCDC_BGEN);
+                            m_lcdControlInfo.Set(m_lcdc);
                         }
                     }
 
 
+                    /// <summary>
+                    /// Helper for LCDC reg
+                    /// </summary>
+                    public LCDControlInfo LCDControlInfo
+                    {
+                        get { return m_lcdControlInfo; }
+                    }
+
+
+                    /// <summary>
+                    /// Accessor for Reg STAT (0xFF41)
+                    /// </summary>
                     public int LCDControllerStatus
                     {
-                        get { return (0x80 | m_stat); }
+                        get
+                        {
+                            // If LCD is disabled, Mode is always 0
+                            if (!m_lcdControlInfo.IsLCDEnabled)
+                            {
+                                return (0x80 | (0x7C & m_stat));
+                            }
+
+                            return (0x80 | m_stat);
+                        }
                         set
                         {
                             m_stat = (0x7F & value);
@@ -149,13 +232,22 @@ namespace xFF
                     }
 
 
+                    public int OperationMode
+                    {
+                        get { return m_operationMode; }
+                    }
+
+
                     public PPU( )
                     {
                         m_VRAM = new byte[0x2000]; // 8 KB
                         m_OAM = new OAM();
-                        m_operationMode = 2;
+                        m_operationMode = 0;
                         m_scanlineTotalCyclesElapsed = 0;
                         m_cyclesElapsed = 0;
+
+                        m_lcdControlInfo = new LCDControlInfo();
+                        m_lcdControlInfo.Set(0);
 
                         // Temp binding
                         RequestIRQ = (aIRQ_flag) => { };
@@ -164,85 +256,104 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
+                        if (!m_lcdControlInfo.IsLCDEnabled)
+                        {
+                            m_totalOperationCycles = kTotalOperationCycles;
+                            m_curScanline = 0;
+                            m_cyclesElapsed = 0;
+                            m_operationMode = 0;
+                            m_scanlineTotalCyclesElapsed = 0;
+                            return;
+                        }
+
+
                         m_cyclesElapsed += (uint)aElapsedCycles;
                         m_scanlineTotalCyclesElapsed += (uint)aElapsedCycles;
 
                         switch (m_operationMode)
                         {
                             case 0: // H-Blank
-                                if (m_cyclesElapsed >= 201)
                                 {
-                                    m_cyclesElapsed = 0;
-                                    m_operationMode = 2;
-
-                                    if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                    if (m_cyclesElapsed >= 201)
                                     {
-                                        RequestIRQ(RegsIO_Bits.IF_STAT);
-                                    }
-                                }
-                                if (m_scanlineTotalCyclesElapsed >= 456)
-                                {
-                                    DrawDisplayLine(this);
-
-                                    CurScanline = (CurScanline + 1) % 153;
-                                    m_scanlineTotalCyclesElapsed -= 456;
-
-                                    // Start VBLANK
-                                    if (CurScanline == 144)
-                                    {
-                                        m_operationMode = 1;
                                         m_cyclesElapsed = 0;
-                                        RequestIRQ(RegsIO_Bits.IF_VBLANK);
+                                        m_operationMode = 2;
 
-                                        if ((m_stat & RegsIO_Bits.STAT_INTM1) > 0)
+                                        if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
                                         {
                                             RequestIRQ(RegsIO_Bits.IF_STAT);
                                         }
                                     }
-
-                                    if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
+                                    if (m_scanlineTotalCyclesElapsed >= 456)
                                     {
-                                        RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        DrawDisplayLine(this, CurScanline);
+
+                                        CurScanline = (CurScanline + 1) % 153;
+                                        m_scanlineTotalCyclesElapsed -= 456;
+
+                                        // Start VBLANK
+                                        if (CurScanline == 144)
+                                        {
+                                            m_operationMode = 1;
+                                            m_cyclesElapsed = 0;
+                                            RequestIRQ(RegsIO_Bits.IF_VBLANK);
+
+                                            if ((m_stat & RegsIO_Bits.STAT_INTM1) > 0)
+                                            {
+                                                RequestIRQ(RegsIO_Bits.IF_STAT);
+                                            }
+                                        }
+
+                                        if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
+                                        {
+                                            RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        }
                                     }
                                 }
                                 break;
 
                             case 1: // V-Blank
-                                if (m_cyclesElapsed >= 456)
                                 {
-                                    CurScanline = (CurScanline + 1) % 153;
-                                    m_cyclesElapsed -= 456;
-                                }
-                                if (m_scanlineTotalCyclesElapsed >= 4560)
-                                {
-                                    m_scanlineTotalCyclesElapsed = 0;
-                                    m_cyclesElapsed = 0;
-                                    m_operationMode = 2;
-
-                                    if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                    if (m_cyclesElapsed >= 456)
                                     {
-                                        RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        CurScanline = (CurScanline + 1) % 153;
+                                        m_cyclesElapsed -= 456;
+                                    }
+                                    if (m_scanlineTotalCyclesElapsed >= 4560)
+                                    {
+                                        m_scanlineTotalCyclesElapsed = 0;
+                                        m_cyclesElapsed = 0;
+                                        m_operationMode = 2;
+
+                                        if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                        {
+                                            RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        }
                                     }
                                 }
                                 break;
 
                             case 2: // Accessing OAM
-                                if (m_cyclesElapsed >= 77)
                                 {
-                                    m_cyclesElapsed = 0;
-                                    m_operationMode = 3;
+                                    if (m_cyclesElapsed >= 77)
+                                    {
+                                        m_cyclesElapsed = 0;
+                                        m_operationMode = 3;
+                                    }
                                 }
                                 break;
 
                             case 3: // Accessing VRAM
-                                if (m_cyclesElapsed >= 169)
                                 {
-                                    m_cyclesElapsed = 0;
-                                    m_operationMode = 0;
-
-                                    if ((m_stat & RegsIO_Bits.STAT_INTM0) > 0)
+                                    if (m_cyclesElapsed >= 169)
                                     {
-                                        RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        m_cyclesElapsed = 0;
+                                        m_operationMode = 0;
+
+                                        if ((m_stat & RegsIO_Bits.STAT_INTM0) > 0)
+                                        {
+                                            RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        }
                                     }
                                 }
                                 break;
