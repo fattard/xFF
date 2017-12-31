@@ -212,7 +212,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.SC)
                         {
-                            return m_serialIO.GetControlData();
+                            return m_serialIO.SerialControlData;
                         }
 
                         else if (aAddress == RegsIO.IF)
@@ -309,7 +309,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.LYC)
                         {
-                            m_ppu.ScanlineComparer = (0xFF & aValue);
+                            m_ppu.ScanlineComparer = aValue;
                         }
 
                         else if (aAddress == RegsIO.DMA)
@@ -350,7 +350,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.SC)
                         {
-                            m_serialIO.SetControlData(aValue);
+                            m_serialIO.SerialControlData = aValue;
                         }
 
                         else if (aAddress == RegsIO.IF)
