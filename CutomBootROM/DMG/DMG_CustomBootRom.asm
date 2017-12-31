@@ -52,8 +52,8 @@
 .define CUSTOM_BOOT_TYPE_FULL_ANIM      $AA ; 6 sec anim, scrolls logo to center and play sounds
 
 
-.define FORCE_FULL_ANIM
-.define FORCE_QUICK_ANIM
+;.define FORCE_FULL_ANIM
+;.define FORCE_QUICK_ANIM
 
 
 ; ---------- Code Init ----------
