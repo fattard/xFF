@@ -38,7 +38,7 @@ namespace xFF
             public class EmuGB
             {
                 public delegate void DrawDisplayFunc(PPU aPPU);
-                public delegate void DrawDisplayLineFunc(PPU aPPU);
+                public delegate void DrawDisplayLineFunc(PPU aPPU, int aScanline);
                 public delegate void PlayAudioFunc(APU aAPU);
                 public delegate int GetKeysStateFunc( );
                 public delegate void MsgHandler(object aMsg);
@@ -164,7 +164,7 @@ namespace xFF
 
                     // Temp binding
                     DrawDisplay = (aPPU) => { };
-                    DrawDisplayLine = (aPPU) => { };
+                    DrawDisplayLine = (aPPU, aScanline) => { };
 
 
                     m_mem.AttachCPU(m_cpu);
@@ -207,7 +207,11 @@ namespace xFF
 
                     m_cpu.Run();
 
-                    //DrawDisplay(m_ppu);
+                    // Force redraw
+                    if (!m_ppu.LCDControlInfo.IsLCDEnabled)
+                    {
+                        DrawDisplay(m_ppu);
+                    }
 
                     m_apu.PlayAudio(m_apu);
                 }
@@ -248,55 +252,9 @@ namespace xFF
                 }
 
 
-                public bool LoadSimpleRom(CartridgeHeader aHeader, byte[] aRomData)
+                public void LoadCart(Cartridge aCart)
                 {
-                    if (aRomData == null || aRomData.Length != 0x8000)
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadSimpleRom(aHeader, aRomData);
-                    
-                    return true;
-                }
-
-
-                public bool LoadMBC1Rom(CartridgeHeader aHeader, byte[] aRomData)
-                {
-                    if (aRomData == null || aRomData.Length > (128 * 0x4000))
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadMBC1Rom(aHeader, aRomData);
-
-                    return true;
-                }
-
-
-                public bool LoadMBC3Rom(CartridgeHeader aHeader, byte[] aRomData)
-                {
-                    if (aRomData == null || aRomData.Length > (128 * 0x4000))
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadMBC3Rom(aHeader, aRomData);
-
-                    return true;
-                }
-
-
-                public bool LoadMBC5Rom(CartridgeHeader aHeader, byte[] aRomData)
-                {
-                    if (aRomData == null || aRomData.Length > (512 * 0x4000))
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadMBC5Rom(aHeader, aRomData);
-
-                    return true;
+                    m_mem.AttachCartridge(aCart);
                 }
 
 

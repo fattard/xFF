@@ -1,0 +1,59 @@
+; this file was created with wlalink by ville helin <vhelin@iki.fi>.
+; wla symbolic information for "DMG_CustomBootRom.bin".
+
+[labels]
+00:0000 Start
+00:0003 ClearVRAM
+00:0007 clearVRAMLoop
+00:000c SetupAudio
+00:001c SetupBGP
+00:0020 CheckInvalidROM
+00:0028 CheckCustomAnimType
+00:0031 LoadLogoToVRAM
+00:0037 loadLogoLoop
+00:004a loadTrademarkSymbolLoop
+00:005b tilemapLoop
+00:0066 tilemapDone
+00:0072 ScrollLogo
+00:007e BootType_QuickAnim
+00:0086 BootType_NoAnim
+00:0089 FinishSetup
+00:0099 InvalidROMInserted
+00:009c bootTrapped
+00:009e TurnOnLCD
+00:00a6 ShowLogoAndPlayAudioAnim
+00:00c0 DoubleBitsAndWriteRow
+00:00c4 doubleCurrentBit
+00:00d5 WaitFrame
+00:00db wait_ly_144
+00:00e2 WaitBFrames
+00:00e9 PlaySound
+00:00fe BootEnd
+
+[definitions]
+00000003 _sizeof_Start
+00000004 _sizeof_ClearVRAM
+00000005 _sizeof_clearVRAMLoop
+00000010 _sizeof_SetupAudio
+00000004 _sizeof_SetupBGP
+00000008 _sizeof_CheckInvalidROM
+00000009 _sizeof_CheckCustomAnimType
+00000006 _sizeof_LoadLogoToVRAM
+00000013 _sizeof_loadLogoLoop
+00000011 _sizeof_loadTrademarkSymbolLoop
+0000000b _sizeof_tilemapLoop
+0000000c _sizeof_tilemapDone
+0000000c _sizeof_ScrollLogo
+00000008 _sizeof_BootType_QuickAnim
+00000003 _sizeof_BootType_NoAnim
+00000010 _sizeof_FinishSetup
+00000003 _sizeof_InvalidROMInserted
+00000002 _sizeof_bootTrapped
+00000008 _sizeof_TurnOnLCD
+0000001a _sizeof_ShowLogoAndPlayAudioAnim
+00000004 _sizeof_DoubleBitsAndWriteRow
+00000011 _sizeof_doubleCurrentBit
+00000006 _sizeof_WaitFrame
+00000007 _sizeof_wait_ly_144
+00000007 _sizeof_WaitBFrames
+00000015 _sizeof_PlaySound

@@ -218,7 +218,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.SC)
                         {
-                            return m_serialIO.GetControlData();
+                            return m_serialIO.SerialControlData;
                         }
 
                         else if (aAddress == RegsIO.IF)
@@ -320,7 +320,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.LYC)
                         {
-                            m_ppu.ScanlineComparer = (0xFF & aValue);
+                            m_ppu.ScanlineComparer = aValue;
                         }
 
                         else if (aAddress == RegsIO.DMA)
@@ -361,7 +361,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.SC)
                         {
-                            m_serialIO.SetControlData(aValue);
+                            m_serialIO.SerialControlData = aValue;
                         }
 
                         else if (aAddress == RegsIO.IF)
@@ -457,111 +457,6 @@ namespace xFF
 
                         System.Buffer.BlockCopy(aRomData, 0x4000, buffer, 0, 0x4000);
                         m_cartROM.SetROMBank(1, buffer);
-                    }
-
-
-                    public void LoadMBC1Rom(CartridgeHeader aHeader, byte[] aRomData)
-                    {
-                        if (m_cartROM == null)
-                        {
-                            AttachCartridge(new MBC.Cartridge_MBC1(aHeader));
-                        }
-
-                        byte[] buffer = new byte[0x4000];
-
-                        int totalBanks = aRomData.Length / 0x4000;
-
-                        for (int i = 0; i < totalBanks; ++i)
-                        {
-                            System.Buffer.BlockCopy(aRomData, (i * 0x4000), buffer, 0, 0x4000);
-                            m_cartROM.SetROMBank(i, buffer);
-                        }
-
-                        if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gbc", ".sav"));
-                        }
-
-                        else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gb", ".sav"));
-                        }
-
-                        // Just append .sav to whatever name is
-                        else
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath + ".sav");
-                        }
-                    }
-
-
-                    public void LoadMBC3Rom(CartridgeHeader aHeader, byte[] aRomData)
-                    {
-                        if (m_cartROM == null)
-                        {
-                            AttachCartridge(new MBC.Cartridge_MBC3(aHeader));
-                        }
-
-                        byte[] buffer = new byte[0x4000];
-
-                        int totalBanks = aRomData.Length / 0x4000;
-
-                        for (int i = 0; i < totalBanks; ++i)
-                        {
-                            System.Buffer.BlockCopy(aRomData, (i * 0x4000), buffer, 0, 0x4000);
-                            m_cartROM.SetROMBank(i, buffer);
-                        }
-
-                        if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gbc", ".sav"));
-                        }
-
-                        else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gb", ".sav"));
-                        }
-
-                        // Just append .sav to whatever name is
-                        else
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath + ".sav");
-                        }
-                    }
-
-
-                    public void LoadMBC5Rom(CartridgeHeader aHeader, byte[] aRomData)
-                    {
-                        if (m_cartROM == null)
-                        {
-                            AttachCartridge(new MBC.Cartridge_MBC5(aHeader));
-                        }
-
-                        byte[] buffer = new byte[0x4000];
-
-                        int totalBanks = aRomData.Length / 0x4000;
-
-                        for (int i = 0; i < totalBanks; ++i)
-                        {
-                            System.Buffer.BlockCopy(aRomData, (i * 0x4000), buffer, 0, 0x4000);
-                            m_cartROM.SetROMBank(i, buffer);
-                        }
-
-                        if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gbc", ".sav"));
-                        }
-
-                        else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gb", ".sav"));
-                        }
-
-                        // Just append .sav to whatever name is
-                        else
-                        {
-                            m_cartROM.LoadRAM(EmuEnvironment.RomFilePath + ".sav");
-                        }
                     }
                 }
 

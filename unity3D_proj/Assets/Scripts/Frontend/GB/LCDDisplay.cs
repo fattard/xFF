@@ -77,15 +77,16 @@ namespace xFF
                     }
 
 
-                    public void DrawDisplayLine(PPU aPPU)
+                    public void DrawDisplayLine(PPU aPPU, int aScanline)
                     {
                         Color[] displayPixels = gbDisplay.Pixels;
                         byte[] vram = aPPU.VRAM;
                         int texWid = gbDisplay.TextureWidth;
+                        int i = aScanline;
 
-                        if ((aPPU.LCDControl & (1 << 7)) == 0)
+                        if (!aPPU.LCDControlInfo.IsLCDEnabled)
                         {
-                            for (int i = 0; i < 144; ++i)
+                            //for (int i = 0; i < 144; ++i)
                             {
                                 for (int j = 0; j < 160; ++j)
                                 {
@@ -106,18 +107,17 @@ namespace xFF
 
                         int palData = aPPU.BackgroundPalette;
 
-                        int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
-                        int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
-                        int windowDataOffset = ((aPPU.LCDControl & (1 << 6)) > 0) ? 0x1C00 : 0x1800;
-                        bool isWindowEnabled = ((aPPU.LCDControl & (1 << 5)) > 0);
-                        bool isBGEnabled = ((aPPU.LCDControl & (1 << 0)) > 0);
-                        bool isObjsEnabled = ((aPPU.LCDControl & (1 << 1)) > 0);
+                        int mapDataOffset = aPPU.LCDControlInfo.BgBaseMapAddress;
+                        int tileDataOffset = aPPU.LCDControlInfo.BaseTilesAddress;
+                        int windowDataOffset = aPPU.LCDControlInfo.WindowBaseMapAddress;
+                        bool isWindowEnabled = aPPU.LCDControlInfo.IsWindowEnabled;
+                        bool isBGEnabled = aPPU.LCDControlInfo.IsBGEnabled;
+                        bool isObjsEnabled = aPPU.LCDControlInfo.IsSpritesEnabled;
 
 
 
                         //for (int i = 0; i < 144; ++i)
                         {
-                            int i = aPPU.CurScanline;
                             for (int j = 0; j < 160; ++j)
                             {
                                 int yPos = ((i + scrollY) % 256);
@@ -194,13 +194,13 @@ namespace xFF
 
                             if (isObjsEnabled)
                             {
-                                RenderSprites(aPPU);
+                                RenderSprites(aPPU, aScanline);
                             }
                         }
                     }
 
 
-                    public void RenderSprites(PPU aPPU)
+                    public void RenderSprites(PPU aPPU, int aScanline)
                     {
                         Color[] displayPixels = gbDisplay.Pixels;
                         byte[] vram = aPPU.VRAM;
@@ -208,11 +208,9 @@ namespace xFF
 
                         OAM aOAM = aPPU.OAM;
                         
-                        
-                        int spriteMode = ((aPPU.LCDControl & RegsIO_Bits.LCDC_OBJSIZE) > 0) ? 1 : 0;
-                        int objHeight = (spriteMode == 1) ? 16 : 8;
+                        int objHeight = aPPU.LCDControlInfo.SpriteMode;
 
-                        int i = aPPU.CurScanline;
+                        int i = aScanline;
                         int renderedObj = 0;
 
                         aOAM.SortByPosX();
@@ -292,13 +290,10 @@ namespace xFF
 
                     public void DrawDisplay(PPU aPPU)
                     {
-                        int oldScanline = aPPU.CurScanline;
                         for (int i = 0; i < 144; ++i)
                         {
-                            aPPU.CurScanline = i;
-                            DrawDisplayLine(aPPU);
+                            DrawDisplayLine(aPPU, i);
                         }
-                        aPPU.CurScanline = oldScanline;
                     }
 
 
@@ -312,8 +307,8 @@ namespace xFF
 
                         int palData = aPPU.BackgroundPalette;
 
-                        int mapDataOffset = ((aPPU.LCDControl & (1 << 3)) > 0) ? 0x1C00 : 0x1800;
-                        int tileDataOffset = ((aPPU.LCDControl & (1 << 4)) > 0) ? 0x0000 : 0x0800;
+                        int mapDataOffset = aPPU.LCDControlInfo.BgBaseMapAddress;
+                        int tileDataOffset = aPPU.LCDControlInfo.BaseTilesAddress;
 
 
                         for (int i = 0; i < 256; ++i)

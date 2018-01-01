@@ -39,10 +39,19 @@ namespace xFF
                 public class SerialIO
                 {
                     int m_transferData;
-                    int m_transferCounter;
+                    int m_internalTransferCounter;
+                    int m_shiftsCount;
+                    int m_syncSysClockCounter;
 
                     CPU.RequestIRQFunc RequestIRQ;
 
+
+                    /// <summary>
+                    /// Accessor for Reg SB (0xFF01)
+                    /// Shift register that will shift out MSB
+                    /// and receive a shift in LSB whenever
+                    /// selected clock signal is received.
+                    /// </summary>
                     public int SerialTransferData
                     {
                         get
@@ -53,6 +62,18 @@ namespace xFF
                         {
                             m_transferData = (0xFF & value);
                         }
+                    }
+
+
+                    /// <summary>
+                    /// Accessor for Reg SC (0xFF02)
+                    /// Enable transfer flag and clock mode
+                    /// are controlled by this register
+                    /// </summary>
+                    public int SerialControlData
+                    {
+                        get { return GetControlData(); }
+                        set { SetControlData(value); }
                     }
 
 
@@ -70,27 +91,22 @@ namespace xFF
                     }
 
 
-                    public void SetControlData(int aData)
+                    void SetControlData(int aData)
                     {
-                        //TODO: check behaviour
-                        if (SerialTransferEnabled)
-                        {
-                            return;
-                        }
-
                         SerialClockMode = (0x01 & aData);
                         SerialTransferEnabled = ((0x80 & aData) > 0);
-
-                        if (SerialTransferEnabled)
+                            
+                        if (SerialTransferEnabled && SerialClockMode == 1)
                         {
-                            m_transferCounter = 512;
+                            m_shiftsCount = 0;
+                            m_internalTransferCounter = m_syncSysClockCounter;
                         }
                     }
 
 
-                    public int GetControlData( )
+                    int GetControlData( )
                     {
-                        return 0x7E | (SerialClockMode) | ((SerialTransferEnabled) ? RegsIO_Bits.SC_EN : 0);
+                        return ((SerialTransferEnabled) ? RegsIO_Bits.SC_EN : 0) | 0x7E | SerialClockMode;
                     }
 
 
@@ -99,28 +115,59 @@ namespace xFF
                         SerialTransferData = 0;
                         SerialClockMode = 0;
                         SerialTransferEnabled = false;
+
+                        m_internalTransferCounter = 0;
+                        m_syncSysClockCounter = 0;
                     }
 
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        if (SerialClockMode == 1)
+                        while (aElapsedCycles > 0)
                         {
-                            m_transferCounter -= aElapsedCycles;
-
-                            if (m_transferCounter <= 0)
+                            if (SerialTransferEnabled && SerialClockMode == 1)
                             {
-                                m_transferData = 0xFF;
-                                SerialTransferEnabled = false;
+                                m_internalTransferCounter++;
 
-                                RequestIRQ(RegsIO_Bits.IF_SERIAL);
+                                if (m_internalTransferCounter >= 512)
+                                {
+                                    SendBitOut((0x80 & m_transferData) >> 7);
+                                    m_transferData = (0xFF & ((m_transferData << 1) | ReceiveBitIn()));
+
+                                    if (m_shiftsCount >= 8)
+                                    {
+                                        SerialTransferEnabled = false;
+                                        RequestIRQ(RegsIO_Bits.IF_SERIAL);
+                                    }
+
+
+                                    m_internalTransferCounter -= 512;
+                                }
                             }
+                            
+                            m_syncSysClockCounter = (m_syncSysClockCounter + 1) % 8;
+
+                            aElapsedCycles--;
                         }
                     }
 
                     public void BindRequestIRQ(CPU.RequestIRQFunc aRequestIRQFunc)
                     {
                         RequestIRQ = aRequestIRQFunc;
+                    }
+
+
+                    void SendBitOut(int aVal)
+                    {
+                        //TODO: use serial device communication
+                        m_shiftsCount++;
+                    }
+
+
+                    int ReceiveBitIn( )
+                    {
+                        //TODO: use serial device communication
+                        return 1;
                     }
                 }
 
