@@ -213,6 +213,16 @@ namespace xFF
                                 cart = new Cartridge_MBC3(aCartridgeHeader);
                             }
 
+                            // MBC2
+                            else if (Cartridge_MBC2.Validate(aCartridgeHeader))
+                            {
+                                if (aRomData == null || aRomData.Length > (16 * 0x4000))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC2 ROM header info");
+                                }
+
+                                cart = new Cartridge_MBC2(aCartridgeHeader);
+                            }
 
 
                             // MBC5
