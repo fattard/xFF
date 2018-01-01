@@ -210,6 +210,11 @@ namespace xFF
                             Debug.Break();
                         }
                         lastUpdateTick = newTime;
+
+
+                        // Realtime color change
+                        OverrideConfigsColors(m_emuGB.Configs);
+                        lcdDisplay.SetLCDColors(m_emuGB.Configs);
                     #endif
                     }
 
@@ -262,6 +267,13 @@ namespace xFF
                         aConf.bootRomDMG.enabled = frontendConfigs.bootRomEnabled;
                         aConf.bootRomDMG.path = frontendConfigs.bootRomPath;
 
+                        // DMG Colors
+                        OverrideConfigsColors(aConf);
+                    }
+
+
+                    void OverrideConfigsColors(EmuCores.GB.ConfigsGB aConf)
+                    {
                         // DMG Colors
                         aConf.dmgColors.color0.Set((int)(255 * frontendConfigs.color0.r), (int)(255 * frontendConfigs.color0.g), (int)(255 * frontendConfigs.color0.b));
                         aConf.dmgColors.color1.Set((int)(255 * frontendConfigs.color1.r), (int)(255 * frontendConfigs.color1.g), (int)(255 * frontendConfigs.color1.b));
