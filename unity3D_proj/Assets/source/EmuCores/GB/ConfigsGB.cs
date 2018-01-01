@@ -47,8 +47,9 @@ namespace xFF
                 [System.Serializable]
                 public class BootROM
                 {
-                    public bool enabled = false;
+                    public bool customEnabled = false;
                     public string path = string.Empty;
+                    public int internalAnimType = 0;
                 }
 
 
