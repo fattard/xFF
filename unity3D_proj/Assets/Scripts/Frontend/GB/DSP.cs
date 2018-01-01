@@ -50,8 +50,7 @@ namespace xFF
 
                     void Awake()
                     {
-                        AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
-
+                        
                         var conf = AudioSettings.GetConfiguration();
                         conf.dspBufferSize = 1024;
                         conf.speakerMode = AudioSpeakerMode.Stereo;
@@ -63,12 +62,15 @@ namespace xFF
                         m_stream.MaxBufferLength = (m_samplesBufferSize * 2) * 2;
                         m_audioBuffer = new byte[m_samplesBufferSize * 2];
 
+#if ENABLE_WIP_AUDIO
+                        AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
                         AudioSettings.Reset(conf);
-
+#endif
                         Gain = 1;
                     }
 
 
+#if ENABLE_WIP_AUDIO
                     void OnAudioConfigurationChanged(bool deviceWasChanged)
                     {
                         Debug.Log(deviceWasChanged ? "Device was changed" : "Reset was called");
@@ -101,7 +103,7 @@ namespace xFF
                             data[i] = Gain * (sbyte)(m_audioBuffer[i]) / 127f;
                         }
                     }
-
+#endif
 
                     public void PlayAudio(APU aAPU)
                     {
