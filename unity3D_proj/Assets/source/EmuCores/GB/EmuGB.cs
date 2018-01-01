@@ -252,55 +252,9 @@ namespace xFF
                 }
 
 
-                public bool LoadSimpleRom(CartridgeHeader aHeader, byte[] aRomData)
+                public void LoadCart(Cartridge aCart)
                 {
-                    if (aRomData == null || aRomData.Length != 0x8000)
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadSimpleRom(aHeader, aRomData);
-                    
-                    return true;
-                }
-
-
-                public bool LoadMBC1Rom(CartridgeHeader aHeader, byte[] aRomData)
-                {
-                    if (aRomData == null || aRomData.Length > (128 * 0x4000))
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadMBC1Rom(aHeader, aRomData);
-
-                    return true;
-                }
-
-
-                public bool LoadMBC3Rom(CartridgeHeader aHeader, byte[] aRomData)
-                {
-                    if (aRomData == null || aRomData.Length > (128 * 0x4000))
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadMBC3Rom(aHeader, aRomData);
-
-                    return true;
-                }
-
-
-                public bool LoadMBC5Rom(CartridgeHeader aHeader, byte[] aRomData)
-                {
-                    if (aRomData == null || aRomData.Length > (512 * 0x4000))
-                    {
-                        return false;
-                    }
-
-                    m_mem.LoadMBC5Rom(aHeader, aRomData);
-
-                    return true;
+                    m_mem.AttachCartridge(aCart);
                 }
 
 

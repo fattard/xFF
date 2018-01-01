@@ -180,42 +180,9 @@ namespace xFF
 
                             EmuCores.GB.HW.CartridgeHeader cartridgeHeader = new EmuCores.GB.HW.CartridgeHeader(romData);
 
-                            if (EmuCores.GB.HW.MBC.Cartridge_Single.Validate(cartridgeHeader))
-                            {
-                                if (!m_emuGB.LoadSimpleRom(cartridgeHeader, romData))
-                                {
-                                    throw new System.ArgumentException("Invalid ROM header info");
-                                }
-                            }
+                            EmuCores.GB.HW.Cartridge cart = EmuCores.GB.HW.Cartridge.Mount(cartridgeHeader, romData);
 
-                            else if (EmuCores.GB.HW.MBC.Cartridge_MBC1.Validate(cartridgeHeader))
-                            { 
-                                if (!m_emuGB.LoadMBC1Rom(cartridgeHeader, romData))
-                                {
-                                    throw new System.ArgumentException("Invalid MBC1 ROM header info");
-                                }
-                            }
-
-                            else if (EmuCores.GB.HW.MBC.Cartridge_MBC3.Validate(cartridgeHeader))
-                            {
-                                if (!m_emuGB.LoadMBC3Rom(cartridgeHeader, romData))
-                                {
-                                    throw new System.ArgumentException("Invalid MBC3 ROM header info");
-                                }
-                            }
-
-                            else if (EmuCores.GB.HW.MBC.Cartridge_MBC5.Validate(cartridgeHeader))
-                            {
-                                if (!m_emuGB.LoadMBC5Rom(cartridgeHeader, romData))
-                                {
-                                    throw new System.ArgumentException("Invalid MBC5 ROM header info");
-                                }
-                            }
-
-                            else
-                            {
-                                throw new System.ArgumentException("Some MBC mappers are not supported yet.\nPlease, be patient :)");
-                            }
+                            m_emuGB.LoadCart(cart);
                         }
                         catch (System.Exception e)
                         {

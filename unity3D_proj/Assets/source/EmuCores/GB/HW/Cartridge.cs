@@ -25,6 +25,7 @@
 */
 
 using xFF.EmuCores.GB.Defs;
+using xFF.EmuCores.GB.HW.MBC;
 using System.Collections.Generic;
 
 namespace xFF
@@ -159,6 +160,111 @@ namespace xFF
 
                     public abstract void SaveRAM(string filePath);
                     public abstract void LoadRAM(string filePath);
+
+
+                    public static Cartridge Mount(CartridgeHeader aCartridgeHeader, byte[] aRomData)
+                    {
+                        Cartridge cart = null;
+
+
+                        // ROM Only 
+                        if (Cartridge_Single.Validate(aCartridgeHeader))
+                        {
+                            if (aRomData == null || aRomData.Length > (128 * 0x4000))
+                            {
+                                throw new System.ArgumentException("Invalid ROM header info");
+                            }
+
+                            cart = new Cartridge_Single(aCartridgeHeader);
+
+                            byte[] buffer = new byte[0x4000];
+
+                            System.Buffer.BlockCopy(aRomData, 0, buffer, 0, 0x4000);
+                            cart.SetROMBank(0, buffer);
+
+                            System.Buffer.BlockCopy(aRomData, 0x4000, buffer, 0, 0x4000);
+                            cart.SetROMBank(1, buffer);
+                        }
+
+
+                        // ROM with some type of MBC
+                        else
+                        {
+                            // MBC1
+                            if (Cartridge_MBC1.Validate(aCartridgeHeader))
+                            {
+                                if (aRomData == null || aRomData.Length > (128 * 0x4000))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC1 ROM header info");
+                                }
+
+                                cart = new Cartridge_MBC1(aCartridgeHeader);
+                            }
+
+                    #if ENABLE_WIP_MBC
+                            // MBC3
+                            else if (Cartridge_MBC3.Validate(aCartridgeHeader))
+                            {
+                                if (aRomData == null || aRomData.Length > (128 * 0x4000))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC3 ROM header info");
+                                }
+
+                                cart = new Cartridge_MBC3(aCartridgeHeader);
+                            }
+
+
+
+                            // MBC5
+                            else if (Cartridge_MBC5.Validate(aCartridgeHeader))
+                            {
+                                if (aRomData == null || aRomData.Length > (512 * 0x4000))
+                                {
+                                    throw new System.ArgumentException("Invalid MBC5 ROM header info");
+                                }
+
+                                cart = new Cartridge_MBC5(aCartridgeHeader);
+                            }
+                    #endif
+
+
+                            // Unsupported, yet
+                            else
+                            {
+                                throw new System.ArgumentException("Some MBC mappers are not supported yet.\nPlease, be patient :)");
+                            }
+
+
+                            byte[] buffer = new byte[0x4000];
+
+                            int totalBanks = aRomData.Length / 0x4000;
+
+                            for (int i = 0; i < totalBanks; ++i)
+                            {
+                                System.Buffer.BlockCopy(aRomData, (i * 0x4000), buffer, 0, 0x4000);
+                                cart.SetROMBank(i, buffer);
+                            }
+
+                            if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
+                            {
+                                cart.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gbc", ".sav"));
+                            }
+
+                            else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
+                            {
+                                cart.LoadRAM(EmuEnvironment.RomFilePath.Replace(".gb", ".sav"));
+                            }
+
+                            // Just append .sav to whatever name is
+                            else
+                            {
+                                cart.LoadRAM(EmuEnvironment.RomFilePath + ".sav");
+                            }
+                        }
+
+
+                        return cart;
+                    }
                 }
 
 
