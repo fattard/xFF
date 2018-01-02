@@ -42,9 +42,11 @@ namespace xFF
 
                 public partial class APU
                 {
-                    
+                    int m_lengthCounter;
                     byte[] m_outputWave;
                     int[] m_regs = new int[0x30];
+
+                    bool m_masterSoundEnabled;
 
                     SoundChannel3 m_channel3 = new SoundChannel3();
                     
@@ -54,8 +56,19 @@ namespace xFF
 
                     public bool MasterSoundEnabled
                     {
-                        get;
-                        set;
+                        get { return m_masterSoundEnabled; }
+                        set
+                        {
+                            m_masterSoundEnabled = value;
+
+                            if (!value)
+                            {
+                                for (int i = RegsIO.NR10; i < RegsIO.NR51; ++i)
+                                {
+                                    this[i] = 0;
+                                }
+                            }
+                        }
                     }
 
 
@@ -98,10 +111,18 @@ namespace xFF
                     {
                         get
                         {
+                            // While APU is disbled, all reads to range 0xFF10-0xFF2F
+                            // are ignored, except NR52
+                            if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
+                            {
+                                return 0xFF;
+                            }
+
+
                             switch (aAddress)
                             {
                                 case RegsIO.NR30:
-                                    return 0x7F | (m_channel3.IsSoundOn ? (1 << 7) : 0);
+                                    return 0x7F | (m_channel3.ChannelEnabled ? (1 << 7) : 0);
 
 
                                 case RegsIO.NR31:
@@ -112,7 +133,7 @@ namespace xFF
                                     return 0x9F | (m_channel3.OutputVolumeLevel << 5);
 
 
-                                case RegsIO.NR33:
+                                case RegsIO.NR33: // This Reg is write-only
                                     return 0xFF;
 
 
@@ -121,7 +142,8 @@ namespace xFF
 
 
                                 case RegsIO.NR50:
-                                    return  (OutputVolumeRight) | (OutputVolumeLeft << 4)
+                                    return    (OutputVolumeRight << 0)
+                                            | (OutputVolumeLeft << 4)
                                             | (ExternalInputRightEnabled ? (1 << 3) : 0)
                                             | (ExternalInputLeftEnabled ? (1 << 7) : 0);
 
@@ -133,8 +155,9 @@ namespace xFF
 
                                 case RegsIO.NR52:
                                     return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
-                                            // TODO: get real flags
-                                            | (0x0F & m_regs[aAddress - RegsIO.NR10]);
+                                                | (m_channel3.IsSoundOn ? (1 << 2) : 0)
+                                                // TODO: get real flags
+                                                | (0x0B & m_regs[aAddress - RegsIO.NR10]);
 
 
                                 default:
@@ -143,17 +166,39 @@ namespace xFF
                                         return m_channel3.WaveForm[aAddress - RegsIO.WAVE00];
                                     }
 
+                                    // Unused
+                                    else if (aAddress >= 0xFF27 && aAddress <= 0xFF2F || aAddress == 0xFF15 || aAddress == 0xFF1F)
+                                    {
+                                        return 0xFF;
+                                    }
+
                                     return m_regs[aAddress - RegsIO.NR10];
                             }
                         }
 
                         set
                         {
+                            // Waveform RAM
+                            if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
+                            {
+                                int index = (aAddress - RegsIO.WAVE00);
+                                m_channel3.WaveForm[index * 2] = (byte)((0xF0 & value) >> 4);
+                                m_channel3.WaveForm[(index * 2) + 1] = (byte)(0x0F & value);
+                                return;
+                            }
+
+                            // While APU is disbled, all writes to range 0xFF10-0xFF2F
+                            // are ignored, except NR52
+                            else if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
+                            {
+                                return;
+                            }
+
                             switch (aAddress)
                             {
                                 case RegsIO.NR30:
                                     {
-                                        m_channel3.IsSoundOn = ((0x80 & value) > 0);
+                                        m_channel3.ChannelEnabled = ((0x80 & value) > 0);
                                     }
                                     break;
 
@@ -208,6 +253,9 @@ namespace xFF
                                         //TODO: split to each channel
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                         //SetReg_TMP(aAddress, value);
+
+                                        m_channel3.RightOutputEnabled = ((1 << 2) & value) != 0;
+                                        m_channel3.LeftOutputEnabled = ((1 << 6) & value) != 0;
                                     }
                                     break;
 
@@ -215,23 +263,14 @@ namespace xFF
                                 case RegsIO.NR52:
                                     {
                                         MasterSoundEnabled = ((0x80 & value) > 0);
+
+                                        m_regs[aAddress - RegsIO.NR10] = (0xF0 & value);
                                         
-                                        //TODO: split channel On flags
-                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                     }
                                     break;
 
 
                                 default:
-                                    // Waveform RAM
-                                    if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
-                                    {
-                                        int index = (aAddress - RegsIO.WAVE00);
-                                        m_channel3.WaveForm[index * 2] = (byte)((0xF0 & value) >> 4);
-                                        m_channel3.WaveForm[(index * 2) + 1] = (byte)(0x0F & value);
-                                    }
-
-                                    else
                                     {
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                         //SetReg_TMP(aAddress, value);
@@ -252,7 +291,19 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
+                        while (aElapsedCycles > 0)
+                        {
+                            m_lengthCounter += 4;
 
+                            if (m_lengthCounter >= 16384) // 256 Hz
+                            {
+                                m_channel3.LengthStep();
+
+                                m_lengthCounter -= 16384;
+                            }
+
+                            aElapsedCycles -= 4;
+                        }
                     }
 
 
@@ -303,7 +354,7 @@ namespace xFF
 
                         //OutputSound_TMP(ref b);
                         
-                        if (m_channel3.IsSoundOn)
+                        if (m_channel3.IsSoundOn && m_channel3.ChannelEnabled)
                         {
                             m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
                         }
