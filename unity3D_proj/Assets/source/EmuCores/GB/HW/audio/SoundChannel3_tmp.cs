@@ -36,7 +36,8 @@ namespace xFF
                         {
                             int val;
 
-                            if (m_lengthCounter > 0 || IsContinuous)
+                           
+                            /*if (m_lengthCounter > 0 || IsContinuous)
                             {
                                 for (int r = 0; r < numSamples; r++)
                                 {
@@ -47,12 +48,20 @@ namespace xFF
                                         b[r * numChannels] += (byte)val;
                                     if (RightOutputEnabled)
                                         b[r * numChannels + 1] += (byte)val;
-                                    //if ((channel & CHAN_MONO) != 0)
-                                    //b [r * numChannels] = b [r * numChannels + 1] += (byte)val;
 
                                     cyclePos = (cyclePos + 256) % cycleLength;
                                 }
+                            }*/
+                            
+                            /*
+                            for (int r = 0; r < numSamples; ++r)
+                            {
+                                b[r * numChannels] += (byte)m_samples[(r * numChannels)];
+                                b[r * numChannels + 1] += (byte)m_samples[(r * numChannels + 1)];
                             }
+                            
+                            m_queueHead = 0;
+                            */
                         }
                         
 

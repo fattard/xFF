@@ -42,9 +42,16 @@ namespace xFF
 
                 public partial class APU
                 {
+                    int m_frameSequencer;
                     int m_lengthCounter;
                     byte[] m_outputWave;
+                    int m_outputWaveIdx;
                     int[] m_regs = new int[0x30];
+
+
+                    int[] m_samples = new int[8192];
+
+                    int m_timeToGenerateSample;
 
                     bool m_masterSoundEnabled;
 
@@ -59,6 +66,10 @@ namespace xFF
                         get { return m_masterSoundEnabled; }
                         set
                         {
+                            if (!m_masterSoundEnabled && value)
+                            {
+                                m_frameSequencer = 0;
+                            }
                             m_masterSoundEnabled = value;
 
                             if (!value)
@@ -126,7 +137,7 @@ namespace xFF
 
 
                                 case RegsIO.NR31:
-                                    return m_channel3.SoundLength;
+                                    return m_channel3.SoundLengthData;
 
 
                                 case RegsIO.NR32:
@@ -205,7 +216,7 @@ namespace xFF
 
                                 case RegsIO.NR31:
                                     {
-                                        m_channel3.SoundLength = (0xFF & value);
+                                        m_channel3.SoundLengthData = (0xFF & value);
                                     }
                                     break;
 
@@ -233,6 +244,12 @@ namespace xFF
                                         m_channel3.Frequency = freq;
 
                                         m_channel3.IsContinuous = ((0x40 & value) == 0);
+
+                                        // Check trigger flag
+                                        if((0x80 & value) > 0)
+                                        {
+                                            m_channel3.TriggerInit();
+                                        }
                                     }
                                     break;
                                     
@@ -291,15 +308,45 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        while (aElapsedCycles > 0)
+                        while (aElapsedCycles > 0 && MasterSoundEnabled)
                         {
+                            m_frameSequencer += 4;
                             m_lengthCounter += 4;
+                            m_timeToGenerateSample += 4;
 
-                            if (m_lengthCounter >= 16384) // 256 Hz
+                            if (m_frameSequencer >= 8192) // 512 Hz
                             {
-                                m_channel3.LengthStep();
+                                m_lengthCounter--;
 
-                                m_lengthCounter -= 16384;
+                                if (m_lengthCounter == 2) // 256 Hz (16384 clocks: (8192 * 2))
+                                {
+                                    m_channel3.LengthStep();
+
+                                    m_lengthCounter = 0;
+                                }
+                            }
+
+                            m_channel3.PeriodStep();
+
+                            if (m_timeToGenerateSample > kTimeToUpdate)
+                            {
+                                m_samples[m_outputWaveIdx * 2] = 0;
+                                m_samples[m_outputWaveIdx * 2 + 1] = 0;
+
+                                int ch3 = m_channel3.GenerateSample();
+
+                                if (m_channel3.LeftOutputEnabled)
+                                {
+                                    m_samples[m_outputWaveIdx * 2] += ch3;
+                                }
+                                if (m_channel3.RightOutputEnabled)
+                                {
+                                    m_samples[m_outputWaveIdx * 2 + 1] += ch3;
+                                }
+
+                                m_outputWaveIdx = (m_outputWaveIdx + 2) % m_samplesAvailable;
+
+                                m_timeToGenerateSample -= kTimeToUpdate;
                             }
 
                             aElapsedCycles -= 4;
@@ -312,6 +359,8 @@ namespace xFF
 
                     int m_samplesAvailable;
                     int m_sampleRate = 44100;
+
+                    int kTimeToUpdate = 4194304 / 22500;
 
                     public void SetSamplesAvailable(int aSamples)
                     {
@@ -339,8 +388,7 @@ namespace xFF
 
                     public void OutputSound(ref byte[] b)
                     {
-                        if (!MasterSoundEnabled)
-                            return;
+                        
 
                         int numChannels = 2; // Always stereo for Game Boy
                         int numSamples = m_samplesAvailable;
@@ -349,15 +397,22 @@ namespace xFF
                         //b = new byte[numChannels * numSamples];
                         for (int i = 0; i < b.Length; ++i)
                         {
-                            b[i] = 0;
+                            b[i] = (byte)m_samples[i];
+                        }
+                        //m_outputWaveIdx = 0;
+                        /*
+                        if (!MasterSoundEnabled)
+                        {
+                            return;
                         }
 
                         //OutputSound_TMP(ref b);
-                        
+
                         if (m_channel3.IsSoundOn && m_channel3.ChannelEnabled)
                         {
                             m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
                         }
+                        */
                     }
 
                 }

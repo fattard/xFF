@@ -49,9 +49,12 @@ namespace xFF
                         int m_lengthCounter;
                         int m_frequencyData;
                         int m_period;
+                        bool m_isContinuous;
+
+                        int buffer;
 
 
-                        int[] m_samples;
+                        //int[] m_samples;
                         int m_queueHead;
 
                         int m_waveSamplePos;
@@ -62,7 +65,7 @@ namespace xFF
                         /// </summary>
                         public bool IsSoundOn
                         {
-                            get { return (m_lengthCounter > 0 || IsContinuous); }
+                            get { return (m_lengthCounter > 0) || IsContinuous; }
                         }
 
 
@@ -97,7 +100,7 @@ namespace xFF
                         /// Sound length data t1, where
                         /// total length = 256 - t1
                         /// </summary>
-                        public int SoundLength
+                        public int SoundLengthData
                         {
                             get { return m_lengthCounter; }
                             set
@@ -150,20 +153,22 @@ namespace xFF
                             get { return m_frequencyData; }
                             set
                             {
-                                m_frequencyData = (2048 - value);
-                                m_period = 4194304 / (m_frequencyData * 32);
+                                m_frequencyData = value;
+                                //m_period = 4194304 / (m_frequencyData * 32);
+                                m_period = (2048 - m_frequencyData) * 2;
 
                                 SetFrequency(value);
-
-
                             }
                         }
 
 
                         public bool IsContinuous
                         {
-                            get;
-                            set;
+                            get { return m_isContinuous; }
+                            set
+                            {
+                                m_isContinuous = value;
+                            }
                         }
 
 
@@ -177,40 +182,94 @@ namespace xFF
                         public SoundChannel3( )
                         {
                             m_waveForm = new int[32];
-                            m_samples = new int[8192];
+                            //m_samples = new int[8192];
                             m_queueHead = 0;
                         }
 
 
                         public void Reset( )
                         {
-                            
+                            buffer = 0;
                         }
 
 
-                        /*public void CyclesStep(int aElapsedCycles)
+                        public void TriggerInit( )
                         {
-                            m_period -= aElapsedCycles;
-
-                            if (m_period < 0)
+                            if (ChannelEnabled)
                             {
-                                if (m_lengthCounter > 0 || IsContinuous)
+                                if (m_lengthCounter == 0)
                                 {
-                                    --m_lengthCounter;
+                                    m_lengthCounter = 256;
                                 }
+                                m_period = (2048 - m_frequencyData) * 2;
+                                m_waveSamplePos = 0;
                             }
-                        }*/
+                        }
+
+
+
+                        public void PeriodStep( )
+                        {
+                            /*cycleLength -= 4;
+
+                            if (cycleLength <= 0)
+                            {
+                                int t = cycleLength;
+                                SetFrequency(2048 + m_frequencyData);
+                                cycleLength += t;
+
+                                m_waveSamplePos = (m_waveSamplePos + 1) % 32;
+                            }*/
+
+                            m_period -= 4;
+
+                            if (m_period <= 0)
+                            {
+                                m_waveSamplePos = (m_waveSamplePos + 1) % 32;
+
+                                buffer = m_waveSamplePos;
+
+                                m_period += (2048 - m_frequencyData) * 2;
+                            }
+                        }
+
+
+                        public int GenerateSample( )
+                        {
+                            //int samplePos = (31 * cyclePos) / cycleLength;
+                            //int val = m_waveForm[samplePos % 32] >> m_volumeShift << 1;
+
+                            /*if (LeftOutputEnabled)
+                                m_samples[m_queueHead * 2] = (byte)val;
+                            if (RightOutputEnabled)
+                                m_samples[m_queueHead * 2 + 1] = (byte)val;
+
+                            cyclePos = (cyclePos + 256) % cycleLength;*/
+
+                            if (!IsSoundOn || !ChannelEnabled)
+                            {
+                                return 0;
+                            }
+                            
+                            return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
+                        }
+
 
 
                         public void LengthStep( )
                         {
-                            if (m_lengthCounter > 0 && !IsContinuous)
+                            if (IsContinuous)
+                            {
+                                return;
+                            }
+                            
+                            if (m_lengthCounter > 0)
                             {
                                 m_lengthCounter--;
 
                                 if (m_lengthCounter == 0)
                                 {
-                                    m_waveSamplePos = 0;
+                                    //m_waveSamplePos = 0;
                                 }
                             }
                         }
