@@ -397,13 +397,8 @@ namespace xFF
                         //b = new byte[numChannels * numSamples];
                         for (int i = 0; i < b.Length; ++i)
                         {
+                            b[i] = 0;
                             b[i] = (byte)m_samples[i];
-                        }
-                        //m_outputWaveIdx = 0;
-                        /*
-                        if (!MasterSoundEnabled)
-                        {
-                            return;
                         }
 
                         //OutputSound_TMP(ref b);
@@ -412,7 +407,7 @@ namespace xFF
                         {
                             m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
                         }
-                        */
+                        
                     }
 
                 }

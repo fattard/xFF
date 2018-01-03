@@ -37,7 +37,7 @@ namespace xFF
                             int val;
 
                            
-                            /*if (m_lengthCounter > 0 || IsContinuous)
+                            if (m_lengthCounter > 0 || IsContinuous)
                             {
                                 for (int r = 0; r < numSamples; r++)
                                 {
@@ -51,7 +51,7 @@ namespace xFF
 
                                     cyclePos = (cyclePos + 256) % cycleLength;
                                 }
-                            }*/
+                            }
                             
                             /*
                             for (int r = 0; r < numSamples; ++r)
