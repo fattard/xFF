@@ -42,14 +42,14 @@ namespace xFF
 
                 public partial class APU
                 {
-                    int m_frameSequencer;
-                    int m_lengthCounter;
+                    int m_frameSequencerTimer;
+                    int m_lengthTimer;
                     byte[] m_outputWave;
                     int m_outputWaveIdx;
                     int[] m_regs = new int[0x30];
 
 
-                    int[] m_samples = new int[8192];
+                    int[] m_samples = new int[2048];
 
                     int m_timeToGenerateSample;
 
@@ -68,7 +68,12 @@ namespace xFF
                         {
                             if (!m_masterSoundEnabled && value)
                             {
-                                m_frameSequencer = 0;
+                                //m_frameSequencerTimer = 0;
+
+                                for (int i = RegsIO.WAVE00; i <= RegsIO.WAVE15; ++i)
+                                {
+                                    this[i] = 0;
+                                }
                             }
                             m_masterSoundEnabled = value;
 
@@ -160,8 +165,11 @@ namespace xFF
 
 
                                 case RegsIO.NR51:
-                                    //TODO: split to each channel
-                                    return m_regs[aAddress - RegsIO.NR10];
+                                    
+                                    return    (m_channel3.RightOutputEnabled ? (1 << 2) : 0)
+                                            | (m_channel3.LeftOutputEnabled ? (1 << 6) : 0)
+                                            //TODO: split to each channel
+                                            | (0xBB & m_regs[aAddress - RegsIO.NR10]);
 
 
                                 case RegsIO.NR52:
@@ -174,7 +182,8 @@ namespace xFF
                                 default:
                                     if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
                                     {
-                                        return m_channel3.WaveForm[aAddress - RegsIO.WAVE00];
+                                        int index = (aAddress - RegsIO.WAVE00);
+                                        return (m_channel3.WaveForm[index * 2] << 4) | m_channel3.WaveForm[(index * 2) + 1];
                                     }
 
                                     // Unused
@@ -308,22 +317,23 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        while (aElapsedCycles > 0 && MasterSoundEnabled)
+                        while (aElapsedCycles > 0/* && MasterSoundEnabled*/)
                         {
-                            m_frameSequencer += 4;
-                            m_lengthCounter += 4;
+                            m_frameSequencerTimer += 4;
                             m_timeToGenerateSample += 4;
 
-                            if (m_frameSequencer >= 8192) // 512 Hz
+                            if (m_frameSequencerTimer >= 8192) // 512 Hz
                             {
-                                m_lengthCounter--;
+                                m_lengthTimer++;
 
-                                if (m_lengthCounter == 2) // 256 Hz (16384 clocks: (8192 * 2))
+                                if (m_lengthTimer == 2) // 256 Hz (16384 clocks: (8192 * 2))
                                 {
                                     m_channel3.LengthStep();
 
-                                    m_lengthCounter = 0;
+                                    m_lengthTimer = 0;
                                 }
+
+                                m_frameSequencerTimer -= 8192;
                             }
 
                             m_channel3.PeriodStep();
@@ -344,7 +354,7 @@ namespace xFF
                                     m_samples[m_outputWaveIdx * 2 + 1] += ch3;
                                 }
 
-                                m_outputWaveIdx = (m_outputWaveIdx + 2) % m_samplesAvailable;
+                                m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
 
                                 m_timeToGenerateSample -= kTimeToUpdate;
                             }
@@ -360,7 +370,7 @@ namespace xFF
                     int m_samplesAvailable;
                     int m_sampleRate = 44100;
 
-                    int kTimeToUpdate = 4194304 / 22500;
+                    int kTimeToUpdate = 4194304 / (44100 / 2);
 
                     public void SetSamplesAvailable(int aSamples)
                     {
@@ -400,6 +410,9 @@ namespace xFF
                             b[i] = 0;
                             b[i] = (byte)m_samples[i];
                         }
+
+                        //UnityEngine.Debug.Log(m_outputWaveIdx);
+                        m_outputWaveIdx = 0;
 
                         //OutputSound_TMP(ref b);
 
