@@ -51,12 +51,6 @@ namespace xFF
                         int m_period;
                         bool m_isContinuous;
 
-                        int buffer;
-
-
-                        //int[] m_samples;
-                        int m_queueHead;
-
                         int m_waveSamplePos;
 
 
@@ -182,20 +176,18 @@ namespace xFF
                         public SoundChannel3( )
                         {
                             m_waveForm = new int[32];
-                            //m_samples = new int[8192];
-                            m_queueHead = 0;
                         }
 
 
                         public void Reset( )
                         {
-                            buffer = 0;
+                            
                         }
 
 
                         public void TriggerInit( )
                         {
-                            if (ChannelEnabled)
+                            //if (ChannelEnabled)
                             {
                                 if (m_lengthCounter == 0)
                                 {
@@ -210,24 +202,11 @@ namespace xFF
 
                         public void PeriodStep( )
                         {
-                            /*cycleLength -= 4;
-
-                            if (cycleLength <= 0)
-                            {
-                                int t = cycleLength;
-                                SetFrequency(2048 + m_frequencyData);
-                                cycleLength += t;
-
-                                m_waveSamplePos = (m_waveSamplePos + 1) % 32;
-                            }*/
-
                             m_period -= 4;
 
                             if (m_period <= 0)
                             {
                                 m_waveSamplePos = (m_waveSamplePos + 1) % 32;
-
-                                buffer = m_waveSamplePos;
 
                                 m_period += (2048 - m_frequencyData) * 2;
                             }
@@ -236,16 +215,6 @@ namespace xFF
 
                         public int GenerateSample( )
                         {
-                            //int samplePos = (31 * cyclePos) / cycleLength;
-                            //int val = m_waveForm[samplePos % 32] >> m_volumeShift << 1;
-
-                            /*if (LeftOutputEnabled)
-                                m_samples[m_queueHead * 2] = (byte)val;
-                            if (RightOutputEnabled)
-                                m_samples[m_queueHead * 2 + 1] = (byte)val;
-
-                            cyclePos = (cyclePos + 256) % cycleLength;*/
-
                             if (!IsSoundOn || !ChannelEnabled)
                             {
                                 return 0;
@@ -258,17 +227,13 @@ namespace xFF
 
                         public void LengthStep( )
                         {
-                            if (IsContinuous)
-                            {
-                                return;
-                            }
-                            
-                            if (m_lengthCounter > 0)
+                            if (m_lengthCounter > 0 && !IsContinuous)
                             {
                                 m_lengthCounter--;
 
                                 if (m_lengthCounter == 0)
                                 {
+                                    // Disable channel
                                     //m_waveSamplePos = 0;
                                 }
                             }
