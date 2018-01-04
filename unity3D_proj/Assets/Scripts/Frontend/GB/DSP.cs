@@ -52,7 +52,7 @@ namespace xFF
                     {
                         
                         var conf = AudioSettings.GetConfiguration();
-                        conf.dspBufferSize = 1024;
+                        conf.dspBufferSize = 734;
                         conf.speakerMode = AudioSpeakerMode.Stereo;
                         conf.sampleRate = 44100;
 
@@ -77,7 +77,7 @@ namespace xFF
                         if (deviceWasChanged)
                         {
                             AudioConfiguration config = AudioSettings.GetConfiguration();
-                            config.dspBufferSize = 1024;
+                            config.dspBufferSize = 734;
                             config.speakerMode = AudioSpeakerMode.Stereo;
                             config.sampleRate = 44100;
 
