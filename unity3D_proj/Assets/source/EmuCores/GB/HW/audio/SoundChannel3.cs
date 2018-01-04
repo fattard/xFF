@@ -149,9 +149,7 @@ namespace xFF
                             {
                                 m_frequencyData = value;
                                 //m_period = 4194304 / (m_frequencyData * 32);
-                                m_period = (2048 - m_frequencyData) * 2;
-
-                                SetFrequency(value);
+                                m_period = (2048 - m_frequencyData) * 2; // needs to capture at 2 times the frequency we want to hear
                             }
                         }
 
@@ -213,13 +211,24 @@ namespace xFF
                         }
 
 
-                        public int GenerateSample( )
+                        public int GenerateSampleL( )
                         {
-                            if (!IsSoundOn || !ChannelEnabled)
+                            if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled)
                             {
                                 return 0;
                             }
                             
+                            return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
+                        }
+
+
+                        public int GenerateSampleR()
+                        {
+                            if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled)
+                            {
+                                return 0;
+                            }
+
                             return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
                         }
 

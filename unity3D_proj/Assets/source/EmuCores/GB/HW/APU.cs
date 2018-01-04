@@ -343,16 +343,11 @@ namespace xFF
                                 m_samples[m_outputWaveIdx * 2] = 0;
                                 m_samples[m_outputWaveIdx * 2 + 1] = 0;
 
-                                int ch3 = m_channel3.GenerateSample();
 
-                                if (m_channel3.LeftOutputEnabled)
-                                {
-                                    m_samples[m_outputWaveIdx * 2] += ch3;
-                                }
-                                if (m_channel3.RightOutputEnabled)
-                                {
-                                    m_samples[m_outputWaveIdx * 2 + 1] += ch3;
-                                }
+                                m_samples[m_outputWaveIdx * 2] += m_channel3.GenerateSampleL();
+                                m_samples[m_outputWaveIdx * 2 + 1] += m_channel3.GenerateSampleR();
+                            
+
 
                                 m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
 
@@ -389,10 +384,6 @@ namespace xFF
                     public void SetSampleRate(int sr)
                     {
                         m_sampleRate = sr;
-
-
-                        m_channel3.SetSampleRate(sr);
-
                         //SetSampleRate_TMP(sr);
                     }
 
@@ -415,11 +406,6 @@ namespace xFF
                         m_outputWaveIdx = 0;
 
                         //OutputSound_TMP(ref b);
-
-                        if (m_channel3.IsSoundOn && m_channel3.ChannelEnabled)
-                        {
-                            m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
-                        }
                         
                     }
 
