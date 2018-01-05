@@ -1,14 +1,25 @@
-Version 0.0.6 (Alpha) - ???????????
+Version 0.0.6 (Alpha) - JAN/05/2018
 ===================================
 
 Supported Cores:
 ----------------
 - Game Boy - Classic GB emulator. Please, check the emulation
-  status (https://github.com/fattard/xFF/blob/0.0.4/GB_Status.md)
+  status (https://github.com/fattard/xFF/blob/0.0.6/GB_Status.md)
   with details of what is supported, and what is in progress and known issues.
 - BytePusher - A special test core to help me creating the foundations
   that will allow running all real cores.
   More info: https://esolangs.org/wiki/BytePusher
+  
+[DMG] GB Core Updates:
+----------------------
+- Added support for MBC1 games.
+- Support for save files.
+- Improved accuracy for Timer operations (passes almost all mooneye-gb Timer tests).
+- Improved Serial I/O emulation, allowing many games to work correctly (like Baseball).
+- Tweaks to DMA OAM operation.
+- All instructions passes cycle count timing test.
+- Minor changes to the behaviour of instructions EI and DI, as well servicing IRQ operations.
+
   
 [BytePusher] Core Updates:
 --------------------------
@@ -24,7 +35,7 @@ Version 0.0.5 (Alpha) - AUG/26/2017
 Supported Cores:
 ----------------
 - Game Boy - Classic GB emulator. Please, check the emulation
-  status (https://github.com/fattard/xFF/blob/0.0.4/GB_Status.md)
+  status (https://github.com/fattard/xFF/blob/0.0.5/GB_Status.md)
   with details of what is supported, and what is in progress and known issues.
 - BytePusher - A special test core to help me creating the foundations
   that will allow running all real cores.
