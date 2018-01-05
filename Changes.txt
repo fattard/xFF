@@ -1,4 +1,4 @@
-Version 0.0.6 (Alpha) - ???????????
+Version 0.0.6 (Alpha) - JAN/05/2018
 ===================================
 
 Supported Cores:
@@ -18,7 +18,7 @@ Supported Cores:
 - Improved Serial I/O emulation, allowing many games to work correctly (like Baseball).
 - Tweaks to DMA OAM operation.
 - All instructions passes cycle count timing test.
-- Minor changes to the behaviour of instructions IE and DI, as well servicing IRQ operations.
+- Minor changes to the behaviour of instructions EI and DI, as well servicing IRQ operations.
 
   
 [BytePusher] Core Updates:
