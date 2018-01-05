@@ -232,6 +232,11 @@ namespace xFF
                     {
                         try
                         {
+                            if (!System.IO.File.Exists(Application.dataPath + "/../core_GB.cfg"))
+                            {
+                                return new EmuCores.GB.ConfigsGB();
+                            }
+
                             string confFile = System.IO.File.ReadAllText(Application.dataPath + "/../core_GB.cfg");
 
                             EmuCores.GB.ConfigsGB confData = JsonUtility.FromJson<EmuCores.GB.ConfigsGB>(confFile);
