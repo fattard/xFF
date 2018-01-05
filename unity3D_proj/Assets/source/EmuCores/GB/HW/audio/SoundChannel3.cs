@@ -44,44 +44,76 @@ namespace xFF
                     public partial class SoundChannel3
                     {
                         int[] m_waveForm;
-                        int m_volumeLevel;
+                        int m_volumeLevel_RAW;
                         int m_volumeShift;
-                        int m_soundLength;
                         int m_lengthCounter;
-                        int m_frequency;
+                        int m_frequencyData;
                         int m_period;
+                        bool m_isContinuous;
+
+                        int m_waveSamplePos;
 
 
-                        int[] m_samples;
-                        int m_queueHead;
-
-
+                        /// <summary>
+                        /// Flag indicated at NR52 (0xFF26) bit 2
+                        /// </summary>
                         public bool IsSoundOn
+                        {
+                            get { return (m_lengthCounter > 0) || IsContinuous; }
+                        }
+
+
+                        public bool LeftOutputEnabled
                         {
                             get;
                             set;
                         }
 
 
-                        public int SoundLength
+                        public bool RightOutputEnabled
                         {
-                            get { return m_soundLength; }
+                            get;
+                            set;
+                        }
+
+
+                        /// <summary>
+                        /// Accessor for Reg NR30 (0xFF1A)
+                        /// Enables/Disables sound generation
+                        /// from this channel.
+                        /// </summary>
+                        public bool ChannelEnabled
+                        {
+                            get;
+                            set;
+                        }
+
+
+                        /// <summary>
+                        /// Accessor for Reg NR31 (0xFF1B)
+                        /// Sound length data t1, where
+                        /// total length = 256 - t1
+                        /// </summary>
+                        public int SoundLengthData
+                        {
+                            get { return m_lengthCounter; }
                             set
                             {
-                                m_soundLength = value;
-                                m_lengthCounter = (256 - value);
-
-                                SetLength(value);
+                                m_lengthCounter = (0xFF & (256 - value));
                             }
                         }
 
 
+                        /// <summary>
+                        /// Accessor for Reg NR32 (0xFF1C)
+                        /// Selection of the output volume level
+                        /// </summary>
                         public int OutputVolumeLevel
                         {
-                            get { return m_volumeLevel; }
+                            get { return m_volumeLevel_RAW; }
                             set
                             {
-                                m_volumeLevel = value;
+                                m_volumeLevel_RAW = value;
                                 switch (value)
                                 {
                                     case 0:
@@ -104,25 +136,31 @@ namespace xFF
                         }
 
 
+                        /// <summary>
+                        /// Accessor for combined Reg NR33 (0xFF1D)
+                        /// and NR34 (0xFF1E) parts of the
+                        /// Frequency data (11 bits)
+                        /// 
+                        /// </summary>
                         public int Frequency
                         {
-                            get { return m_frequency; }
+                            get { return m_frequencyData; }
                             set
                             {
-                                m_frequency = (65536 / (2048 - value));
-                                m_period = 4194304 / m_frequency;
-
-                                SetFrequency(value);
-
-
+                                m_frequencyData = value;
+                                //m_period = 4194304 / (m_frequencyData * 32);
+                                m_period = (2048 - m_frequencyData) * 2; // needs to capture at 2 times the frequency we want to hear
                             }
                         }
 
 
                         public bool IsContinuous
                         {
-                            get;
-                            set;
+                            get { return m_isContinuous; }
+                            set
+                            {
+                                m_isContinuous = value;
+                            }
                         }
 
 
@@ -136,26 +174,76 @@ namespace xFF
                         public SoundChannel3( )
                         {
                             m_waveForm = new int[32];
-                            m_samples = new int[8192];
-                            m_queueHead = 0;
                         }
 
 
                         public void Reset( )
                         {
-
+                            
                         }
 
 
-                        public void CyclesStep(int aElapsedCycles)
+                        public void TriggerInit( )
                         {
-                            m_period -= aElapsedCycles;
-
-                            if (m_period < 0)
+                            //if (ChannelEnabled)
                             {
-                                if (m_lengthCounter > 0 || IsContinuous)
+                                if (m_lengthCounter == 0)
                                 {
-                                    --m_lengthCounter;
+                                    m_lengthCounter = 256;
+                                }
+                                m_period = (2048 - m_frequencyData) * 2;
+                                m_waveSamplePos = 0;
+                            }
+                        }
+
+
+
+                        public void PeriodStep( )
+                        {
+                            m_period -= 4;
+
+                            if (m_period <= 0)
+                            {
+                                m_waveSamplePos = (m_waveSamplePos + 1) % 32;
+
+                                m_period += (2048 - m_frequencyData) * 2;
+                            }
+                        }
+
+
+                        public int GenerateSampleL( )
+                        {
+                            if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled)
+                            {
+                                return 0;
+                            }
+                            
+                            return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
+                        }
+
+
+                        public int GenerateSampleR()
+                        {
+                            if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled)
+                            {
+                                return 0;
+                            }
+
+                            return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
+                        }
+
+
+
+                        public void LengthStep( )
+                        {
+                            if (m_lengthCounter > 0 && !IsContinuous)
+                            {
+                                m_lengthCounter--;
+
+                                if (m_lengthCounter == 0)
+                                {
+                                    // Disable channel
+                                    //m_waveSamplePos = 0;
                                 }
                             }
                         }

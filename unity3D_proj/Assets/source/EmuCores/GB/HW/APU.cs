@@ -42,9 +42,18 @@ namespace xFF
 
                 public partial class APU
                 {
-                    
+                    int m_frameSequencerTimer;
+                    int m_lengthTimer;
                     byte[] m_outputWave;
+                    int m_outputWaveIdx;
                     int[] m_regs = new int[0x30];
+
+
+                    int[] m_samples = new int[2048];
+
+                    int m_timeToGenerateSample;
+
+                    bool m_masterSoundEnabled;
 
                     SoundChannel3 m_channel3 = new SoundChannel3();
                     
@@ -54,8 +63,28 @@ namespace xFF
 
                     public bool MasterSoundEnabled
                     {
-                        get;
-                        set;
+                        get { return m_masterSoundEnabled; }
+                        set
+                        {
+                            if (!m_masterSoundEnabled && value)
+                            {
+                                //m_frameSequencerTimer = 0;
+
+                                for (int i = RegsIO.WAVE00; i <= RegsIO.WAVE15; ++i)
+                                {
+                                    this[i] = 0;
+                                }
+                            }
+                            m_masterSoundEnabled = value;
+
+                            if (!value)
+                            {
+                                for (int i = RegsIO.NR10; i < RegsIO.NR51; ++i)
+                                {
+                                    this[i] = 0;
+                                }
+                            }
+                        }
                     }
 
 
@@ -98,21 +127,29 @@ namespace xFF
                     {
                         get
                         {
+                            // While APU is disbled, all reads to range 0xFF10-0xFF2F
+                            // are ignored, except NR52
+                            if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
+                            {
+                                return 0xFF;
+                            }
+
+
                             switch (aAddress)
                             {
                                 case RegsIO.NR30:
-                                    return 0x7F | (m_channel3.IsSoundOn ? (1 << 7) : 0);
+                                    return 0x7F | (m_channel3.ChannelEnabled ? (1 << 7) : 0);
 
 
                                 case RegsIO.NR31:
-                                    return m_channel3.SoundLength;
+                                    return m_channel3.SoundLengthData;
 
 
                                 case RegsIO.NR32:
                                     return 0x9F | (m_channel3.OutputVolumeLevel << 5);
 
 
-                                case RegsIO.NR33:
+                                case RegsIO.NR33: // This Reg is write-only
                                     return 0xFF;
 
 
@@ -121,26 +158,38 @@ namespace xFF
 
 
                                 case RegsIO.NR50:
-                                    return  (OutputVolumeRight) | (OutputVolumeLeft << 4)
+                                    return    (OutputVolumeRight << 0)
+                                            | (OutputVolumeLeft << 4)
                                             | (ExternalInputRightEnabled ? (1 << 3) : 0)
                                             | (ExternalInputLeftEnabled ? (1 << 7) : 0);
 
 
                                 case RegsIO.NR51:
-                                    //TODO: split to each channel
-                                    return m_regs[aAddress - RegsIO.NR10];
+                                    
+                                    return    (m_channel3.RightOutputEnabled ? (1 << 2) : 0)
+                                            | (m_channel3.LeftOutputEnabled ? (1 << 6) : 0)
+                                            //TODO: split to each channel
+                                            | (0xBB & m_regs[aAddress - RegsIO.NR10]);
 
 
                                 case RegsIO.NR52:
                                     return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
-                                            // TODO: get real flags
-                                            | (0x0F & m_regs[aAddress - RegsIO.NR10]);
+                                                | (m_channel3.IsSoundOn ? (1 << 2) : 0)
+                                                // TODO: get real flags
+                                                | (0x0B & m_regs[aAddress - RegsIO.NR10]);
 
 
                                 default:
                                     if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
                                     {
-                                        return m_channel3.WaveForm[aAddress - RegsIO.WAVE00];
+                                        int index = (aAddress - RegsIO.WAVE00);
+                                        return (m_channel3.WaveForm[index * 2] << 4) | m_channel3.WaveForm[(index * 2) + 1];
+                                    }
+
+                                    // Unused
+                                    else if (aAddress >= 0xFF27 && aAddress <= 0xFF2F || aAddress == 0xFF15 || aAddress == 0xFF1F)
+                                    {
+                                        return 0xFF;
                                     }
 
                                     return m_regs[aAddress - RegsIO.NR10];
@@ -149,18 +198,34 @@ namespace xFF
 
                         set
                         {
+                            // Waveform RAM
+                            if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
+                            {
+                                int index = (aAddress - RegsIO.WAVE00);
+                                m_channel3.WaveForm[index * 2] = (byte)((0xF0 & value) >> 4);
+                                m_channel3.WaveForm[(index * 2) + 1] = (byte)(0x0F & value);
+                                return;
+                            }
+
+                            // While APU is disbled, all writes to range 0xFF10-0xFF2F
+                            // are ignored, except NR52
+                            else if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
+                            {
+                                return;
+                            }
+
                             switch (aAddress)
                             {
                                 case RegsIO.NR30:
                                     {
-                                        m_channel3.IsSoundOn = ((0x80 & value) > 0);
+                                        m_channel3.ChannelEnabled = ((0x80 & value) > 0);
                                     }
                                     break;
 
 
                                 case RegsIO.NR31:
                                     {
-                                        m_channel3.SoundLength = (0xFF & value);
+                                        m_channel3.SoundLengthData = (0xFF & value);
                                     }
                                     break;
 
@@ -188,6 +253,12 @@ namespace xFF
                                         m_channel3.Frequency = freq;
 
                                         m_channel3.IsContinuous = ((0x40 & value) == 0);
+
+                                        // Check trigger flag
+                                        if((0x80 & value) > 0)
+                                        {
+                                            m_channel3.TriggerInit();
+                                        }
                                     }
                                     break;
                                     
@@ -208,6 +279,9 @@ namespace xFF
                                         //TODO: split to each channel
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                         //SetReg_TMP(aAddress, value);
+
+                                        m_channel3.RightOutputEnabled = ((1 << 2) & value) != 0;
+                                        m_channel3.LeftOutputEnabled = ((1 << 6) & value) != 0;
                                     }
                                     break;
 
@@ -215,23 +289,14 @@ namespace xFF
                                 case RegsIO.NR52:
                                     {
                                         MasterSoundEnabled = ((0x80 & value) > 0);
+
+                                        m_regs[aAddress - RegsIO.NR10] = (0xF0 & value);
                                         
-                                        //TODO: split channel On flags
-                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                     }
                                     break;
 
 
                                 default:
-                                    // Waveform RAM
-                                    if (aAddress >= RegsIO.WAVE00 && aAddress <= RegsIO.WAVE15)
-                                    {
-                                        int index = (aAddress - RegsIO.WAVE00);
-                                        m_channel3.WaveForm[index * 2] = (byte)((0xF0 & value) >> 4);
-                                        m_channel3.WaveForm[(index * 2) + 1] = (byte)(0x0F & value);
-                                    }
-
-                                    else
                                     {
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                         //SetReg_TMP(aAddress, value);
@@ -252,7 +317,45 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
+                        while (aElapsedCycles > 0/* && MasterSoundEnabled*/)
+                        {
+                            m_frameSequencerTimer += 4;
+                            m_timeToGenerateSample += 4;
 
+                            if (m_frameSequencerTimer >= 8192) // 512 Hz
+                            {
+                                m_lengthTimer++;
+
+                                if (m_lengthTimer == 2) // 256 Hz (16384 clocks: (8192 * 2))
+                                {
+                                    m_channel3.LengthStep();
+
+                                    m_lengthTimer = 0;
+                                }
+
+                                m_frameSequencerTimer -= 8192;
+                            }
+
+                            m_channel3.PeriodStep();
+
+                            if (m_timeToGenerateSample > kTimeToUpdate)
+                            {
+                                m_samples[m_outputWaveIdx * 2] = 0;
+                                m_samples[m_outputWaveIdx * 2 + 1] = 0;
+
+
+                                m_samples[m_outputWaveIdx * 2] += m_channel3.GenerateSampleL();
+                                m_samples[m_outputWaveIdx * 2 + 1] += m_channel3.GenerateSampleR();
+                            
+
+
+                                m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
+
+                                m_timeToGenerateSample -= kTimeToUpdate;
+                            }
+
+                            aElapsedCycles -= 4;
+                        }
                     }
 
 
@@ -261,6 +364,8 @@ namespace xFF
 
                     int m_samplesAvailable;
                     int m_sampleRate = 44100;
+
+                    int kTimeToUpdate = 4194304 / (44100 / 2);
 
                     public void SetSamplesAvailable(int aSamples)
                     {
@@ -279,17 +384,12 @@ namespace xFF
                     public void SetSampleRate(int sr)
                     {
                         m_sampleRate = sr;
-
-
-                        m_channel3.SetSampleRate(sr);
-
                         //SetSampleRate_TMP(sr);
                     }
 
                     public void OutputSound(ref byte[] b)
                     {
-                        if (!MasterSoundEnabled)
-                            return;
+                        
 
                         int numChannels = 2; // Always stereo for Game Boy
                         int numSamples = m_samplesAvailable;
@@ -299,14 +399,14 @@ namespace xFF
                         for (int i = 0; i < b.Length; ++i)
                         {
                             b[i] = 0;
+                            b[i] = (byte)m_samples[i];
                         }
+
+                        //UnityEngine.Debug.Log(m_outputWaveIdx);
+                        m_outputWaveIdx = 0;
 
                         //OutputSound_TMP(ref b);
                         
-                        if (m_channel3.IsSoundOn)
-                        {
-                            m_channel3.Play(b, numSamples, numChannels, m_channel3.WaveForm);
-                        }
                     }
 
                 }
