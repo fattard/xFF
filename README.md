@@ -3,22 +3,22 @@
 ## Core Status ##
 ## [GB Emulation Status](GB_Status.md) ##
 Game Boy core emulation. Initially, only the classic emulation will be supported.  
-The current release build (v0.0.5) is able to run TestROMS, such as [Blargg's individual cpu\_intrs](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), some
-[mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/), and also commercial games that do not use mappers (such as MBC1 or MBC3).  
-Those supported ROMs are also known as "ROM ONLY" 32KB files.  
+The current release build (v0.0.6) is able to run TestROMS, such as [Blargg's Test Suite](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), some
+[mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/), and also commercial games that uses mapper MBC1.   
 Remember to check the [status page](GB_Status.md) for information on what is supported or not.
 <br>
 <br>
-Below is a montage of 6 games running:
+Below is a montage of all 6 Launch Titles running:
 <br>
-![First Games](sshots/GB/first_games.png)
+![Launch Games](sshots/GB/launch_games.png)
 <br>
 <br>
-Below is the current montage of results from cpu_instrs individual tests:
-![Test ROM result](sshots/GB/cpu_instrs_individual.png)
+Below is the current montage of results from Blargg's tests:
+![Test ROM result](sshots/GB/blarggs_test_suite.png)
 <br>
-The instructions timing is not properly tested yet, as there are still some
-tweaks in the Timer Controller to allow proper sync to run the tests.
+The mem_timing test fails, as it requires cycle accurate emulation. It will take some time for this.    
+Both DMG and CGB sound tests fails, as there's not sound support yet.     
+The hardware bug tests also fails, as this kind of behaviour is not being emulated.
 <br>
 <br>
 ### Joypad Controls ###
