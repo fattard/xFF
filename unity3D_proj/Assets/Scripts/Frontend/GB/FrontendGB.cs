@@ -137,9 +137,26 @@ namespace xFF
                     void LoadBootRom( )
                     {
                         // Use internal boot rom
-                        if (!m_emuGB.Configs.bootRomDMG.enabled || string.IsNullOrEmpty(m_emuGB.Configs.bootRomDMG.path))
+                        if (!m_emuGB.Configs.bootRomDMG.customEnabled || string.IsNullOrEmpty(m_emuGB.Configs.bootRomDMG.path))
                         {
                             byte[] devBootROM = Resources.Load<TextAsset>("GB/DMG_CustomBootRom").bytes;
+
+                            // Patch Anim Type
+                            const int kAnimTypeOffset = 0x00FD;
+                            switch (m_emuGB.Configs.bootRomDMG.internalAnimType)
+                            {
+                                case 0x03: // Quick Anim
+                                    devBootROM[kAnimTypeOffset] = 0x03;
+                                    break;
+
+                                case 0xAA: // Full Anim
+                                    devBootROM[kAnimTypeOffset] = 0xAA;
+                                    break;
+
+                                default: // No Anim
+                                    devBootROM[kAnimTypeOffset] = 0x00;
+                                    break;
+                            }
 
                             m_emuGB.SetBootRom(devBootROM);
                         }
@@ -210,6 +227,11 @@ namespace xFF
                             Debug.Break();
                         }
                         lastUpdateTick = newTime;
+
+
+                        // Realtime color change
+                        OverrideConfigsColors(m_emuGB.Configs);
+                        lcdDisplay.SetLCDColors(m_emuGB.Configs);
                     #endif
                     }
 
@@ -259,9 +281,17 @@ namespace xFF
                         aConf.graphics.displayZoom = frontendConfigs.zoomFactor;
 
                         // Bootrom
-                        aConf.bootRomDMG.enabled = frontendConfigs.bootRomEnabled;
+                        aConf.bootRomDMG.customEnabled = (frontendConfigs.bootRomMode == ConfigsGB.BootRomMode.ExternalFile);
                         aConf.bootRomDMG.path = frontendConfigs.bootRomPath;
+                        aConf.bootRomDMG.internalAnimType = (int)frontendConfigs.bootRomMode;
 
+                        // DMG Colors
+                        OverrideConfigsColors(aConf);
+                    }
+
+
+                    void OverrideConfigsColors(EmuCores.GB.ConfigsGB aConf)
+                    {
                         // DMG Colors
                         aConf.dmgColors.color0.Set((int)(255 * frontendConfigs.color0.r), (int)(255 * frontendConfigs.color0.g), (int)(255 * frontendConfigs.color0.b));
                         aConf.dmgColors.color1.Set((int)(255 * frontendConfigs.color1.r), (int)(255 * frontendConfigs.color1.g), (int)(255 * frontendConfigs.color1.b));

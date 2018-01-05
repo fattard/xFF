@@ -41,8 +41,17 @@ namespace xFF
 
                 public class ConfigsGB : MonoBehaviour
                 {
+                    public enum BootRomMode
+                    {
+                        InternalNoAnim = 0x00,
+                        InternalQuickAnim = 0x03,
+                        InternalFullAnim = 0xAA,
+
+                        ExternalFile = -1,
+                    }
+
                     [Header("DMG Bootrom")]
-                    public bool bootRomEnabled = false;
+                    public BootRomMode bootRomMode = BootRomMode.InternalNoAnim;
                     public string bootRomPath = "";
 
                     [Header("Quick ROMS Selector")]
