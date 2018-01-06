@@ -54,6 +54,13 @@ namespace xFF
                         int m_period;
                         bool m_isContinuous;
 
+                        int m_sweepShift;
+                        int m_sweepMode;
+                        int m_sweepTime;
+                        int m_sweepCounter;
+                        int m_sweepShadowFreq;
+                        bool m_sweepEnabled;
+
                         int m_waveSamplePos;
 
                         int[][] m_dutyWaveForm = new int[][]
@@ -141,6 +148,15 @@ namespace xFF
                                 {
                                     m_envelopeCounter = 8;
                                 }*/
+
+                                m_sweepShadowFreq = m_frequencyData;
+                                m_sweepCounter = m_sweepTime;
+                                m_sweepEnabled = (m_sweepShift != 0) || (m_sweepCounter != 0);
+
+                                if (m_sweepShift > 0)
+                                {
+                                    CalcSweepFreq();
+                                }
                             }
                         }
 
@@ -185,6 +201,33 @@ namespace xFF
                             {
                                 m_frequencyData = value;
                                 m_period = (2048 - m_frequencyData) * 4; // needs to capture at 2 times the frequency we want to hear
+                            }
+                        }
+
+
+                        public int SweepShift
+                        {
+                            get { return m_sweepShift; }
+                            set
+                            {
+                                m_sweepShift = (0x07 & value);
+                            }
+                        }
+
+
+                        public int SweepMode
+                        {
+                            get { return m_sweepMode; }
+                            set { m_sweepMode = (0x01 & value); }
+                        }
+
+
+                        public int SweepTime
+                        {
+                            get { return m_sweepTime; }
+                            set
+                            {
+                                m_sweepTime = (0x07 & value);
                             }
                         }
 
@@ -259,7 +302,30 @@ namespace xFF
                         }
 
 
-                        public void LengthStep()
+                        public void SweepStep( )
+                        {
+                            if (m_sweepEnabled && m_sweepCounter > 0)
+                            {
+                                m_sweepCounter--;
+
+                                if (m_sweepCounter == 0)
+                                {
+                                    m_sweepCounter = m_sweepTime;
+                                }
+
+                                int newFreq = CalcSweepFreq();
+                                if (newFreq <= 2047 && m_sweepShift > 0)
+                                {
+                                    m_sweepShadowFreq = newFreq;
+                                    m_frequencyData = newFreq;
+                                    CalcSweepFreq();
+                                }
+                                CalcSweepFreq();
+                            }
+                        }
+
+
+                        public void LengthStep( )
                         {
                             if (m_lengthCounter > 0 && !IsContinuous)
                             {
@@ -271,6 +337,25 @@ namespace xFF
                                     //m_waveSamplePos = 0;
                                 }
                             }
+                        }
+
+
+                        int CalcSweepFreq( )
+                        {
+                            int freq = m_sweepShadowFreq >> m_sweepShift;
+                            if (m_sweepMode > 0)
+                            {
+                                freq = -freq;
+                            }
+
+                            freq = m_sweepShadowFreq + freq;
+
+                            if (freq > 2047)
+                            {
+                                m_sweepEnabled = false;
+                            }
+
+                            return freq;
                         }
                     }
                     

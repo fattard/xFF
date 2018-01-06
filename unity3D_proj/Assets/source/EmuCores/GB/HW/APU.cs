@@ -45,6 +45,7 @@ namespace xFF
                     int m_frameSequencerTimer;
                     int m_lengthTimer;
                     int m_envelopeTimer;
+                    int m_sweepTimer;
                     byte[] m_outputWave;
                     int m_outputWaveIdx;
                     int[] m_regs = new int[0x30];
@@ -140,6 +141,12 @@ namespace xFF
 
                             switch (aAddress)
                             {
+                                case RegsIO.NR10:
+                                    return 0x80 | (m_channel1.SweepShift)
+                                                | (m_channel1.SweepMode << 3)
+                                                | (m_channel1.SweepTime << 4);
+
+
                                 case RegsIO.NR11:
                                     return 0x3F | (m_channel1.DutyCycle << 6);
 
@@ -259,6 +266,14 @@ namespace xFF
 
                             switch (aAddress)
                             {
+                                case RegsIO.NR10:
+                                    {
+                                        m_channel1.SweepShift = value;
+                                        m_channel1.SweepMode = (value >> 3);
+                                        m_channel1.SweepTime = (value >> 4);
+                                    }
+                                    break;
+
                                 case RegsIO.NR11:
                                     {
                                         m_channel1.SoundLengthData = value;
@@ -464,6 +479,7 @@ namespace xFF
                             {
                                 m_lengthTimer++;
                                 m_envelopeTimer++;
+                                m_sweepTimer++;
 
                                 if (m_lengthTimer == 2) // 256 Hz (16384 clocks: (8192 * 2))
                                 {
@@ -472,6 +488,13 @@ namespace xFF
                                     m_channel3.LengthStep();
 
                                     m_lengthTimer = 0;
+                                }
+
+                                if (m_sweepTimer == 4) // 128 Hz (20648 clocks: (8192 * 4))
+                                {
+                                    m_channel1.SweepStep();
+
+                                    m_sweepTimer = 0;
                                 }
 
                                 if (m_envelopeTimer == 8) // 64 Hz (65536 clocks: (8192 * 8))
