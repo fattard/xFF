@@ -41,7 +41,7 @@ namespace xFF
                 { 
 
 
-                    public partial class SoundChannel3
+                    public class SoundChannel3
                     {
                         int[] m_waveForm;
                         int m_volumeLevel_RAW;
@@ -52,6 +52,13 @@ namespace xFF
                         bool m_isContinuous;
 
                         int m_waveSamplePos;
+
+
+                        public bool UserEnabled
+                        {
+                            get;
+                            set;
+                        }
 
 
                         /// <summary>
@@ -148,7 +155,6 @@ namespace xFF
                             set
                             {
                                 m_frequencyData = value;
-                                //m_period = 4194304 / (m_frequencyData * 32);
                                 m_period = (2048 - m_frequencyData) * 2; // needs to capture at 2 times the frequency we want to hear
                             }
                         }
@@ -213,23 +219,23 @@ namespace xFF
 
                         public int GenerateSampleL( )
                         {
-                            if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled)
+                            if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled || !UserEnabled)
                             {
                                 return 0;
                             }
                             
-                            return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
+                            return m_waveForm[m_waveSamplePos] >> m_volumeShift;
                         }
 
 
                         public int GenerateSampleR()
                         {
-                            if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled)
+                            if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled || !UserEnabled)
                             {
                                 return 0;
                             }
 
-                            return m_waveForm[m_waveSamplePos] >> m_volumeShift << 1;
+                            return m_waveForm[m_waveSamplePos] >> m_volumeShift;
                         }
 
 
