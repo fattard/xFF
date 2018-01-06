@@ -60,6 +60,7 @@ namespace xFF
                     SoundChannel1 m_channel1 = new SoundChannel1();
                     SoundChannel2 m_channel2 = new SoundChannel2();
                     SoundChannel3 m_channel3 = new SoundChannel3();
+                    SoundChannel4 m_channel4 = new SoundChannel4();
                     
 
                     public EmuGB.PlayAudioFunc PlayAudio = (aAPU) => { };
@@ -202,6 +203,26 @@ namespace xFF
                                     return 0xBF | (!m_channel3.IsContinuous ? (1 << 6) : 0);
 
 
+                                case RegsIO.NR41:
+                                    return 0xFF | m_channel4.SoundLengthData;
+
+
+                                case RegsIO.NR42:
+                                    return m_channel4.EnvelopeSteps
+                                            | (m_channel4.EnvelopeMode << 4)
+                                            | (m_channel4.DefaultEnvelope << 4);
+
+
+                                case RegsIO.NR43:
+                                    return m_channel4.DivRatio
+                                            | (m_channel4.StepsMode << 3)
+                                            | (m_channel4.ShiftFreq << 4);
+
+
+                                case RegsIO.NR44:
+                                    return 0xBF | (!m_channel4.IsContinuous ? (1 << 6) : 0);
+
+
                                 case RegsIO.NR50:
                                     return    (OutputVolumeRight << 0)
                                             | (OutputVolumeLeft << 4)
@@ -213,11 +234,12 @@ namespace xFF
                                     return    (m_channel1.RightOutputEnabled ? (1 << 0) : 0)
                                             | (m_channel2.RightOutputEnabled ? (1 << 1) : 0)
                                             | (m_channel3.RightOutputEnabled ? (1 << 2) : 0)
+                                            | (m_channel4.RightOutputEnabled ? (1 << 3) : 0)
                                             | (m_channel1.LeftOutputEnabled ? (1 << 4) : 0)
                                             | (m_channel2.LeftOutputEnabled ? (1 << 5) : 0)
                                             | (m_channel3.LeftOutputEnabled ? (1 << 6) : 0)
-                                            //TODO: split to each channel
-                                            | (0x88 & m_regs[aAddress - RegsIO.NR10]);
+                                            | (m_channel4.LeftOutputEnabled ? (1 << 7) : 0);
+                                            
 
 
                                 case RegsIO.NR52:
@@ -225,8 +247,7 @@ namespace xFF
                                                 | (m_channel1.IsSoundOn ? (1 << 0) : 0)
                                                 | (m_channel2.IsSoundOn ? (1 << 1) : 0)
                                                 | (m_channel3.IsSoundOn ? (1 << 2) : 0)
-                                                // TODO: get real flags
-                                                | (0x08 & m_regs[aAddress - RegsIO.NR10]);
+                                                | (m_channel4.IsSoundOn ? (1 << 3) : 0);
 
 
                                 default:
@@ -410,9 +431,49 @@ namespace xFF
                                         }
                                     }
                                     break;
+
+
+                                case RegsIO.NR41:
+                                    {
+                                        m_channel4.SoundLengthData = value;
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR42:
+                                    {
+                                        m_channel4.EnvelopeSteps = value;
+                                        m_channel4.EnvelopeMode = (value >> 3);
+                                        m_channel4.DefaultEnvelope = (value >> 4);
+
+                                        // Top 5 bits
+                                        m_channel4.ChannelEnabled = ((0xF8 & value) != 0);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR43:
+                                    {
+                                        m_channel4.DivRatio = value;
+                                        m_channel4.StepsMode = (value >> 3);
+                                        m_channel4.ShiftFreq = (value >> 4);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR44:
+                                    {
+                                        m_channel4.IsContinuous = ((0x40 & value) == 0);
+
+                                        // Check trigger flag
+                                        if ((0x80 & value) > 0)
+                                        {
+                                            m_channel4.TriggerInit();
+                                        }
+                                    }
+                                    break;
+
                                     
-
-
                                 case RegsIO.NR50:
                                     {
                                         OutputVolumeRight = (0x07 & value);
@@ -432,9 +493,11 @@ namespace xFF
                                         m_channel1.RightOutputEnabled = ((1 << 0) & value) != 0;
                                         m_channel2.RightOutputEnabled = ((1 << 1) & value) != 0;
                                         m_channel3.RightOutputEnabled = ((1 << 2) & value) != 0;
+                                        m_channel4.RightOutputEnabled = ((1 << 3) & value) != 0;
                                         m_channel1.LeftOutputEnabled = ((1 << 4) & value) != 0;
                                         m_channel2.LeftOutputEnabled = ((1 << 5) & value) != 0;
                                         m_channel3.LeftOutputEnabled = ((1 << 6) & value) != 0;
+                                        m_channel4.LeftOutputEnabled = ((1 << 7) & value) != 0;
                                     }
                                     break;
 
@@ -486,6 +549,7 @@ namespace xFF
                                     m_channel1.LengthStep();
                                     m_channel2.LengthStep();
                                     m_channel3.LengthStep();
+                                    m_channel4.LengthStep();
 
                                     m_lengthTimer = 0;
                                 }
@@ -511,12 +575,14 @@ namespace xFF
                             m_channel1.PeriodStep();
                             m_channel2.PeriodStep();
                             m_channel3.PeriodStep();
+                            m_channel4.PeriodStep();
 
                             if (m_timeToGenerateSample > kTimeToUpdate)
                             {
                                 m_channel1.UserEnabled = true;
                                 m_channel2.UserEnabled = true;
                                 m_channel3.UserEnabled = true;
+                                m_channel4.UserEnabled = true;
 
                                 int idxL = m_outputWaveIdx * 2;
                                 int idxR = idxL + 1;
@@ -527,11 +593,13 @@ namespace xFF
                                 m_samples[idxL] += m_channel1.GenerateSampleL();
                                 m_samples[idxL] += m_channel2.GenerateSampleL();
                                 m_samples[idxL] += m_channel3.GenerateSampleL();
+                                m_samples[idxL] += m_channel4.GenerateSampleL();
 
                                 m_samples[idxR] += m_channel1.GenerateSampleR();
                                 m_samples[idxR] += m_channel2.GenerateSampleR();
                                 m_samples[idxR] += m_channel3.GenerateSampleR();
-                            
+                                m_samples[idxR] += m_channel4.GenerateSampleR();
+
 
                                 m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
 
