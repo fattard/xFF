@@ -66,7 +66,7 @@ namespace xFF
                         AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
                         AudioSettings.Reset(conf);
 #endif
-                        Gain = 1;
+                        Gain = 7;
                     }
 
 

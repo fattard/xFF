@@ -44,6 +44,7 @@ namespace xFF
                 {
                     int m_frameSequencerTimer;
                     int m_lengthTimer;
+                    int m_envelopeTimer;
                     byte[] m_outputWave;
                     int m_outputWaveIdx;
                     int[] m_regs = new int[0x30];
@@ -55,6 +56,8 @@ namespace xFF
 
                     bool m_masterSoundEnabled;
 
+                    SoundChannel1 m_channel1 = new SoundChannel1();
+                    SoundChannel2 m_channel2 = new SoundChannel2();
                     SoundChannel3 m_channel3 = new SoundChannel3();
                     
 
@@ -137,6 +140,41 @@ namespace xFF
 
                             switch (aAddress)
                             {
+                                case RegsIO.NR11:
+                                    return 0x3F | (m_channel1.DutyCycle << 6);
+
+
+                                case RegsIO.NR12:
+                                    return m_channel1.EnvelopeSteps
+                                            | (m_channel1.EnvelopeMode << 4)
+                                            | (m_channel1.DefaultEnvelope << 4);
+
+
+                                case RegsIO.NR13: // This Reg is write-only
+                                    return 0xFF;
+
+
+                                case RegsIO.NR14:
+                                    return 0xBF | (!m_channel1.IsContinuous ? (1 << 6) : 0);
+
+                                case RegsIO.NR21:
+                                    return 0x3F | (m_channel2.DutyCycle << 6);
+
+
+                                case RegsIO.NR22:
+                                    return     m_channel2.EnvelopeSteps
+                                            | (m_channel2.EnvelopeMode << 4)
+                                            | (m_channel2.DefaultEnvelope << 4);
+
+
+                                case RegsIO.NR23: // This Reg is write-only
+                                    return 0xFF;
+
+
+                                case RegsIO.NR24:
+                                    return 0xBF | (!m_channel2.IsContinuous ? (1 << 6) : 0);
+
+
                                 case RegsIO.NR30:
                                     return 0x7F | (m_channel3.ChannelEnabled ? (1 << 7) : 0);
 
@@ -165,18 +203,23 @@ namespace xFF
 
 
                                 case RegsIO.NR51:
-                                    
-                                    return    (m_channel3.RightOutputEnabled ? (1 << 2) : 0)
+                                    return    (m_channel1.RightOutputEnabled ? (1 << 0) : 0)
+                                            | (m_channel2.RightOutputEnabled ? (1 << 1) : 0)
+                                            | (m_channel3.RightOutputEnabled ? (1 << 2) : 0)
+                                            | (m_channel1.LeftOutputEnabled ? (1 << 4) : 0)
+                                            | (m_channel2.LeftOutputEnabled ? (1 << 5) : 0)
                                             | (m_channel3.LeftOutputEnabled ? (1 << 6) : 0)
                                             //TODO: split to each channel
-                                            | (0xBB & m_regs[aAddress - RegsIO.NR10]);
+                                            | (0x88 & m_regs[aAddress - RegsIO.NR10]);
 
 
                                 case RegsIO.NR52:
                                     return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
+                                                | (m_channel1.IsSoundOn ? (1 << 0) : 0)
+                                                | (m_channel2.IsSoundOn ? (1 << 1) : 0)
                                                 | (m_channel3.IsSoundOn ? (1 << 2) : 0)
                                                 // TODO: get real flags
-                                                | (0x0B & m_regs[aAddress - RegsIO.NR10]);
+                                                | (0x08 & m_regs[aAddress - RegsIO.NR10]);
 
 
                                 default:
@@ -216,6 +259,97 @@ namespace xFF
 
                             switch (aAddress)
                             {
+                                case RegsIO.NR11:
+                                    {
+                                        m_channel1.SoundLengthData = value;
+                                        m_channel1.DutyCycle = (value >> 6);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR12:
+                                    {
+                                        m_channel1.EnvelopeSteps = value;
+                                        m_channel1.EnvelopeMode = (value >> 3);
+                                        m_channel1.DefaultEnvelope = (value >> 4);
+
+                                        // Top 5 bits
+                                        m_channel1.ChannelEnabled = ((0xF8 & value) != 0);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR13:
+                                    {
+                                        int freq = (0xFF & value) | (0x700 & m_channel1.Frequency);
+
+                                        m_channel1.Frequency = freq;
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR14:
+                                    {
+                                        int freq = (0xFF & m_channel1.Frequency) | ((0x07 & value) << 8);
+
+                                        m_channel1.Frequency = freq;
+
+                                        m_channel1.IsContinuous = ((0x40 & value) == 0);
+
+                                        // Check trigger flag
+                                        if ((0x80 & value) > 0)
+                                        {
+                                            m_channel1.TriggerInit();
+                                        }
+                                    }
+                                    break;
+
+                                case RegsIO.NR21:
+                                    {
+                                        m_channel2.SoundLengthData = value;
+                                        m_channel2.DutyCycle = (value >> 6);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR22:
+                                    {
+                                        m_channel2.EnvelopeSteps = value;
+                                        m_channel2.EnvelopeMode = (value >> 3);
+                                        m_channel2.DefaultEnvelope = (value >> 4);
+
+                                        // Top 5 bits
+                                        m_channel2.ChannelEnabled = ((0xF8 & value) != 0);
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR23:
+                                    {
+                                        int freq = (0xFF & value) | (0x700 & m_channel2.Frequency);
+
+                                        m_channel2.Frequency = freq;
+                                    }
+                                    break;
+
+
+                                case RegsIO.NR24:
+                                    {
+                                        int freq = (0xFF & m_channel2.Frequency) | ((0x07 & value) << 8);
+
+                                        m_channel2.Frequency = freq;
+
+                                        m_channel2.IsContinuous = ((0x40 & value) == 0);
+
+                                        // Check trigger flag
+                                        if ((0x80 & value) > 0)
+                                        {
+                                            m_channel2.TriggerInit();
+                                        }
+                                    }
+                                    break;
+
+
                                 case RegsIO.NR30:
                                     {
                                         m_channel3.ChannelEnabled = ((0x80 & value) > 0);
@@ -280,7 +414,11 @@ namespace xFF
                                         m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                         //SetReg_TMP(aAddress, value);
 
+                                        m_channel1.RightOutputEnabled = ((1 << 0) & value) != 0;
+                                        m_channel2.RightOutputEnabled = ((1 << 1) & value) != 0;
                                         m_channel3.RightOutputEnabled = ((1 << 2) & value) != 0;
+                                        m_channel1.LeftOutputEnabled = ((1 << 4) & value) != 0;
+                                        m_channel2.LeftOutputEnabled = ((1 << 5) & value) != 0;
                                         m_channel3.LeftOutputEnabled = ((1 << 6) & value) != 0;
                                     }
                                     break;
@@ -325,29 +463,52 @@ namespace xFF
                             if (m_frameSequencerTimer >= 8192) // 512 Hz
                             {
                                 m_lengthTimer++;
+                                m_envelopeTimer++;
 
                                 if (m_lengthTimer == 2) // 256 Hz (16384 clocks: (8192 * 2))
                                 {
+                                    m_channel1.LengthStep();
+                                    m_channel2.LengthStep();
                                     m_channel3.LengthStep();
 
                                     m_lengthTimer = 0;
                                 }
 
+                                if (m_envelopeTimer == 8) // 64 Hz (65536 clocks: (8192 * 8))
+                                {
+                                    m_channel1.VolumeEnvelopeStep();
+                                    m_channel2.VolumeEnvelopeStep();
+
+                                    m_envelopeTimer = 0;
+                                }
+
                                 m_frameSequencerTimer -= 8192;
                             }
 
+                            m_channel1.PeriodStep();
+                            m_channel2.PeriodStep();
                             m_channel3.PeriodStep();
 
                             if (m_timeToGenerateSample > kTimeToUpdate)
                             {
-                                m_samples[m_outputWaveIdx * 2] = 0;
-                                m_samples[m_outputWaveIdx * 2 + 1] = 0;
+                                m_channel1.UserEnabled = true;
+                                m_channel2.UserEnabled = true;
+                                m_channel3.UserEnabled = true;
 
+                                int idxL = m_outputWaveIdx * 2;
+                                int idxR = idxL + 1;
 
-                                m_samples[m_outputWaveIdx * 2] += m_channel3.GenerateSampleL();
-                                m_samples[m_outputWaveIdx * 2 + 1] += m_channel3.GenerateSampleR();
+                                m_samples[idxL] = 0;
+                                m_samples[idxR] = 0;
+
+                                m_samples[idxL] += m_channel1.GenerateSampleL();
+                                m_samples[idxL] += m_channel2.GenerateSampleL();
+                                m_samples[idxL] += m_channel3.GenerateSampleL();
+
+                                m_samples[idxR] += m_channel1.GenerateSampleR();
+                                m_samples[idxR] += m_channel2.GenerateSampleR();
+                                m_samples[idxR] += m_channel3.GenerateSampleR();
                             
-
 
                                 m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
 
