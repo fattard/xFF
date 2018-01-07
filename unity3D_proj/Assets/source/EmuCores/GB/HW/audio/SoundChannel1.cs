@@ -43,7 +43,6 @@ namespace xFF
 
                     public class SoundChannel1
                     {
-                        int m_lengthCounter;
                         int m_dutyCycleIdx;
                         int m_envelopeSteps;
                         int m_defaultEnvelopeVolume;
@@ -52,7 +51,13 @@ namespace xFF
                         int m_envelopeMode;
                         int m_frequencyData;
                         int m_period;
-                        bool m_isContinuous;
+                        
+
+                        int m_lengthCounter;
+                        bool m_lengthCounterEnabled;
+                        bool m_channelStatusOn;
+
+                        bool m_dacEnabled;
 
                         int m_sweepShift;
                         int m_sweepMode;
@@ -83,7 +88,7 @@ namespace xFF
                         /// </summary>
                         public bool IsSoundOn
                         {
-                            get { return (m_lengthCounter > 0) || IsContinuous; }
+                            get { return ChannelEnabled && m_channelStatusOn; }
                         }
 
 
@@ -103,8 +108,15 @@ namespace xFF
 
                         public bool ChannelEnabled
                         {
-                            get;
-                            set;
+                            get { return m_dacEnabled; }
+                            set
+                            {
+                                m_dacEnabled = value;
+                                if (!m_dacEnabled)
+                                {
+                                    m_channelStatusOn = false;
+                                }
+                            }
                         }
 
 
@@ -148,6 +160,8 @@ namespace xFF
                                 {
                                     m_envelopeCounter = 8;
                                 }*/
+
+                                m_channelStatusOn = ChannelEnabled;
 
                                 m_sweepShadowFreq = m_frequencyData;
                                 m_sweepCounter = m_sweepTime;
@@ -240,12 +254,12 @@ namespace xFF
                         }
 
 
-                        public bool IsContinuous
+                        public bool LengthCounterEnabled
                         {
-                            get { return m_isContinuous; }
+                            get { return m_lengthCounterEnabled; }
                             set
                             {
-                                m_isContinuous = value;
+                                m_lengthCounterEnabled = value;
                             }
                         }
 
@@ -335,7 +349,7 @@ namespace xFF
 
                         public void LengthStep( )
                         {
-                            if (m_lengthCounter > 0 && !IsContinuous)
+                            if (m_lengthCounter > 0 && m_lengthCounterEnabled)
                             {
                                 m_lengthCounter--;
 
@@ -343,6 +357,7 @@ namespace xFF
                                 {
                                     // Disable channel
                                     //m_waveSamplePos = 0;
+                                    m_channelStatusOn = false;
                                 }
                             }
                         }

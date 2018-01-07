@@ -43,13 +43,19 @@ namespace xFF
 
                     public class SoundChannel4
                     {
-                        int m_lengthCounter;
+                        
                         int m_envelopeSteps;
                         int m_defaultEnvelopeVolume;
                         int m_curVolume;
                         int m_envelopeCounter;
                         int m_envelopeMode;
-                        bool m_isContinuous;
+                        
+
+
+                        int m_lengthCounter;
+                        bool m_lengthCounteEnabled;
+                        bool m_channelStatusOn;
+                        bool m_dacEnabled;
 
                         int m_polySteps;
                         int m_stepsMode;
@@ -72,7 +78,7 @@ namespace xFF
                         /// </summary>
                         public bool IsSoundOn
                         {
-                            get { return (m_lengthCounter > 0) || IsContinuous; }
+                            get { return m_dacEnabled && m_channelStatusOn; }
                         }
 
 
@@ -92,8 +98,12 @@ namespace xFF
 
                         public bool ChannelEnabled
                         {
-                            get;
-                            set;
+                            get { return m_dacEnabled; }
+                            set
+                            {
+                                m_dacEnabled = value;
+                                m_channelStatusOn &= m_dacEnabled;
+                            }
                         }
 
 
@@ -128,6 +138,8 @@ namespace xFF
                                     m_envelopeCounter = 8;
                                 }*/
                                 m_linearShiftReg = 0xFF;
+
+                                m_channelStatusOn = m_dacEnabled;
                             }
                         }
 
@@ -160,12 +172,12 @@ namespace xFF
 
                         
 
-                        public bool IsContinuous
+                        public bool LengthCounterEnabled
                         {
-                            get { return m_isContinuous; }
+                            get { return m_lengthCounteEnabled; }
                             set
                             {
-                                m_isContinuous = value;
+                                m_lengthCounteEnabled = value;
                             }
                         }
 
@@ -323,7 +335,7 @@ namespace xFF
 
                         public void LengthStep()
                         {
-                            if (m_lengthCounter > 0 && !IsContinuous)
+                            if (m_lengthCounter > 0 && m_lengthCounteEnabled)
                             {
                                 m_lengthCounter--;
 
@@ -331,6 +343,7 @@ namespace xFF
                                 {
                                     // Disable channel
                                     //m_waveSamplePos = 0;
+                                    m_channelStatusOn = false;
                                 }
                             }
                         }

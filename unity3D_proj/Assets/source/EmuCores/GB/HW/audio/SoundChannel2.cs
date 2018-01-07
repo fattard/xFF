@@ -43,7 +43,7 @@ namespace xFF
 
                     public class SoundChannel2
                     {
-                        int m_lengthCounter;
+                        
                         int m_dutyCycleIdx;
                         int m_envelopeSteps;
                         int m_defaultEnvelopeVolume;
@@ -52,7 +52,12 @@ namespace xFF
                         int m_envelopeMode;
                         int m_frequencyData;
                         int m_period;
-                        bool m_isContinuous;
+                        
+
+                        int m_lengthCounter;
+                        bool m_lengthCounterEnabled;
+                        bool m_channelStatusOn;
+                        bool m_dacEnabled;
 
                         int m_waveSamplePos;
 
@@ -76,7 +81,7 @@ namespace xFF
                         /// </summary>
                         public bool IsSoundOn
                         {
-                            get { return (m_lengthCounter > 0) || IsContinuous; }
+                            get { return m_dacEnabled && m_channelStatusOn; }
                         }
 
 
@@ -96,8 +101,15 @@ namespace xFF
 
                         public bool ChannelEnabled
                         {
-                            get;
-                            set;
+                            get { return m_dacEnabled; }
+                            set
+                            {
+                                m_dacEnabled = value;
+
+                                // Disabling DAC should disable channel immediately
+                                // Enabling DAC shouldn't re-enable channel
+                                m_channelStatusOn &= value;
+                            }
                         }
 
 
@@ -112,6 +124,8 @@ namespace xFF
                             set
                             {
                                 m_lengthCounter = (64 - (0x3F & value));
+
+                                // Reloading shouldn't re-enable channel
                             }
                         }
 
@@ -130,6 +144,8 @@ namespace xFF
                         {
                             //if (ChannelEnabled)
                             {
+                                // Trigger should treat 0 length as maximum
+                                // regardless of length counter enabled/disabled
                                 if (m_lengthCounter == 0)
                                 {
                                     m_lengthCounter = 64;
@@ -137,6 +153,10 @@ namespace xFF
                                 m_period = (2048 - m_frequencyData) * 4;
                                 m_curVolume = m_defaultEnvelopeVolume;
                                 m_envelopeCounter = m_envelopeSteps;
+
+                                // Disabled DAC should prevent enable at trigger
+                                m_channelStatusOn = ChannelEnabled;
+
                                 /*if (m_envelopeCounter == 0)
                                 {
                                     m_envelopeCounter = 8;
@@ -189,12 +209,14 @@ namespace xFF
                         }
 
 
-                        public bool IsContinuous
+                        public bool LengthCounterEnabled
                         {
-                            get { return m_isContinuous; }
+                            get { return m_lengthCounterEnabled; }
                             set
                             {
-                                m_isContinuous = value;
+                                m_lengthCounterEnabled = value;
+
+                                // Disabling length shouldn't re-enable channel
                             }
                         }
 
@@ -261,14 +283,14 @@ namespace xFF
 
                         public void LengthStep()
                         {
-                            if (m_lengthCounter > 0 && !IsContinuous)
+                            if (m_lengthCounter > 0 && m_lengthCounterEnabled)
                             {
                                 m_lengthCounter--;
 
                                 if (m_lengthCounter == 0)
                                 {
-                                    // Disable channel
-                                    //m_waveSamplePos = 0;
+                                    // Length becoming 0 should clear status
+                                    m_channelStatusOn = false;
                                 }
                             }
                         }

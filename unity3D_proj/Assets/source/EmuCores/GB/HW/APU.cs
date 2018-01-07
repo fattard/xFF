@@ -117,6 +117,7 @@ namespace xFF
                         set;
                     }
 
+
                     public bool UserChannel4Enabled
                     {
                         get;
@@ -163,14 +164,6 @@ namespace xFF
                     {
                         get
                         {
-                            // While APU is disbled, all reads to range 0xFF10-0xFF2F
-                            // are ignored, except NR52
-                            /*if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
-                            {
-                                return 0xFF;
-                            }*/
-
-
                             switch (aAddress)
                             {
                                 case RegsIO.NR10:
@@ -194,7 +187,7 @@ namespace xFF
 
 
                                 case RegsIO.NR14:
-                                    return 0xBF | (!m_channel1.IsContinuous ? (1 << 6) : 0);
+                                    return 0xBF | (m_channel1.LengthCounterEnabled ? (1 << 6) : 0);
 
                                 case RegsIO.NR21:
                                     return 0x3F | (m_channel2.DutyCycle << 6);
@@ -211,7 +204,7 @@ namespace xFF
 
 
                                 case RegsIO.NR24:
-                                    return 0xBF | (!m_channel2.IsContinuous ? (1 << 6) : 0);
+                                    return 0xBF | (m_channel2.LengthCounterEnabled ? (1 << 6) : 0);
 
 
                                 case RegsIO.NR30:
@@ -231,7 +224,7 @@ namespace xFF
 
 
                                 case RegsIO.NR34:
-                                    return 0xBF | (!m_channel3.IsContinuous ? (1 << 6) : 0);
+                                    return 0xBF | (m_channel3.LengthCounterEnabled ? (1 << 6) : 0);
 
 
                                 case RegsIO.NR41:
@@ -251,7 +244,7 @@ namespace xFF
 
 
                                 case RegsIO.NR44:
-                                    return 0xBF | (!m_channel4.IsContinuous ? (1 << 6) : 0);
+                                    return 0xBF | (m_channel4.LengthCounterEnabled ? (1 << 6) : 0);
 
 
                                 case RegsIO.NR50:
@@ -274,11 +267,6 @@ namespace xFF
 
 
                                 case RegsIO.NR52:
-                                    if (!MasterSoundEnabled)
-                                    {
-                                        return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
-                                                | m_regs[aAddress - RegsIO.NR10]; // unused bits
-                                    }
                                     return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
                                                 | m_regs[aAddress - RegsIO.NR10] // unused bits
                                                 | (m_channel1.IsSoundOn ? (1 << 0) : 0)
@@ -368,7 +356,7 @@ namespace xFF
 
                                         m_channel1.Frequency = freq;
 
-                                        m_channel1.IsContinuous = ((0x40 & value) == 0);
+                                        m_channel1.LengthCounterEnabled = ((0x40 & value) > 0);
 
                                         // Check trigger flag
                                         if ((0x80 & value) > 0)
@@ -413,7 +401,7 @@ namespace xFF
 
                                         m_channel2.Frequency = freq;
 
-                                        m_channel2.IsContinuous = ((0x40 & value) == 0);
+                                        m_channel2.LengthCounterEnabled = ((0x40 & value) > 0);
 
                                         // Check trigger flag
                                         if ((0x80 & value) > 0)
@@ -460,7 +448,7 @@ namespace xFF
 
                                         m_channel3.Frequency = freq;
 
-                                        m_channel3.IsContinuous = ((0x40 & value) == 0);
+                                        m_channel3.LengthCounterEnabled = ((0x40 & value) > 0);
 
                                         // Check trigger flag
                                         if((0x80 & value) > 0)
@@ -501,7 +489,7 @@ namespace xFF
 
                                 case RegsIO.NR44:
                                     {
-                                        m_channel4.IsContinuous = ((0x40 & value) == 0);
+                                        m_channel4.LengthCounterEnabled = ((0x40 & value) > 0);
 
                                         // Check trigger flag
                                         if ((0x80 & value) > 0)
