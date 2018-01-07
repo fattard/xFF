@@ -90,7 +90,16 @@ namespace xFF
                                 {
                                     this[i] = 0;
                                 }
+
+                                m_channel3.OnPowerOff();
                             }
+
+                            else
+                            {
+                                m_channel3.OnPowerOn();
+                            }
+
+                            
 
                             m_masterSoundEnabled = value;
                         }
@@ -227,8 +236,8 @@ namespace xFF
                                     return 0xBF | (m_channel3.LengthCounterEnabled ? (1 << 6) : 0);
 
 
-                                case RegsIO.NR41:
-                                    return 0xFF | m_channel4.SoundLengthData;
+                                case RegsIO.NR41: // This Reg is write-only
+                                    return 0xFF;
 
 
                                 case RegsIO.NR42:
@@ -305,8 +314,10 @@ namespace xFF
                             }
 
                             // While APU is disbled, all writes to range 0xFF10-0xFF2F
-                            // are ignored, except NR52
-                            else if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
+                            // are ignored, except NR52 and length counters
+                            else if (!MasterSoundEnabled && aAddress != RegsIO.NR52
+                                 && aAddress != RegsIO.NR11 && aAddress != RegsIO.NR21
+                                 && aAddress != RegsIO.NR31 && aAddress != RegsIO.NR41)
                             {
                                 return;
                             }
@@ -324,7 +335,9 @@ namespace xFF
                                 case RegsIO.NR11:
                                     {
                                         m_channel1.SoundLengthData = value;
-                                        m_channel1.DutyCycle = (value >> 6);
+
+                                        if (MasterSoundEnabled)
+                                            m_channel1.DutyCycle = (value >> 6);
                                     }
                                     break;
 
@@ -369,7 +382,9 @@ namespace xFF
                                 case RegsIO.NR21:
                                     {
                                         m_channel2.SoundLengthData = value;
-                                        m_channel2.DutyCycle = (value >> 6);
+
+                                        if (MasterSoundEnabled)
+                                            m_channel2.DutyCycle = (value >> 6);
                                     }
                                     break;
 
@@ -435,18 +450,18 @@ namespace xFF
 
                                 case RegsIO.NR33:
                                     {
-                                        int freq = (0xFF & value) | (0x700 & m_channel3.Frequency);
+                                        int freq = (0xFF & value) | (0x700 & m_channel3.FrequencyData);
 
-                                        m_channel3.Frequency = freq;
+                                        m_channel3.FrequencyData = freq;
                                     }
                                     break;
 
 
                                 case RegsIO.NR34:
                                     {
-                                        int freq = (0xFF & m_channel3.Frequency) | ((0x07 & value) << 8);
+                                        int freq = (0xFF & m_channel3.FrequencyData) | ((0x07 & value) << 8);
 
-                                        m_channel3.Frequency = freq;
+                                        m_channel3.FrequencyData = freq;
 
                                         m_channel3.LengthCounterEnabled = ((0x40 & value) > 0);
 
@@ -600,7 +615,7 @@ namespace xFF
 
                             m_channel1.PeriodStep();
                             m_channel2.PeriodStep();
-                            m_channel3.PeriodStep();
+                            m_channel3.FreqTimerStep();
                             m_channel4.PeriodStep();
 
                             if (m_timeToGenerateSample > kTimeToUpdate)
@@ -615,15 +630,15 @@ namespace xFF
 
                                 if (MasterSoundEnabled)
                                 {
-                                    sampleL += m_channel1.GenerateSampleL();
-                                    sampleL += m_channel2.GenerateSampleL();
-                                    sampleL += m_channel3.GenerateSampleL();
-                                    sampleL += m_channel4.GenerateSampleL();
+                                    //sampleL += m_channel1.GenerateSampleL();
+                                    //sampleL += m_channel2.GenerateSampleL();
+                                    sampleL += m_channel3.SampleL();
+                                    //sampleL += m_channel4.GenerateSampleL();
 
-                                    sampleR += m_channel1.GenerateSampleR();
-                                    sampleR += m_channel2.GenerateSampleR();
-                                    sampleR += m_channel3.GenerateSampleR();
-                                    sampleR += m_channel4.GenerateSampleR();
+                                    //sampleR += m_channel1.GenerateSampleR();
+                                    //sampleR += m_channel2.GenerateSampleR();
+                                    sampleR += m_channel3.SampleR();
+                                    //sampleR += m_channel4.GenerateSampleR();
 
                                     sampleL = (sampleL * ((1 + OutputVolumeLeft))) / 8;
                                     sampleR = (sampleR * ((1 + OutputVolumeRight))) / 8;

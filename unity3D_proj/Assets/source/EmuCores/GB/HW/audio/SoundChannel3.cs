@@ -41,24 +41,53 @@ namespace xFF
                 { 
 
 
+                    /// <summary>
+                    /// Channel 3 is a Voluntary Wave generator with programmable wave
+                    /// table with 32 4-bit entries and a limited manual volume control.
+                    /// </summary>
                     public class SoundChannel3
                     {
                         int[] m_waveForm;
-                        int m_volumeLevel_RAW;
-                        int m_volumeShift;
                         
                         int m_frequencyData;
-                        int m_period;
-                        
+                        int m_freqTimer;
+
+                        int m_volumeLevelCode;
+                        int m_volumeShift;
 
                         int m_lengthCounter;
                         bool m_lengthCounterEnabled;
                         bool m_channelStatusOn;
+
                         bool m_dacEnabled;
 
                         int m_waveSamplePos;
+                        int m_sampleBuffer;
 
 
+
+                        /// <summary>
+                        /// Accessor for Wave table (0xFF30-0xFF3F)
+                        /// </summary>
+                        public int[] WaveForm
+                        {
+                            get { return m_waveForm; }
+                        }
+                        
+
+                        public SoundChannel3( )
+                        {
+                            m_waveForm = new int[32];
+                        }
+
+
+
+
+                        #region Enabled/Disabled Controls
+
+                        /// <summary>
+                        /// Handles UI configs for this channel
+                        /// </summary>
                         public bool UserEnabled
                         {
                             get;
@@ -71,10 +100,13 @@ namespace xFF
                         /// </summary>
                         public bool IsSoundOn
                         {
-                            get { return m_dacEnabled && m_channelStatusOn; }
+                            get { return (m_dacEnabled && m_channelStatusOn); }
                         }
 
 
+                        /// <summary>
+                        /// Enables/Disables DAC output Left at NR51 (0xFF25)
+                        /// </summary>
                         public bool LeftOutputEnabled
                         {
                             get;
@@ -82,6 +114,9 @@ namespace xFF
                         }
 
 
+                        /// <summary>
+                        /// Enables/Disables DAC output Right at NR51 (0xFF25)
+                        /// </summary>
                         public bool RightOutputEnabled
                         {
                             get;
@@ -92,7 +127,7 @@ namespace xFF
                         /// <summary>
                         /// Accessor for Reg NR30 (0xFF1A)
                         /// Enables/Disables sound generation
-                        /// from this channel.
+                        /// from this channel DAC
                         /// </summary>
                         public bool ChannelEnabled
                         {
@@ -100,25 +135,78 @@ namespace xFF
                             set
                             {
                                 m_dacEnabled = value;
+
+                                // Note: Disabling DAC should disable channel immediately
+                                // Note: Enabling DAC shouldn't re-enable channel
                                 m_channelStatusOn &= m_dacEnabled;
                             }
                         }
 
+                        #endregion Enabled/Disabled Controls
+
+
+
+
+                        #region Length Control Related
 
                         /// <summary>
                         /// Accessor for Reg NR31 (0xFF1B)
                         /// Sound length data t1, where
                         /// total length = 256 - t1
+                        /// Length in sec: = (256 - t1) * (1/256)
                         /// </summary>
                         public int SoundLengthData
                         {
                             get { return m_lengthCounter; }
                             set
                             {
+                                // Length can be reloaded at any time
+                                // Attempting to load length with 0 should load with maximum
+                                // Reloading shouldn't re-enable channel
                                 m_lengthCounter = (256 - (0xFF & value));
                             }
                         }
 
+
+                        /// <summary>
+                        /// Accessor for Length Counter Enabled flag
+                        /// at Reg NR34
+                        /// </summary>
+                        public bool LengthCounterEnabled
+                        {
+                            get { return m_lengthCounterEnabled; }
+                            set
+                            {
+                                // Disabling length shouldn't re-enable channel
+                                m_lengthCounterEnabled = value;
+                            }
+                        }
+
+
+                        /// <summary>
+                        /// Called when Frame Sequencer clocks the Length Control
+                        /// </summary>
+                        public void LengthStep( )
+                        {
+                            // Disabled channel should still clock length (ignore m_channelStatusOn)
+                            if (m_lengthCounter > 0 && m_lengthCounterEnabled)
+                            {
+                                m_lengthCounter--;
+
+                                if (m_lengthCounter == 0)
+                                {
+                                    // Length becoming 0 should clear status
+                                    m_channelStatusOn = false;
+                                }
+                            }
+                        }
+
+                        #endregion Length Control
+
+
+
+
+                        #region Volume/Envelope Related
 
                         /// <summary>
                         /// Accessor for Reg NR32 (0xFF1C)
@@ -126,10 +214,10 @@ namespace xFF
                         /// </summary>
                         public int OutputVolumeLevel
                         {
-                            get { return m_volumeLevel_RAW; }
+                            get { return m_volumeLevelCode; }
                             set
                             {
-                                m_volumeLevel_RAW = value;
+                                m_volumeLevelCode = value;
                                 switch (value)
                                 {
                                     case 0:
@@ -151,119 +239,149 @@ namespace xFF
                             }
                         }
 
+                        #endregion Volume/Envelope Related
+
+
+
+
+                        #region Frequency/Timer Related
 
                         /// <summary>
                         /// Accessor for combined Reg NR33 (0xFF1D)
                         /// and NR34 (0xFF1E) parts of the
                         /// Frequency data (11 bits)
-                        /// 
                         /// </summary>
-                        public int Frequency
+                        public int FrequencyData
                         {
                             get { return m_frequencyData; }
                             set
                             {
                                 m_frequencyData = value;
-                                m_period = (2048 - m_frequencyData) * 2; // needs to capture at 2 times the frequency we want to hear
+                                m_freqTimer = CalcFrequency();
                             }
                         }
 
 
-                        public bool LengthCounterEnabled
+                        /// <summary>
+                        /// Calcs the period
+                        /// </summary>
+                        int CalcFrequency( )
                         {
-                            get { return m_lengthCounterEnabled; }
-                            set
+                            // needs to capture at 2 times the frequency we want to hear
+                            return (2048 - m_frequencyData) * 2;
+                        }
+
+
+                        /// <summary>
+                        /// Called from Frame Sequencer clocks
+                        /// </summary>
+                        public void FreqTimerStep( )
+                        {
+                            m_freqTimer -= 4;
+
+                            if (m_freqTimer <= 0)
                             {
-                                m_lengthCounterEnabled = value;
-                            }
-                        }
-
-
-                        public int[] WaveForm
-                        {
-                            get { return m_waveForm; }
-                        }
-
-
-
-                        public SoundChannel3( )
-                        {
-                            m_waveForm = new int[32];
-                        }
-
-
-                        public void Reset( )
-                        {
-                            
-                        }
-
-
-                        public void TriggerInit( )
-                        {
-                            //if (ChannelEnabled)
-                            {
-                                if (m_lengthCounter == 0)
-                                {
-                                    m_lengthCounter = 256;
-                                }
-                                m_period = (2048 - m_frequencyData) * 2;
-                                m_waveSamplePos = 0;
-
-                                m_channelStatusOn = m_dacEnabled;
-                            }
-                        }
-
-
-
-                        public void PeriodStep( )
-                        {
-                            m_period -= 4;
-
-                            if (m_period <= 0)
-                            {
+                                // Advances position and generate sample from this new position
                                 m_waveSamplePos = (m_waveSamplePos + 1) % 32;
+                                m_sampleBuffer = m_waveForm[m_waveSamplePos];
 
-                                m_period += (2048 - m_frequencyData) * 2;
+                                // Reload Frequency
+                                m_freqTimer += CalcFrequency();
                             }
                         }
 
+                        #endregion Frequency/Timer Related
 
-                        public int GenerateSampleL( )
+
+
+
+                        /// <summary>
+                        /// Gets the sample for Left DAC
+                        /// </summary>
+                        public int SampleL( )
                         {
                             if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled || !UserEnabled)
                             {
                                 return 0;
                             }
                             
-                            return m_waveForm[m_waveSamplePos] >> m_volumeShift;
+                            return m_sampleBuffer >> m_volumeShift;
                         }
 
 
-                        public int GenerateSampleR()
+                        /// <summary>
+                        /// Gets the sample for Right DAC
+                        /// </summary>
+                        public int SampleR()
                         {
                             if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled || !UserEnabled)
                             {
                                 return 0;
                             }
 
-                            return m_waveForm[m_waveSamplePos] >> m_volumeShift;
+                            return m_sampleBuffer >> m_volumeShift;
+                        }
+
+                        
+                        /// <summary>
+                        /// Called when setting Trigger bit of NR34
+                        /// </summary>
+                        public void TriggerInit( )
+                        {
+                            m_channelStatusOn = true;
+
+                            // Note: Trigger shouldn't affect length
+                            // Note: Trigger should treat 0 length as maximum
+                            // regardless of Length Counter Enabled flag
+                            if (m_lengthCounter == 0)
+                            {
+                                m_lengthCounter = 256;
+                            }
+
+                            // Reload frequency timer
+                            m_freqTimer = CalcFrequency();
+
+                            // Position is reset, but Sample buffer is not refilled
+                            m_waveSamplePos = 0;
+
+                            // Disabled DAC should prevent enable at trigger
+                            m_channelStatusOn &= m_dacEnabled;
                         }
 
 
-
-                        public void LengthStep( )
+                        /// <summary>
+                        /// Routine when the APU NR52 is powered off
+                        /// All related registers should be reset
+                        /// </summary>
+                        public void OnPowerOff( )
                         {
-                            if (m_lengthCounter > 0 && m_lengthCounterEnabled)
-                            {
-                                m_lengthCounter--;
+                            // Related NR51
+                            LeftOutputEnabled = false;
+                            RightOutputEnabled = false;
 
-                                if (m_lengthCounter == 0)
-                                {
-                                    // Disable channel
-                                    //m_waveSamplePos = 0;
-                                    m_channelStatusOn = false;
-                                }
-                            }
+                            // Related NR30
+                            ChannelEnabled = false;
+
+                            // Related NR31
+                            SoundLengthData = 0;
+
+                            // Related NR32
+                            OutputVolumeLevel = 0;
+
+                            // Related NR33/NR34
+                            FrequencyData = 0;
+                            LengthCounterEnabled = false;
+                        }
+
+
+                        /// <summary>
+                        /// Routine when the APU NR52 is powered on
+                        /// </summary>
+                        public void OnPowerOn( )
+                        {
+                            // Reset buffer pos
+                            m_waveSamplePos = 0;
+                            m_sampleBuffer = 0;
                         }
                     }
                     
