@@ -111,7 +111,7 @@ namespace xFF
                             get { return m_lengthCounter; }
                             set
                             {
-                                m_lengthCounter = (0x3F & (64 - value));
+                                m_lengthCounter = (64 - (0x3F & value));
                             }
                         }
 
