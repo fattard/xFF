@@ -592,6 +592,7 @@ namespace xFF
                                 {
                                     m_channel1.VolumeEnvelopeStep();
                                     m_channel2.VolumeEnvelopeStep();
+                                    m_channel4.VolumeEnvelopeStep();
 
                                     m_envelopeTimer = 0;
                                 }
