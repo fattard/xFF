@@ -42,7 +42,11 @@ namespace xFF
 
                 public class DSP : MonoBehaviour
                 {
-                    float Gain = 0.05f;
+                    public float Gain = 3.0f;
+                    public bool channel1Enabled = true;
+                    public bool channel2Enabled = true;
+                    public bool channel3Enabled = true;
+                    public bool channel4Enabled = true;
 
                     private int m_samplesBufferSize;
                     AudioStream m_stream;
@@ -66,7 +70,6 @@ namespace xFF
                         AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
                         AudioSettings.Reset(conf);
 #endif
-                        Gain = 1;
                     }
 
 
@@ -107,6 +110,11 @@ namespace xFF
 
                     public void PlayAudio(APU aAPU)
                     {
+                        aAPU.UserChannel1Enabled = channel1Enabled;
+                        aAPU.UserChannel2Enabled = channel2Enabled;
+                        aAPU.UserChannel3Enabled = channel3Enabled;
+                        aAPU.UserChannel4Enabled = channel4Enabled;
+
                         aAPU.UpdateOutputWave();
                         m_stream.Write(aAPU.OutputWave, 0, aAPU.OutputWave.Length);
                     }

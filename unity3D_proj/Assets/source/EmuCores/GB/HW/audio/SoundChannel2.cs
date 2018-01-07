@@ -38,20 +38,31 @@ namespace xFF
             namespace HW
             {
                 namespace audio
-                { 
+                {
 
 
-                    public class SoundChannel3
+                    public class SoundChannel2
                     {
-                        int[] m_waveForm;
-                        int m_volumeLevel_RAW;
-                        int m_volumeShift;
                         int m_lengthCounter;
+                        int m_dutyCycleIdx;
+                        int m_envelopeSteps;
+                        int m_defaultEnvelopeVolume;
+                        int m_curVolume;
+                        int m_envelopeCounter;
+                        int m_envelopeMode;
                         int m_frequencyData;
                         int m_period;
                         bool m_isContinuous;
 
                         int m_waveSamplePos;
+
+                        int[][] m_dutyWaveForm = new int[][]
+                        {
+                            new int[] { 0,0,0,0,0,0,0,1 }, // 12.5%
+                            new int[] { 1,0,0,0,0,0,0,1 }, // 25%
+                            new int[] { 1,0,0,0,0,1,1,1 }, // 50%
+                            new int[] { 0,1,1,1,1,1,1,0 }, // 75%
+                        };
 
 
                         public bool UserEnabled
@@ -60,9 +71,8 @@ namespace xFF
                             set;
                         }
 
-
                         /// <summary>
-                        /// Flag indicated at NR52 (0xFF26) bit 2
+                        /// Flag indicated at NR52 (0xFF26) bit 1
                         /// </summary>
                         public bool IsSoundOn
                         {
@@ -84,11 +94,6 @@ namespace xFF
                         }
 
 
-                        /// <summary>
-                        /// Accessor for Reg NR30 (0xFF1A)
-                        /// Enables/Disables sound generation
-                        /// from this channel.
-                        /// </summary>
                         public bool ChannelEnabled
                         {
                             get;
@@ -97,55 +102,79 @@ namespace xFF
 
 
                         /// <summary>
-                        /// Accessor for Reg NR31 (0xFF1B)
+                        /// Accessor for Reg NR21 (0xFF16)
                         /// Sound length data t1, where
-                        /// total length = 256 - t1
+                        /// total length = 64 - t1
                         /// </summary>
                         public int SoundLengthData
                         {
                             get { return m_lengthCounter; }
                             set
                             {
-                                m_lengthCounter = (0xFF & (256 - value));
+                                m_lengthCounter = (0x3F & (64 - value));
                             }
                         }
 
 
-                        /// <summary>
-                        /// Accessor for Reg NR32 (0xFF1C)
-                        /// Selection of the output volume level
-                        /// </summary>
-                        public int OutputVolumeLevel
+                        public int DutyCycle
                         {
-                            get { return m_volumeLevel_RAW; }
+                            get { return m_dutyCycleIdx; }
                             set
                             {
-                                m_volumeLevel_RAW = value;
-                                switch (value)
-                                {
-                                    case 0:
-                                        m_volumeShift = 8; // Mute
-                                        break;
-
-                                    case 1:
-                                        m_volumeShift = 0; // Unmodified
-                                        break;
-
-                                    case 2:
-                                        m_volumeShift = 1; // 50%
-                                        break;
-
-                                    case 3:
-                                        m_volumeShift = 2; // 25%
-                                        break;
-                                }
+                                m_dutyCycleIdx = (0x3 & value);
                             }
                         }
 
 
+                        public void TriggerInit()
+                        {
+                            //if (ChannelEnabled)
+                            {
+                                if (m_lengthCounter == 0)
+                                {
+                                    m_lengthCounter = 64;
+                                }
+                                m_period = (2048 - m_frequencyData) * 4;
+                                m_curVolume = m_defaultEnvelopeVolume;
+                                m_envelopeCounter = m_envelopeSteps;
+                                /*if (m_envelopeCounter == 0)
+                                {
+                                    m_envelopeCounter = 8;
+                                }*/
+                            }
+                        }
+
+
+                        public int EnvelopeSteps
+                        {
+                            get { return m_envelopeSteps; }
+                            set
+                            {
+                                m_envelopeSteps = (0x07 & value);
+                            }
+                        }
+
+
+                        public int DefaultEnvelope
+                        {
+                            get { return m_defaultEnvelopeVolume; }
+                            set
+                            {
+                                m_defaultEnvelopeVolume = (0x0F & value);
+                            }
+                        }
+
+
+                        public int EnvelopeMode
+                        {
+                            get { return m_envelopeMode; }
+                            set { m_envelopeMode = (0x01 & value); }
+                        }
+
+
                         /// <summary>
-                        /// Accessor for combined Reg NR33 (0xFF1D)
-                        /// and NR34 (0xFF1E) parts of the
+                        /// Accessor for combined Reg NR23 (0xFF18)
+                        /// and NR24 (0xFF19) parts of the
                         /// Frequency data (11 bits)
                         /// 
                         /// </summary>
@@ -155,7 +184,7 @@ namespace xFF
                             set
                             {
                                 m_frequencyData = value;
-                                m_period = (2048 - m_frequencyData) * 2; // needs to capture at 2 times the frequency we want to hear
+                                m_period = (2048 - m_frequencyData) * 4; // needs to capture at 2 times the frequency we want to hear
                             }
                         }
 
@@ -170,61 +199,27 @@ namespace xFF
                         }
 
 
-                        public int[] WaveForm
-                        {
-                            get { return m_waveForm; }
-                        }
-
-
-
-                        public SoundChannel3( )
-                        {
-                            m_waveForm = new int[32];
-                        }
-
-
-                        public void Reset( )
-                        {
-                            
-                        }
-
-
-                        public void TriggerInit( )
-                        {
-                            //if (ChannelEnabled)
-                            {
-                                if (m_lengthCounter == 0)
-                                {
-                                    m_lengthCounter = 256;
-                                }
-                                m_period = (2048 - m_frequencyData) * 2;
-                                m_waveSamplePos = 0;
-                            }
-                        }
-
-
-
-                        public void PeriodStep( )
+                        public void PeriodStep()
                         {
                             m_period -= 4;
 
                             if (m_period <= 0)
                             {
-                                m_waveSamplePos = (m_waveSamplePos + 1) % 32;
+                                m_waveSamplePos = (m_waveSamplePos + 1) % 8;
 
-                                m_period += (2048 - m_frequencyData) * 2;
+                                m_period += (2048 - m_frequencyData) * 4;
                             }
                         }
 
 
-                        public int GenerateSampleL( )
+                        public int GenerateSampleL()
                         {
                             if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled || !UserEnabled)
                             {
                                 return 0;
                             }
-                            
-                            return m_waveForm[m_waveSamplePos] >> m_volumeShift;
+
+                            return (m_dutyWaveForm[m_dutyCycleIdx][m_waveSamplePos] * 15) & m_curVolume;
                         }
 
 
@@ -235,12 +230,36 @@ namespace xFF
                                 return 0;
                             }
 
-                            return m_waveForm[m_waveSamplePos] >> m_volumeShift;
+                            return (m_dutyWaveForm[m_dutyCycleIdx][m_waveSamplePos] * 15) & m_curVolume;
                         }
 
 
+                        public void VolumeEnvelopeStep( )
+                        {
+                            m_envelopeCounter--;
 
-                        public void LengthStep( )
+                            if (m_envelopeCounter == 0)
+                            {
+                                m_envelopeCounter = m_envelopeSteps;
+                                /*if (m_envelopeCounter == 0)
+                                {
+                                    m_envelopeCounter = 8;
+                                }*/
+
+                                if (m_envelopeMode > 0 && m_curVolume < 16)
+                                {
+                                    m_curVolume++;
+                                }
+
+                                else if (m_envelopeMode == 0 && m_curVolume > 0)
+                                {
+                                    m_curVolume--;
+                                }
+                            }
+                        }
+
+
+                        public void LengthStep()
                         {
                             if (m_lengthCounter > 0 && !IsContinuous)
                             {

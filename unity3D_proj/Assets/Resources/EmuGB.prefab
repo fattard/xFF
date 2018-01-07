@@ -344,6 +344,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d3100c078513744ba4d10ac52567f93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Gain: 3
+  channel1Enabled: 1
+  channel2Enabled: 1
+  channel3Enabled: 1
+  channel4Enabled: 1
 --- !u!114 &11490940
 MonoBehaviour:
   m_ObjectHideFlags: 1
