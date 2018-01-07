@@ -80,15 +80,19 @@ namespace xFF
                                     this[i] = 0;
                                 }
                             }
-                            m_masterSoundEnabled = value;
 
                             if (!value)
                             {
-                                for (int i = RegsIO.NR10; i < RegsIO.NR51; ++i)
+                                // Force reset Regs
+                                m_masterSoundEnabled = true;
+
+                                for (int i = RegsIO.NR10; i <= RegsIO.NR51; ++i)
                                 {
                                     this[i] = 0;
                                 }
                             }
+
+                            m_masterSoundEnabled = value;
                         }
                     }
 
@@ -161,10 +165,10 @@ namespace xFF
                         {
                             // While APU is disbled, all reads to range 0xFF10-0xFF2F
                             // are ignored, except NR52
-                            if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
+                            /*if (!MasterSoundEnabled && aAddress != RegsIO.NR52)
                             {
                                 return 0xFF;
-                            }
+                            }*/
 
 
                             switch (aAddress)
@@ -181,7 +185,7 @@ namespace xFF
 
                                 case RegsIO.NR12:
                                     return m_channel1.EnvelopeSteps
-                                            | (m_channel1.EnvelopeMode << 4)
+                                            | (m_channel1.EnvelopeMode << 3)
                                             | (m_channel1.DefaultEnvelope << 4);
 
 
@@ -198,7 +202,7 @@ namespace xFF
 
                                 case RegsIO.NR22:
                                     return     m_channel2.EnvelopeSteps
-                                            | (m_channel2.EnvelopeMode << 4)
+                                            | (m_channel2.EnvelopeMode << 3)
                                             | (m_channel2.DefaultEnvelope << 4);
 
 
@@ -214,8 +218,8 @@ namespace xFF
                                     return 0x7F | (m_channel3.ChannelEnabled ? (1 << 7) : 0);
 
 
-                                case RegsIO.NR31:
-                                    return m_channel3.SoundLengthData;
+                                case RegsIO.NR31: // This Reg is write-only
+                                    return 0xFF;
 
 
                                 case RegsIO.NR32:
@@ -236,7 +240,7 @@ namespace xFF
 
                                 case RegsIO.NR42:
                                     return m_channel4.EnvelopeSteps
-                                            | (m_channel4.EnvelopeMode << 4)
+                                            | (m_channel4.EnvelopeMode << 3)
                                             | (m_channel4.DefaultEnvelope << 4);
 
 
@@ -270,7 +274,13 @@ namespace xFF
 
 
                                 case RegsIO.NR52:
+                                    if (!MasterSoundEnabled)
+                                    {
+                                        return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
+                                                | m_regs[aAddress - RegsIO.NR10]; // unused bits
+                                    }
                                     return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
+                                                | m_regs[aAddress - RegsIO.NR10] // unused bits
                                                 | (m_channel1.IsSoundOn ? (1 << 0) : 0)
                                                 | (m_channel2.IsSoundOn ? (1 << 1) : 0)
                                                 | (m_channel3.IsSoundOn ? (1 << 2) : 0)
@@ -290,7 +300,8 @@ namespace xFF
                                         return 0xFF;
                                     }
 
-                                    return m_regs[aAddress - RegsIO.NR10];
+                                    //return m_regs[aAddress - RegsIO.NR10];
+                                    return 0xFF;
                             }
                         }
 
@@ -514,7 +525,7 @@ namespace xFF
                                 case RegsIO.NR51:
                                     {
                                         //TODO: split to each channel
-                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
+                                        //m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
                                         //SetReg_TMP(aAddress, value);
 
                                         m_channel1.RightOutputEnabled = ((1 << 0) & value) != 0;
@@ -532,8 +543,7 @@ namespace xFF
                                 case RegsIO.NR52:
                                     {
                                         MasterSoundEnabled = ((0x80 & value) > 0);
-
-                                        m_regs[aAddress - RegsIO.NR10] = (0xF0 & value);
+                                        m_regs[aAddress - RegsIO.NR10] = (0x70 & value); // unused bits
                                         
                                     }
                                     break;
