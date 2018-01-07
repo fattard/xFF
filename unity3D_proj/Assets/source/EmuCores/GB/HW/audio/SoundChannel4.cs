@@ -220,35 +220,35 @@ namespace xFF
                                 switch (m_divRatio)
                                 {
                                     case 0:
-                                        m_timer = 8 << m_shiftFreq;
+                                        m_timer += 8 << m_shiftFreq;
                                         break;
 
                                     case 1:
-                                        m_timer = 16 << m_shiftFreq;
+                                        m_timer += 16 << m_shiftFreq;
                                         break;
 
                                     case 2:
-                                        m_timer = 32 << m_shiftFreq;
+                                        m_timer += 32 << m_shiftFreq;
                                         break;
 
                                     case 3:
-                                        m_timer = 48 << m_shiftFreq;
+                                        m_timer += 48 << m_shiftFreq;
                                         break;
 
                                     case 4:
-                                        m_timer = 64 << m_shiftFreq;
+                                        m_timer += 64 << m_shiftFreq;
                                         break;
 
                                     case 5:
-                                        m_timer = 80 << m_shiftFreq;
+                                        m_timer += 80 << m_shiftFreq;
                                         break;
 
                                     case 6:
-                                        m_timer = 96 << m_shiftFreq;
+                                        m_timer += 96 << m_shiftFreq;
                                         break;
 
                                     case 7:
-                                        m_timer = 112 << m_shiftFreq;
+                                        m_timer += 112 << m_shiftFreq;
                                         break;
                                 }
 

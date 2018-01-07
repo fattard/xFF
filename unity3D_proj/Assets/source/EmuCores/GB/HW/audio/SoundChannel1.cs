@@ -211,6 +211,10 @@ namespace xFF
                             set
                             {
                                 m_sweepShift = (0x07 & value);
+                                if (m_sweepShift == 0)
+                                {
+                                    m_sweepEnabled = false;
+                                }
                             }
                         }
 
@@ -228,6 +232,10 @@ namespace xFF
                             set
                             {
                                 m_sweepTime = (0x07 & value);
+                                if (m_sweepTime == 0)
+                                {
+                                    m_sweepEnabled = false;
+                                }
                             }
                         }
 
@@ -304,23 +312,23 @@ namespace xFF
 
                         public void SweepStep( )
                         {
-                            if (m_sweepEnabled && m_sweepCounter > 0)
+                            m_sweepCounter--;
+
+                            if (m_sweepCounter == 0)
                             {
-                                m_sweepCounter--;
+                                m_sweepCounter = m_sweepTime;
 
-                                if (m_sweepCounter == 0)
+                                if (m_sweepEnabled && m_sweepCounter > 0)
                                 {
-                                    m_sweepCounter = m_sweepTime;
-                                }
-
-                                int newFreq = CalcSweepFreq();
-                                if (newFreq <= 2047 && m_sweepShift > 0)
-                                {
-                                    m_sweepShadowFreq = newFreq;
-                                    m_frequencyData = newFreq;
+                                    int newFreq = CalcSweepFreq();
+                                    if (newFreq <= 2047 && m_sweepShift > 0)
+                                    {
+                                        m_sweepShadowFreq = newFreq;
+                                        m_frequencyData = newFreq;
+                                        CalcSweepFreq();
+                                    }
                                     CalcSweepFreq();
                                 }
-                                CalcSweepFreq();
                             }
                         }
 
