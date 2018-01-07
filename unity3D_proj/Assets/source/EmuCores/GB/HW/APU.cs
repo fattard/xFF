@@ -93,6 +93,33 @@ namespace xFF
                     }
 
 
+                    public bool UserChannel1Enabled
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public bool UserChannel2Enabled
+                    {
+                        get;
+                        set;
+                    }
+
+
+                    public bool UserChannel3Enabled
+                    {
+                        get;
+                        set;
+                    }
+
+                    public bool UserChannel4Enabled
+                    {
+                        get;
+                        set;
+                    }
+
+
                     public int OutputVolumeLeft
                     {
                         get;
@@ -533,7 +560,7 @@ namespace xFF
 
                     public void CyclesStep(int aElapsedCycles)
                     {
-                        while (aElapsedCycles > 0/* && MasterSoundEnabled*/)
+                        while (aElapsedCycles > 0)
                         {
                             m_frameSequencerTimer += 4;
                             m_timeToGenerateSample += 4;
@@ -579,26 +606,32 @@ namespace xFF
 
                             if (m_timeToGenerateSample > kTimeToUpdate)
                             {
-                                m_channel1.UserEnabled = true;
-                                m_channel2.UserEnabled = true;
-                                m_channel3.UserEnabled = true;
-                                m_channel4.UserEnabled = true;
+                                m_channel1.UserEnabled = UserChannel1Enabled;
+                                m_channel2.UserEnabled = UserChannel2Enabled;
+                                m_channel3.UserEnabled = UserChannel3Enabled;
+                                m_channel4.UserEnabled = UserChannel4Enabled;
 
-                                int idxL = m_outputWaveIdx * 2;
-                                int idxR = idxL + 1;
+                                int sampleL = 0;
+                                int sampleR = 0;
 
-                                m_samples[idxL] = 0;
-                                m_samples[idxR] = 0;
+                                if (MasterSoundEnabled)
+                                {
+                                    sampleL += m_channel1.GenerateSampleL();
+                                    sampleL += m_channel2.GenerateSampleL();
+                                    sampleL += m_channel3.GenerateSampleL();
+                                    sampleL += m_channel4.GenerateSampleL();
 
-                                m_samples[idxL] += m_channel1.GenerateSampleL();
-                                m_samples[idxL] += m_channel2.GenerateSampleL();
-                                m_samples[idxL] += m_channel3.GenerateSampleL();
-                                m_samples[idxL] += m_channel4.GenerateSampleL();
+                                    sampleR += m_channel1.GenerateSampleR();
+                                    sampleR += m_channel2.GenerateSampleR();
+                                    sampleR += m_channel3.GenerateSampleR();
+                                    sampleR += m_channel4.GenerateSampleR();
 
-                                m_samples[idxR] += m_channel1.GenerateSampleR();
-                                m_samples[idxR] += m_channel2.GenerateSampleR();
-                                m_samples[idxR] += m_channel3.GenerateSampleR();
-                                m_samples[idxR] += m_channel4.GenerateSampleR();
+                                    sampleL = (sampleL * ((1 + OutputVolumeLeft))) / 8;
+                                    sampleR = (sampleR * ((1 + OutputVolumeRight))) / 8;
+                                }
+
+                                m_samples[m_outputWaveIdx * 2] = sampleL;
+                                m_samples[m_outputWaveIdx * 2 + 1] = sampleR;
 
 
                                 m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
