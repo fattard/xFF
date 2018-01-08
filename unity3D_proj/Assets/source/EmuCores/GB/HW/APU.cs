@@ -93,12 +93,14 @@ namespace xFF
 
                                 m_channel2.OnPowerOff();
                                 m_channel3.OnPowerOff();
+                                m_channel4.OnPowerOff();
                             }
 
                             else
                             {
                                 m_channel2.OnPowerOn();
                                 m_channel3.OnPowerOn();
+                                m_channel4.OnPowerOn();
                             }
 
                             
@@ -529,10 +531,6 @@ namespace xFF
 
                                 case RegsIO.NR51:
                                     {
-                                        //TODO: split to each channel
-                                        //m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
-                                        //SetReg_TMP(aAddress, value);
-
                                         m_channel1.RightOutputEnabled = ((1 << 0) & value) != 0;
                                         m_channel2.RightOutputEnabled = ((1 << 1) & value) != 0;
                                         m_channel3.RightOutputEnabled = ((1 << 2) & value) != 0;
@@ -618,7 +616,7 @@ namespace xFF
                             m_channel1.PeriodStep();
                             m_channel2.FreqTimerStep();
                             m_channel3.FreqTimerStep();
-                            m_channel4.PeriodStep();
+                            m_channel4.FreqTimerStep();
 
                             if (m_timeToGenerateSample > kTimeToUpdate)
                             {
@@ -635,12 +633,12 @@ namespace xFF
                                     sampleL += m_channel1.GenerateSampleL();
                                     sampleL += m_channel2.SampleL();
                                     sampleL += m_channel3.SampleL();
-                                    sampleL += m_channel4.GenerateSampleL();
+                                    sampleL += m_channel4.SampleL();
 
                                     sampleR += m_channel1.GenerateSampleR();
                                     sampleR += m_channel2.SampleR();
                                     sampleR += m_channel3.SampleR();
-                                    sampleR += m_channel4.GenerateSampleR();
+                                    sampleR += m_channel4.SampleR();
 
                                     sampleL = (sampleL * ((1 + OutputVolumeLeft))) / 8;
                                     sampleR = (sampleR * ((1 + OutputVolumeRight))) / 8;
