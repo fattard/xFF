@@ -91,11 +91,13 @@ namespace xFF
                                     this[i] = 0;
                                 }
 
+                                m_channel2.OnPowerOff();
                                 m_channel3.OnPowerOff();
                             }
 
                             else
                             {
+                                m_channel2.OnPowerOn();
                                 m_channel3.OnPowerOn();
                             }
 
@@ -403,18 +405,18 @@ namespace xFF
 
                                 case RegsIO.NR23:
                                     {
-                                        int freq = (0xFF & value) | (0x700 & m_channel2.Frequency);
+                                        int freq = (0xFF & value) | (0x700 & m_channel2.FrequencyData);
 
-                                        m_channel2.Frequency = freq;
+                                        m_channel2.FrequencyData = freq;
                                     }
                                     break;
 
 
                                 case RegsIO.NR24:
                                     {
-                                        int freq = (0xFF & m_channel2.Frequency) | ((0x07 & value) << 8);
+                                        int freq = (0xFF & m_channel2.FrequencyData) | ((0x07 & value) << 8);
 
-                                        m_channel2.Frequency = freq;
+                                        m_channel2.FrequencyData = freq;
 
                                         m_channel2.LengthCounterEnabled = ((0x40 & value) > 0);
 
@@ -614,7 +616,7 @@ namespace xFF
                             }
 
                             m_channel1.PeriodStep();
-                            m_channel2.PeriodStep();
+                            m_channel2.FreqTimerStep();
                             m_channel3.FreqTimerStep();
                             m_channel4.PeriodStep();
 
@@ -630,15 +632,15 @@ namespace xFF
 
                                 if (MasterSoundEnabled)
                                 {
-                                    //sampleL += m_channel1.GenerateSampleL();
-                                    //sampleL += m_channel2.GenerateSampleL();
+                                    sampleL += m_channel1.GenerateSampleL();
+                                    sampleL += m_channel2.SampleL();
                                     sampleL += m_channel3.SampleL();
-                                    //sampleL += m_channel4.GenerateSampleL();
+                                    sampleL += m_channel4.GenerateSampleL();
 
-                                    //sampleR += m_channel1.GenerateSampleR();
-                                    //sampleR += m_channel2.GenerateSampleR();
+                                    sampleR += m_channel1.GenerateSampleR();
+                                    sampleR += m_channel2.SampleR();
                                     sampleR += m_channel3.SampleR();
-                                    //sampleR += m_channel4.GenerateSampleR();
+                                    sampleR += m_channel4.GenerateSampleR();
 
                                     sampleL = (sampleL * ((1 + OutputVolumeLeft))) / 8;
                                     sampleR = (sampleR * ((1 + OutputVolumeRight))) / 8;
