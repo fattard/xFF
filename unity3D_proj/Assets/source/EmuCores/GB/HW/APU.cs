@@ -48,7 +48,6 @@ namespace xFF
                     int m_sweepTimer;
                     byte[] m_outputWave;
                     int m_outputWaveIdx;
-                    int[] m_regs = new int[0x30];
 
 
                     int[] m_samples = new int[2048];
@@ -56,6 +55,7 @@ namespace xFF
                     int m_timeToGenerateSample;
 
                     bool m_masterSoundEnabled;
+                    int m_NR52_unusedBits;
 
                     SoundChannel1 m_channel1 = new SoundChannel1();
                     SoundChannel2 m_channel2 = new SoundChannel2();
@@ -71,7 +71,7 @@ namespace xFF
                         get { return m_masterSoundEnabled; }
                         set
                         {
-                            if (!m_masterSoundEnabled && value)
+                            /*if (!m_masterSoundEnabled && value)
                             {
                                 //m_frameSequencerTimer = 0;
 
@@ -79,31 +79,29 @@ namespace xFF
                                 {
                                     this[i] = 0;
                                 }
-                            }
+                            }*/
 
                             if (!value)
                             {
-                                // Force reset Regs
-                                m_masterSoundEnabled = true;
-
-                                for (int i = RegsIO.NR10; i <= RegsIO.NR51; ++i)
-                                {
-                                    this[i] = 0;
-                                }
-
+                                m_channel1.OnPowerOff();
                                 m_channel2.OnPowerOff();
                                 m_channel3.OnPowerOff();
                                 m_channel4.OnPowerOff();
+
+                                // Related NR50
+                                ExternalInputLeftEnabled = false;
+                                ExternalInputRightEnabled = false;
+                                OutputVolumeLeft = 0;
+                                OutputVolumeRight = 0;
                             }
 
                             else
                             {
+                                m_channel1.OnPowerOn();
                                 m_channel2.OnPowerOn();
                                 m_channel3.OnPowerOn();
                                 m_channel4.OnPowerOn();
                             }
-
-                            
 
                             m_masterSoundEnabled = value;
                         }
@@ -281,7 +279,7 @@ namespace xFF
 
                                 case RegsIO.NR52:
                                     return 0x70 | (MasterSoundEnabled ? (1 << 7) : 0)
-                                                | m_regs[aAddress - RegsIO.NR10] // unused bits
+                                                | m_NR52_unusedBits // unused bits
                                                 | (m_channel1.IsSoundOn ? (1 << 0) : 0)
                                                 | (m_channel2.IsSoundOn ? (1 << 1) : 0)
                                                 | (m_channel3.IsSoundOn ? (1 << 2) : 0)
@@ -300,8 +298,8 @@ namespace xFF
                                     {
                                         return 0xFF;
                                     }
-
-                                    //return m_regs[aAddress - RegsIO.NR10];
+                                    
+                                    // Invalid offset
                                     return 0xFF;
                             }
                         }
@@ -317,7 +315,7 @@ namespace xFF
                                 return;
                             }
 
-                            // While APU is disbled, all writes to range 0xFF10-0xFF2F
+                            // While APU is disabled, all writes to range 0xFF10-0xFF2F
                             // are ignored, except NR52 and length counters
                             else if (!MasterSoundEnabled && aAddress != RegsIO.NR52
                                  && aAddress != RegsIO.NR11 && aAddress != RegsIO.NR21
@@ -360,18 +358,18 @@ namespace xFF
 
                                 case RegsIO.NR13:
                                     {
-                                        int freq = (0xFF & value) | (0x700 & m_channel1.Frequency);
+                                        int freq = (0xFF & value) | (0x700 & m_channel1.FrequencyData);
 
-                                        m_channel1.Frequency = freq;
+                                        m_channel1.FrequencyData = freq;
                                     }
                                     break;
 
 
                                 case RegsIO.NR14:
                                     {
-                                        int freq = (0xFF & m_channel1.Frequency) | ((0x07 & value) << 8);
+                                        int freq = (0xFF & m_channel1.FrequencyData) | ((0x07 & value) << 8);
 
-                                        m_channel1.Frequency = freq;
+                                        m_channel1.FrequencyData = freq;
 
                                         m_channel1.LengthCounterEnabled = ((0x40 & value) > 0);
 
@@ -546,16 +544,8 @@ namespace xFF
                                 case RegsIO.NR52:
                                     {
                                         MasterSoundEnabled = ((0x80 & value) > 0);
-                                        m_regs[aAddress - RegsIO.NR10] = (0x70 & value); // unused bits
+                                        m_NR52_unusedBits = (0x70 & value); // unused bits
                                         
-                                    }
-                                    break;
-
-
-                                default:
-                                    {
-                                        m_regs[aAddress - RegsIO.NR10] = (0xFF & value);
-                                        //SetReg_TMP(aAddress, value);
                                     }
                                     break;
                             }
@@ -613,7 +603,7 @@ namespace xFF
                                 m_frameSequencerTimer -= 8192;
                             }
 
-                            m_channel1.PeriodStep();
+                            m_channel1.FreqTimerStep();
                             m_channel2.FreqTimerStep();
                             m_channel3.FreqTimerStep();
                             m_channel4.FreqTimerStep();
@@ -630,12 +620,12 @@ namespace xFF
 
                                 if (MasterSoundEnabled)
                                 {
-                                    sampleL += m_channel1.GenerateSampleL();
+                                    sampleL += m_channel1.SampleL();
                                     sampleL += m_channel2.SampleL();
                                     sampleL += m_channel3.SampleL();
                                     sampleL += m_channel4.SampleL();
 
-                                    sampleR += m_channel1.GenerateSampleR();
+                                    sampleR += m_channel1.SampleR();
                                     sampleR += m_channel2.SampleR();
                                     sampleR += m_channel3.SampleR();
                                     sampleR += m_channel4.SampleR();
@@ -656,6 +646,8 @@ namespace xFF
                             aElapsedCycles -= 4;
                         }
                     }
+
+                    
 
 
 
