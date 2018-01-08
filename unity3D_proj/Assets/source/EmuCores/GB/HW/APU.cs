@@ -50,7 +50,7 @@ namespace xFF
                     int m_outputWaveIdx;
 
 
-                    int[] m_samples = new int[2048];
+                    int[] m_samples = new int[8192];
 
                     int m_timeToGenerateSample;
 
@@ -656,7 +656,7 @@ namespace xFF
                     int m_samplesAvailable;
                     int m_sampleRate = 44100;
 
-                    int kTimeToUpdate = 4194304 / (44100 / 2);
+                    int kTimeToUpdate = 4194304 / (96000 / 2);
 
                     public void SetSamplesAvailable(int aSamples)
                     {
