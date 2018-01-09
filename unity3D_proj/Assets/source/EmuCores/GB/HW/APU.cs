@@ -623,12 +623,12 @@ namespace xFF
                                     sampleL += m_channel1.SampleL();
                                     sampleL += m_channel2.SampleL();
                                     sampleL += m_channel3.SampleL();
-                                    sampleL += m_channel4.SampleL();
-
+                                    sampleL += m_channel4.FilteredSampleL();
+                                    
                                     sampleR += m_channel1.SampleR();
                                     sampleR += m_channel2.SampleR();
                                     sampleR += m_channel3.SampleR();
-                                    sampleR += m_channel4.SampleR();
+                                    sampleR += m_channel4.FilteredSampleR();
 
                                     sampleL = (sampleL * ((1 + OutputVolumeLeft))) / 8;
                                     sampleR = (sampleR * ((1 + OutputVolumeRight))) / 8;

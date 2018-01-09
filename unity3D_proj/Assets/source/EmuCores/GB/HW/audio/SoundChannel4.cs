@@ -24,6 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
+using System.Collections.Generic;
 using xFF.EmuCores.GB;
 using xFF.EmuCores.GB.Defs;
 using xFF.EmuCores.GB.HW;
@@ -69,6 +70,23 @@ namespace xFF
 
                         int m_timer;
 
+
+                        CircularBuffer<int> m_samplesToFilterR;
+                        CircularBuffer<int> m_samplesToFilterL;
+
+
+                        public SoundChannel4( )
+                        {
+                            const int bufferSize = (87 / 2);
+
+                            m_samplesToFilterR = new CircularBuffer<int>(bufferSize);
+                            m_samplesToFilterL = new CircularBuffer<int>(bufferSize);
+                            for (int i = 0; i < bufferSize; ++i)
+                            {
+                                m_samplesToFilterL.Enqueue(0);
+                                m_samplesToFilterR.Enqueue(0);
+                            }
+                        }
 
 
 
@@ -384,6 +402,14 @@ namespace xFF
                                 // Reload Frequency
                                 m_timer += CalcFrequency();
                             }
+
+
+                            // Update filter buffer
+                            m_samplesToFilterL.Dequeue();
+                            m_samplesToFilterL.Enqueue(SampleL());
+
+                            m_samplesToFilterR.Dequeue();
+                            m_samplesToFilterR.Enqueue(SampleR());
                         }
 
                         #endregion Configurable Timer Related
@@ -394,7 +420,7 @@ namespace xFF
                         /// <summary>
                         /// Gets the sample for Left DAC
                         /// </summary>
-                        public int SampleL()
+                        public int SampleL( )
                         {
                             if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled || !UserEnabled)
                             {
@@ -415,7 +441,7 @@ namespace xFF
                         /// <summary>
                         /// Gets the sample for Right DAC
                         /// </summary>
-                        public int SampleR()
+                        public int SampleR( )
                         {
                             if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled || !UserEnabled)
                             {
@@ -430,6 +456,26 @@ namespace xFF
                             }
 
                             return 0;
+                        }
+
+
+                        /// <summary>
+                        /// Gets the sample for Left DAC after a low-pass filter
+                        /// </summary>
+                        /// <returns></returns>
+                        public int FilteredSampleL( )
+                        {
+                            return ApplyBoxFilter(m_samplesToFilterL);
+                        }
+
+
+                        /// <summary>
+                        /// Gets the sample for Right DAC after a low-pass filter
+                        /// </summary>
+                        /// <returns></returns>
+                        public int FilteredSampleR( )
+                        {
+                            return ApplyBoxFilter(m_samplesToFilterR);
                         }
 
 
@@ -467,7 +513,6 @@ namespace xFF
                             // Disabled DAC should prevent enable at trigger
                             m_channelStatusOn &= m_dacEnabled;
                         }
-
 
 
                         /// <summary>
@@ -508,8 +553,25 @@ namespace xFF
                         {
                             
                         }
+
+
+                        /// <summary>
+                        /// Passes a very simple low-pass box-filter based
+                        /// on the average of samples range
+                        /// </summary>
+                        int ApplyBoxFilter(CircularBuffer<int> aSamplesToFilter)
+                        {
+                            int total = 0;
+
+                            for (int i = 0; i < aSamplesToFilter.Count; ++i)
+                            {
+                                total += aSamplesToFilter[i];
+                            }
+
+                            return total / aSamplesToFilter.Count;
+                        }
                     }
-                    
+
 
                 }
                 // namespace audio
