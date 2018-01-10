@@ -272,7 +272,7 @@ namespace xFF
                                         m_envelopeCounter = 8;
                                     }*/
 
-                                    if (m_envelopeMode > 0 && m_curVolume < 16)
+                                    if (m_envelopeMode > 0 && m_curVolume < 15)
                                     {
                                         m_curVolume++;
                                     }

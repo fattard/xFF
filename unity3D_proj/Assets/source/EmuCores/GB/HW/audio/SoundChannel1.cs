@@ -281,7 +281,7 @@ namespace xFF
                                         m_envelopeCounter = 8;
                                     }*/
 
-                                    if (m_envelopeMode > 0 && m_curVolume < 16)
+                                    if (m_envelopeMode > 0 && m_curVolume < 15)
                                     {
                                         m_curVolume++;
                                     }
@@ -487,7 +487,7 @@ namespace xFF
                         /// <summary>
                         /// Called when setting Trigger bit of NR24
                         /// </summary>
-                        public void TriggerInit()
+                        public void TriggerInit( )
                         {
                             m_channelStatusOn = true;
 
