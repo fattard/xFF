@@ -54,6 +54,8 @@ namespace xFF
                     int m_interruptsRequests;
                     int m_interruptsEnables;
 
+                    bool m_haltBugActivated;
+
 
                     public int InterruptsRequests
                     {
@@ -108,20 +110,46 @@ namespace xFF
                             //UnityEngine.Debug.Log(m_gb_core.ToString());
 
                             // Check interrupts
-                            if (m_gb_core.IsInterruptsMasterFlagEnabled || m_gb_core.IsInHaltMode)
+                            if (m_gb_core.IsInterruptsMasterFlagEnabled || (m_gb_core.IsInHaltMode && !m_haltBugActivated))
                             {
                                 CheckInterrupts();
                             }
-                            
-                            if (m_gb_core.IsInHaltMode)
+
+                            if (m_gb_core.IsInHaltMode && !m_haltBugActivated)
                             {
                                 m_gb_core.AdvanceCycles(4);
                                 continue;
                             }
+                            else if (m_haltBugActivated)
+                            {
+                                m_gb_core.CancelHalt();
+                                m_haltBugActivated = false;
 
+                                // Execute next instruction without incrementing PC
+                                m_gb_core.ReFetch();
+                                m_gb_core.DecodeAndExecute();
+                            }
 
-                            m_gb_core.Fetch();
-                            m_gb_core.DecodeAndExecute();
+                            else
+                            {
+                                m_gb_core.Fetch();
+                                m_gb_core.DecodeAndExecute();
+                            }
+
+                            // Check for halt bug
+                            if (m_gb_core.IsInHaltMode && !m_gb_core.IsInterruptsMasterFlagEnabled)
+                            {
+                                int interruptRequests = m_mem.Read8(RegsIO.IF);
+                                int interruptEnables = m_mem.Read8(RegsIO.IE);
+
+                                // if interrupts are disabled and there is a pending interrupt,
+                                // the next instruction executed does not increment PC as part of
+                                // the instruction fetch
+                                if ((interruptRequests & interruptEnables & 0x1F) > 0)
+                                {
+                                    m_haltBugActivated = true;
+                                }
+                            }
                         }
 
 
@@ -136,8 +164,6 @@ namespace xFF
                     {
                         int interruptRequests = m_mem.Read8(RegsIO.IF);
                         int interruptEnables = m_mem.Read8(RegsIO.IE);
-
-                        //TODO: Loop unrolling here??
 
                         for (int irq = 0; irq < 5; ++irq)
                         {

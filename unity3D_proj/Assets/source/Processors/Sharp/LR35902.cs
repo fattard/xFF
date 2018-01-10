@@ -192,6 +192,16 @@ namespace xFF
 
 
                 /// <summary>
+                /// Fetches again the instruction opcode from current PC,
+                /// but does not increment it.
+                /// </summary>
+                public void ReFetch( )
+                {
+                    m_fetchedInstruction = Read8(m_regs.PC);
+                }
+
+
+                /// <summary>
                 /// Decodes and Execute the fetched instruction.
                 /// </summary>
                 public void DecodeAndExecute( )
