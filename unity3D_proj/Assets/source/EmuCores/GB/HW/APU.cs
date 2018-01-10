@@ -43,9 +43,7 @@ namespace xFF
                 public partial class APU
                 {
                     int m_frameSequencerTimer;
-                    int m_lengthTimer;
-                    int m_envelopeTimer;
-                    int m_sweepTimer;
+                    int m_frameSequencerSteps;
                     byte[] m_outputWave;
                     int m_outputWaveIdx;
 
@@ -71,17 +69,8 @@ namespace xFF
                         get { return m_masterSoundEnabled; }
                         set
                         {
-                            /*if (!m_masterSoundEnabled && value)
-                            {
-                                //m_frameSequencerTimer = 0;
-
-                                for (int i = RegsIO.WAVE00; i <= RegsIO.WAVE15; ++i)
-                                {
-                                    this[i] = 0;
-                                }
-                            }*/
-
-                            if (!value)
+                            // Transition to OFF
+                            if (!value && m_masterSoundEnabled)
                             {
                                 m_channel1.OnPowerOff();
                                 m_channel2.OnPowerOff();
@@ -95,12 +84,16 @@ namespace xFF
                                 OutputVolumeRight = 0;
                             }
 
-                            else
+                            // Transition to ON
+                            else if (value && !m_masterSoundEnabled)
                             {
                                 m_channel1.OnPowerOn();
                                 m_channel2.OnPowerOn();
                                 m_channel3.OnPowerOn();
                                 m_channel4.OnPowerOn();
+
+                                m_frameSequencerTimer = 0;
+                                m_frameSequencerSteps = 0;
                             }
 
                             m_masterSoundEnabled = value;
@@ -568,45 +561,46 @@ namespace xFF
                             m_frameSequencerTimer += 4;
                             m_timeToGenerateSample += 4;
 
-                            if (m_frameSequencerTimer >= 8192) // 512 Hz
+                            if (MasterSoundEnabled)
                             {
-                                m_lengthTimer++;
-                                m_envelopeTimer++;
-                                m_sweepTimer++;
-
-                                if (m_lengthTimer == 2) // 256 Hz (16384 clocks: (8192 * 2))
+                                if (m_frameSequencerTimer >= 8192) // 512 Hz
                                 {
-                                    m_channel1.LengthStep();
-                                    m_channel2.LengthStep();
-                                    m_channel3.LengthStep();
-                                    m_channel4.LengthStep();
+                                    if ((m_frameSequencerSteps & 0x1) == 0) // 256 Hz (16384 clocks: (8192 * 2))
+                                    {
+                                        m_channel1.LengthStep();
+                                        m_channel2.LengthStep();
+                                        m_channel3.LengthStep();
+                                        m_channel4.LengthStep();
+                                    }
 
-                                    m_lengthTimer = 0;
+                                    if (m_frameSequencerSteps == 0x02 || m_frameSequencerSteps == 0x06) // 128 Hz (20648 clocks: (8192 * 4))
+                                    {
+                                        m_channel1.SweepStep();
+                                    }
+
+                                    if (m_frameSequencerSteps == 0x07) // 64 Hz (65536 clocks: (8192 * 8))
+                                    {
+                                        m_channel1.VolumeEnvelopeStep();
+                                        m_channel2.VolumeEnvelopeStep();
+                                        m_channel4.VolumeEnvelopeStep();
+                                    }
+
+                                    m_frameSequencerTimer -= 8192;
+
+                                    // Advance sequencer steps
+                                    m_frameSequencerSteps = (m_frameSequencerSteps + 1) % 8;
                                 }
 
-                                if (m_sweepTimer == 4) // 128 Hz (20648 clocks: (8192 * 4))
-                                {
-                                    m_channel1.SweepStep();
-
-                                    m_sweepTimer = 0;
-                                }
-
-                                if (m_envelopeTimer == 8) // 64 Hz (65536 clocks: (8192 * 8))
-                                {
-                                    m_channel1.VolumeEnvelopeStep();
-                                    m_channel2.VolumeEnvelopeStep();
-                                    m_channel4.VolumeEnvelopeStep();
-
-                                    m_envelopeTimer = 0;
-                                }
-
-                                m_frameSequencerTimer -= 8192;
+                                m_channel1.FreqTimerStep();
+                                m_channel2.FreqTimerStep();
+                                m_channel3.FreqTimerStep();
+                                m_channel4.FreqTimerStep();
                             }
 
-                            m_channel1.FreqTimerStep();
-                            m_channel2.FreqTimerStep();
-                            m_channel3.FreqTimerStep();
-                            m_channel4.FreqTimerStep();
+
+
+                    #if ENABLE_WIP_AUDIO
+
 
                             if (m_timeToGenerateSample > kTimeToUpdate)
                             {
@@ -642,6 +636,9 @@ namespace xFF
 
                                 m_timeToGenerateSample -= kTimeToUpdate;
                             }
+
+
+                    #endif
 
                             aElapsedCycles -= 4;
                         }
