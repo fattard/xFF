@@ -390,13 +390,17 @@ namespace xFF
 
                             if (m_timer <= 0)
                             {
-                                int result = (m_linearShiftReg & 0x1) ^ ((m_linearShiftReg >> 1) & 0x1);
-                                m_linearShiftReg >>= 1;
-                                m_linearShiftReg |= result << 14;
-                                if (m_stepsMode == 1)
+                                // Note: shifts of 14 and 15 have no operation
+                                if (m_shiftFreq < 14)
                                 {
-                                    m_linearShiftReg &= ~0x40; // clear bit 6
-                                    m_linearShiftReg |= result << 6;
+                                    int result = (m_linearShiftReg & 0x1) ^ ((m_linearShiftReg >> 1) & 0x1);
+                                    m_linearShiftReg >>= 1;
+                                    m_linearShiftReg |= result << 14;
+                                    if (m_stepsMode == 1)
+                                    {
+                                        m_linearShiftReg &= ~0x40; // clear bit 6
+                                        m_linearShiftReg |= result << 6;
+                                    }
                                 }
 
                                 // Reload Frequency
