@@ -482,7 +482,7 @@ namespace xFF
                         /// <summary>
                         /// Called when setting Trigger bit of NR24
                         /// </summary>
-                        public void TriggerInit( )
+                        public void TriggerInit(int aFrameSequencerSteps)
                         {
                             m_channelStatusOn = true;
 
@@ -492,6 +492,11 @@ namespace xFF
                             if (m_lengthCounter == 0)
                             {
                                 m_lengthCounter = 64;
+                                // Note: Trigger that un-freezes enabled length should clock it
+                                if (m_lengthCounterEnabled && (aFrameSequencerSteps & 0x01) != 0)
+                                {
+                                    LengthStep();
+                                }
                             }
 
                             // Reload frequency timer

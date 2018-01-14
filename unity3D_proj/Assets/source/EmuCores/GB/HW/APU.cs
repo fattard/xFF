@@ -364,12 +364,21 @@ namespace xFF
 
                                         m_channel1.FrequencyData = freq;
 
+                                        bool lengthCounterwasEnabledBefore = m_channel1.LengthCounterEnabled;
                                         m_channel1.LengthCounterEnabled = ((0x40 & value) > 0);
+                                        
+                                        // Extra length clocking occurs when writing to NRx4 when the frame
+                                        // sequencer's next step is one that doesn't clock the length counter
+                                        if (!lengthCounterwasEnabledBefore && m_channel1.LengthCounterEnabled
+                                            && (m_frameSequencerSteps & 0x01) != 0)
+                                        {
+                                            m_channel1.LengthStep();
+                                        }
 
                                         // Check trigger flag
                                         if ((0x80 & value) > 0)
                                         {
-                                            m_channel1.TriggerInit();
+                                            m_channel1.TriggerInit(m_frameSequencerSteps);
                                         }
                                     }
                                     break;
@@ -411,12 +420,21 @@ namespace xFF
 
                                         m_channel2.FrequencyData = freq;
 
+                                        bool lengthCounterwasEnabledBefore = m_channel2.LengthCounterEnabled;
                                         m_channel2.LengthCounterEnabled = ((0x40 & value) > 0);
+
+                                        // Extra length clocking occurs when writing to NRx4 when the frame
+                                        // sequencer's next step is one that doesn't clock the length counter
+                                        if (!lengthCounterwasEnabledBefore && m_channel2.LengthCounterEnabled
+                                            && (m_frameSequencerSteps & 0x01) != 0)
+                                        {
+                                            m_channel2.LengthStep();
+                                        }
 
                                         // Check trigger flag
                                         if ((0x80 & value) > 0)
                                         {
-                                            m_channel2.TriggerInit();
+                                            m_channel2.TriggerInit(m_frameSequencerSteps);
                                         }
                                     }
                                     break;
@@ -458,12 +476,21 @@ namespace xFF
 
                                         m_channel3.FrequencyData = freq;
 
+                                        bool lengthCounterwasEnabledBefore = m_channel3.LengthCounterEnabled;
                                         m_channel3.LengthCounterEnabled = ((0x40 & value) > 0);
 
-                                        // Check trigger flag
-                                        if((0x80 & value) > 0)
+                                        // Extra length clocking occurs when writing to NRx4 when the frame
+                                        // sequencer's next step is one that doesn't clock the length counter
+                                        if (!lengthCounterwasEnabledBefore && m_channel3.LengthCounterEnabled
+                                            && (m_frameSequencerSteps & 0x01) != 0)
                                         {
-                                            m_channel3.TriggerInit();
+                                            m_channel3.LengthStep();
+                                        }
+
+                                        // Check trigger flag
+                                        if ((0x80 & value) > 0)
+                                        {
+                                            m_channel3.TriggerInit(m_frameSequencerSteps);
                                         }
                                     }
                                     break;
@@ -499,12 +526,21 @@ namespace xFF
 
                                 case RegsIO.NR44:
                                     {
+                                        bool lengthCounterwasEnabledBefore = m_channel4.LengthCounterEnabled;
                                         m_channel4.LengthCounterEnabled = ((0x40 & value) > 0);
+
+                                        // Extra length clocking occurs when writing to NRx4 when the frame
+                                        // sequencer's next step is one that doesn't clock the length counter
+                                        if (!lengthCounterwasEnabledBefore && m_channel4.LengthCounterEnabled
+                                            && (m_frameSequencerSteps & 0x01) != 0)
+                                        {
+                                            m_channel4.LengthStep();
+                                        }
 
                                         // Check trigger flag
                                         if ((0x80 & value) > 0)
                                         {
-                                            m_channel4.TriggerInit();
+                                            m_channel4.TriggerInit(m_frameSequencerSteps);
                                         }
                                     }
                                     break;
