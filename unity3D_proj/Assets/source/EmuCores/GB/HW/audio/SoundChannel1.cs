@@ -77,6 +77,7 @@ namespace xFF
                         int m_sweepCounter;
                         int m_sweepShadowFreq;
                         bool m_sweepEnabled;
+                        bool m_sweepDidSubtract;
 
                         int m_waveSamplePos;
                         int m_dutyCycleIdx;
@@ -362,10 +363,10 @@ namespace xFF
                             set
                             {
                                 m_sweepShift = (0x07 & value);
-                                if (m_sweepShift == 0)
+                                /*if (m_sweepShift == 0)
                                 {
                                     m_sweepEnabled = false;
-                                }
+                                }*/
                             }
                         }
 
@@ -379,7 +380,22 @@ namespace xFF
                         public int SweepMode
                         {
                             get { return m_sweepMode; }
-                            set { m_sweepMode = (0x01 & value); }
+                            set
+                            {
+                                int newMode = (0x01 & value);
+
+                                // Clearing the sweep negate mode bit in NR10 after at least one sweep
+                                // calculation has been made using the negate mode since the last trigger
+                                // causes the channel to be immediately disabled. This prevents you from
+                                // having the sweep lower the frequency then raise the frequency without a
+                                // trigger inbetween.
+                                if (m_sweepEnabled && m_sweepDidSubtract && m_sweepMode == 1 && newMode == 0)
+                                {
+                                    m_channelStatusOn = false;
+                                }
+
+                                m_sweepMode = newMode;
+                            }
                         }
 
 
@@ -393,10 +409,10 @@ namespace xFF
                             set
                             {
                                 m_sweepTime = (0x07 & value);
-                                if (m_sweepTime == 0)
+                                /*if (m_sweepTime == 0)
                                 {
                                     m_sweepEnabled = false;
-                                }
+                                }*/
                             }
                         }
 
@@ -412,7 +428,12 @@ namespace xFF
 
                                 if (m_sweepCounter == 0)
                                 {
+                                    // Note: treats sweep periods of 0 as 8
                                     m_sweepCounter = m_sweepTime;
+                                    if (m_sweepCounter == 0)
+                                    {
+                                        m_sweepCounter = 8;
+                                    }
 
                                     if (m_sweepEnabled && m_sweepTime > 0)
                                     {
@@ -421,7 +442,8 @@ namespace xFF
                                         if (newFreq <= 2047 && m_sweepShift > 0)
                                         {
                                             m_sweepShadowFreq = newFreq;
-                                            m_frequencyData = newFreq;
+                                            FrequencyData = (0x7FF & newFreq);
+
                                             CalcSweepFreq();
                                         }
                                     }
@@ -439,6 +461,7 @@ namespace xFF
                             if (m_sweepMode == 1)
                             {
                                 freq = -freq;
+                                m_sweepDidSubtract = true;
                             }
 
                             freq = m_sweepShadowFreq + freq;
@@ -522,10 +545,17 @@ namespace xFF
                             m_sweepShadowFreq = m_frequencyData;
 
                             // Reloads sweep counter
+                            // Note: treats sweep period of 0 as 8
                             m_sweepCounter = m_sweepTime;
+                            if (m_sweepCounter == 0)
+                            {
+                                m_sweepCounter = 8;
+                            }
+
+                            m_sweepDidSubtract = false;
 
                             // Sets internal sweep enabled flag based on operands
-                            m_sweepEnabled = (m_sweepShift != 0) || (m_sweepCounter != 0);
+                            m_sweepEnabled = (m_sweepShift != 0) || (m_sweepTime != 0);
 
                             if (m_sweepShift > 0)
                             {
