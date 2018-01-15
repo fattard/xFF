@@ -73,19 +73,17 @@ namespace xFF
 
                         CircularBuffer<int> m_samplesToFilterR;
                         CircularBuffer<int> m_samplesToFilterL;
+                        int kSamplesToFilterLength;
 
 
                         public SoundChannel4( )
                         {
-                            const int bufferSize = (87 / 2);
+                            const int bufferSize = 256;
 
                             m_samplesToFilterR = new CircularBuffer<int>(bufferSize);
                             m_samplesToFilterL = new CircularBuffer<int>(bufferSize);
-                            for (int i = 0; i < bufferSize; ++i)
-                            {
-                                m_samplesToFilterL.Enqueue(0);
-                                m_samplesToFilterR.Enqueue(0);
-                            }
+
+                            ConfigFilter(4194304 / (44100 / 2));
                         }
 
 
@@ -576,12 +574,32 @@ namespace xFF
                         {
                             int total = 0;
 
-                            for (int i = 0; i < aSamplesToFilter.Count; ++i)
+                            for (int i = 0; i < kSamplesToFilterLength; ++i)
                             {
                                 total += aSamplesToFilter[i];
                             }
 
-                            return total / aSamplesToFilter.Count;
+                            return total / kSamplesToFilterLength;
+                        }
+
+
+                        public void ConfigFilter(int aCyclesToSample)
+                        {
+                            kSamplesToFilterLength = (aCyclesToSample / 2);
+
+                            // Clear
+                            while (m_samplesToFilterL.Count > 0)
+                            {
+                                m_samplesToFilterL.Dequeue();
+                                m_samplesToFilterR.Dequeue();
+                            }
+
+                            // Fills empty
+                            for (int i = 0; i < kSamplesToFilterLength; ++i)
+                            {
+                                m_samplesToFilterL.Enqueue(0);
+                                m_samplesToFilterR.Enqueue(0);
+                            }
                         }
                     }
 

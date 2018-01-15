@@ -635,15 +635,21 @@ namespace xFF
 
 
 
-                    #if ENABLE_WIP_AUDIO
+                    #if !DISABLE_AUDIO
 
-
+                            // Check for sampling time
                             if (m_timeToGenerateSample > kTimeToUpdate)
                             {
                                 m_channel1.UserEnabled = UserChannel1Enabled;
                                 m_channel2.UserEnabled = UserChannel2Enabled;
                                 m_channel3.UserEnabled = UserChannel3Enabled;
                                 m_channel4.UserEnabled = UserChannel4Enabled;
+
+                                // Force Disabled
+                                //m_channel1.UserEnabled = false;
+                                //m_channel2.UserEnabled = false;
+                                //m_channel3.UserEnabled = false;
+                                //m_channel4.UserEnabled = false;
 
                                 int sampleL = 0;
                                 int sampleR = 0;
@@ -664,10 +670,11 @@ namespace xFF
                                     sampleR = (sampleR * ((1 + OutputVolumeRight))) / 8;
                                 }
 
+                                // Buffer is stereo interleaved
                                 m_samples[m_outputWaveIdx * 2] = sampleL;
                                 m_samples[m_outputWaveIdx * 2 + 1] = sampleR;
 
-
+                                // Advances output buffer pos
                                 m_outputWaveIdx = (m_outputWaveIdx + 2) % (m_samples.Length / 2);
 
                                 m_timeToGenerateSample -= kTimeToUpdate;
@@ -689,7 +696,7 @@ namespace xFF
                     int m_samplesAvailable;
                     int m_sampleRate = 44100;
 
-                    int kTimeToUpdate = 4194304 / (96000 / 2);
+                    int kTimeToUpdate = 4194304 / (44100 / 2);
 
                     public void SetSamplesAvailable(int aSamples)
                     {
@@ -697,40 +704,29 @@ namespace xFF
                     }
 
 
-                    
-                    bool channel1Enable = true;
-                    bool channel2Enable = true;
-                    bool channel3Enable = true;
-                    bool channel4Enable = true;
-
-
-
                     public void SetSampleRate(int sr)
                     {
                         m_sampleRate = sr;
-                        //SetSampleRate_TMP(sr);
+                        kTimeToUpdate = 4194304 / (sr / 2);
+
+                        m_channel4.ConfigFilter(kTimeToUpdate);
                     }
 
                     public void OutputSound(ref byte[] b)
                     {
-                        
+                        //int numChannels = 2; // Always stereo for Game Boy
+                        //int numSamples = m_samplesAvailable;
 
-                        int numChannels = 2; // Always stereo for Game Boy
-                        int numSamples = m_samplesAvailable;
-
-                        /*byte[]*/
-                        //b = new byte[numChannels * numSamples];
                         for (int i = 0; i < b.Length; ++i)
                         {
-                            b[i] = 0;
+                            //b[i] = 0;
                             b[i] = (byte)m_samples[i];
                         }
 
                         //UnityEngine.Debug.Log(m_outputWaveIdx);
-                        m_outputWaveIdx = 0;
 
-                        //OutputSound_TMP(ref b);
-                        
+                        // Reset buffer
+                        m_outputWaveIdx = 0;
                     }
 
                 }
