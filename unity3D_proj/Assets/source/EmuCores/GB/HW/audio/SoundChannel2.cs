@@ -41,21 +41,12 @@ namespace xFF
                 {
 
 
+                    /// <summary>
+                    /// Channel 2 is a Square Wave generator with adjustable duty and
+                    /// volume envelope control to help with fading notes and effects.
+                    /// </summary>
                     public class SoundChannel2
                     {
-                        int m_lengthCounter;
-                        int m_dutyCycleIdx;
-                        int m_envelopeSteps;
-                        int m_defaultEnvelopeVolume;
-                        int m_curVolume;
-                        int m_envelopeCounter;
-                        int m_envelopeMode;
-                        int m_frequencyData;
-                        int m_period;
-                        bool m_isContinuous;
-
-                        int m_waveSamplePos;
-
                         int[][] m_dutyWaveForm = new int[][]
                         {
                             new int[] { 0,0,0,0,0,0,0,1 }, // 12.5%
@@ -64,58 +55,30 @@ namespace xFF
                             new int[] { 0,1,1,1,1,1,1,0 }, // 75%
                         };
 
+                        int m_frequencyData;
+                        int m_freqTimer;
 
-                        public bool UserEnabled
-                        {
-                            get;
-                            set;
-                        }
+                        int m_envelopeSteps;
+                        int m_defaultEnvelopeVolume;
+                        int m_curVolume;
+                        int m_envelopeCounter;
+                        int m_envelopeMode;
+                        
+                        int m_lengthCounter;
+                        bool m_lengthCounterEnabled;
+                        bool m_channelStatusOn;
 
-                        /// <summary>
-                        /// Flag indicated at NR52 (0xFF26) bit 1
-                        /// </summary>
-                        public bool IsSoundOn
-                        {
-                            get { return (m_lengthCounter > 0) || IsContinuous; }
-                        }
+                        bool m_dacEnabled;
 
+                        int m_waveSamplePos;
+                        int m_dutyCycleIdx;
 
-                        public bool LeftOutputEnabled
-                        {
-                            get;
-                            set;
-                        }
-
-
-                        public bool RightOutputEnabled
-                        {
-                            get;
-                            set;
-                        }
-
-
-                        public bool ChannelEnabled
-                        {
-                            get;
-                            set;
-                        }
 
 
                         /// <summary>
-                        /// Accessor for Reg NR21 (0xFF16)
-                        /// Sound length data t1, where
-                        /// total length = 64 - t1
+                        /// Accessor for Duty Cycle part of
+                        /// NR21 (0xFF16)
                         /// </summary>
-                        public int SoundLengthData
-                        {
-                            get { return m_lengthCounter; }
-                            set
-                            {
-                                m_lengthCounter = (0x3F & (64 - value));
-                            }
-                        }
-
-
                         public int DutyCycle
                         {
                             get { return m_dutyCycleIdx; }
@@ -126,35 +89,137 @@ namespace xFF
                         }
 
 
-                        public void TriggerInit()
+
+
+                        #region Enabled/Disabled Controls
+
+                        /// <summary>
+                        /// Handles UI configs for this channel
+                        /// </summary>
+                        public bool UserEnabled
                         {
-                            //if (ChannelEnabled)
-                            {
-                                if (m_lengthCounter == 0)
-                                {
-                                    m_lengthCounter = 64;
-                                }
-                                m_period = (2048 - m_frequencyData) * 4;
-                                m_curVolume = m_defaultEnvelopeVolume;
-                                m_envelopeCounter = m_envelopeSteps;
-                                /*if (m_envelopeCounter == 0)
-                                {
-                                    m_envelopeCounter = 8;
-                                }*/
-                            }
+                            get;
+                            set;
                         }
 
 
-                        public int EnvelopeSteps
+                        /// <summary>
+                        /// Flag indicated at NR52 (0xFF26) bit 1
+                        /// </summary>
+                        public bool IsSoundOn
                         {
-                            get { return m_envelopeSteps; }
+                            get { return (m_dacEnabled && m_channelStatusOn); }
+                        }
+
+
+                        /// <summary>
+                        /// Enables/Disables DAC output Left at NR51 (0xFF25)
+                        /// </summary>
+                        public bool LeftOutputEnabled
+                        {
+                            get;
+                            set;
+                        }
+
+
+                        /// <summary>
+                        /// Enables/Disables DAC output Right at NR51 (0xFF25)
+                        /// </summary>
+                        public bool RightOutputEnabled
+                        {
+                            get;
+                            set;
+                        }
+
+
+                        /// <summary>
+                        /// Accessor for top 5 bits of Reg NR22 (0xFF17)
+                        /// Enables/Disables sound generation
+                        /// from this channel DAC
+                        /// </summary>
+                        public bool ChannelEnabled
+                        {
+                            get { return m_dacEnabled; }
                             set
                             {
-                                m_envelopeSteps = (0x07 & value);
+                                m_dacEnabled = value;
+
+                                // Note: Disabling DAC should disable channel immediately
+                                // Note: Enabling DAC shouldn't re-enable channel
+                                m_channelStatusOn &= value;
+                            }
+                        }
+
+                        #endregion Enabled/Disabled Controls
+
+
+
+
+                        #region Length Control Related
+
+                        /// <summary>
+                        /// Accessor for Reg NR21 (0xFF16)
+                        /// Sound length data t1, where
+                        /// total length = 64 - t1
+                        /// Length in sec: = (64 - t1) * (1/256)
+                        /// </summary>
+                        public int SoundLengthData
+                        {
+                            get { return m_lengthCounter; }
+                            set
+                            {
+                                // Length can be reloaded at any time
+                                // Attempting to load length with 0 should load with maximum
+                                // Reloading shouldn't re-enable channel
+                                m_lengthCounter = (64 - (0x3F & value));
                             }
                         }
 
 
+                        /// <summary>
+                        /// Accessor for Length Counter Enabled flag
+                        /// at Reg NR24
+                        /// </summary>
+                        public bool LengthCounterEnabled
+                        {
+                            get { return m_lengthCounterEnabled; }
+                            set
+                            {
+                                // Disabling length shouldn't re-enable channel
+                                m_lengthCounterEnabled = value;
+                            }
+                        }
+
+
+                        /// <summary>
+                        /// Called when Frame Sequencer clocks the Length Control
+                        /// </summary>
+                        public void LengthStep( )
+                        {
+                            // Disabled channel should still clock length (ignore m_channelStatusOn)
+                            if (m_lengthCounter > 0 && m_lengthCounterEnabled)
+                            {
+                                m_lengthCounter--;
+
+                                if (m_lengthCounter == 0)
+                                {
+                                    // Length becoming 0 should clear status
+                                    m_channelStatusOn = false;
+                                }
+                            }
+                        }
+
+                        #endregion Length Control
+
+
+
+
+                        #region Volume/Envelope Related
+
+                        /// <summary>
+                        /// Accessor for the default volume part
+                        /// of NR22 (0xFF17)
+                        /// </summary>
                         public int DefaultEnvelope
                         {
                             get { return m_defaultEnvelopeVolume; }
@@ -165,6 +230,26 @@ namespace xFF
                         }
 
 
+                        /// <summary>
+                        /// Accessor for the number of steps part
+                        /// of NR22 (0xFF17)
+                        /// </summary>
+                        public int EnvelopeSteps
+                        {
+                            get { return m_envelopeSteps; }
+                            set
+                            {
+                                m_envelopeSteps = (0x07 & value);
+                            }
+                        }
+
+                        
+                        /// <summary>
+                        /// Accessor for the direction mode part
+                        /// of NR22 (0xFF17)
+                        /// 1 - up
+                        /// 0 - down
+                        /// </summary>
                         public int EnvelopeMode
                         {
                             get { return m_envelopeMode; }
@@ -173,46 +258,97 @@ namespace xFF
 
 
                         /// <summary>
+                        /// Called when the Frame Sequencer clocks the Envelope unit
+                        /// </summary>
+                        public void VolumeEnvelopeStep( )
+                        {
+                            if (m_envelopeCounter > 0)
+                            {
+                                m_envelopeCounter--;
+
+                                if (m_envelopeCounter == 0)
+                                {
+                                    // Note: treats envelope period of 0 as 8
+                                    m_envelopeCounter = m_envelopeSteps;
+                                    if (m_envelopeCounter == 0)
+                                    {
+                                        m_envelopeCounter = 8;
+                                    }
+                                    else
+                                    {
+                                        if (m_envelopeMode > 0 && m_curVolume < 15)
+                                        {
+                                            m_curVolume++;
+                                        }
+
+                                        else if (m_envelopeMode == 0 && m_curVolume > 0)
+                                        {
+                                            m_curVolume--;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        #endregion Volume/Envelope Related
+
+
+
+
+                        #region Frequency/Timer Related
+
+                        /// <summary>
                         /// Accessor for combined Reg NR23 (0xFF18)
                         /// and NR24 (0xFF19) parts of the
                         /// Frequency data (11 bits)
                         /// 
                         /// </summary>
-                        public int Frequency
+                        public int FrequencyData
                         {
                             get { return m_frequencyData; }
                             set
                             {
                                 m_frequencyData = value;
-                                m_period = (2048 - m_frequencyData) * 4; // needs to capture at 2 times the frequency we want to hear
+                                m_freqTimer = CalcFrequency();
                             }
                         }
 
 
-                        public bool IsContinuous
+                        /// <summary>
+                        /// Calcs the period
+                        /// </summary>
+                        int CalcFrequency()
                         {
-                            get { return m_isContinuous; }
-                            set
-                            {
-                                m_isContinuous = value;
-                            }
+                            //TODO: why multiply by 4 ??
+                            return (2048 - m_frequencyData) * 4;
                         }
 
 
-                        public void PeriodStep()
+                        /// <summary>
+                        /// Called from Frame Sequencer clocks
+                        /// </summary>
+                        public void FreqTimerStep( )
                         {
-                            m_period -= 4;
+                            m_freqTimer -= 4;
 
-                            if (m_period <= 0)
+                            if (m_freqTimer <= 0)
                             {
+                                // Advances position
                                 m_waveSamplePos = (m_waveSamplePos + 1) % 8;
 
-                                m_period += (2048 - m_frequencyData) * 4;
+                                // Reload Frequency
+                                m_freqTimer += CalcFrequency();
                             }
                         }
 
+                        #endregion Frequency/Timer Related
 
-                        public int GenerateSampleL()
+
+
+                        /// <summary>
+                        /// Gets the sample for Left DAC
+                        /// </summary>
+                        public int SampleL()
                         {
                             if (!IsSoundOn || !ChannelEnabled || !LeftOutputEnabled || !UserEnabled)
                             {
@@ -223,7 +359,10 @@ namespace xFF
                         }
 
 
-                        public int GenerateSampleR()
+                        /// <summary>
+                        /// Gets the sample for Right DAC
+                        /// </summary>
+                        public int SampleR()
                         {
                             if (!IsSoundOn || !ChannelEnabled || !RightOutputEnabled || !UserEnabled)
                             {
@@ -234,43 +373,80 @@ namespace xFF
                         }
 
 
-                        public void VolumeEnvelopeStep( )
+                        /// <summary>
+                        /// Called when setting Trigger bit of NR24
+                        /// </summary>
+                        public void TriggerInit(int aFrameSequencerSteps)
                         {
-                            m_envelopeCounter--;
+                            m_channelStatusOn = true;
 
-                            if (m_envelopeCounter == 0)
+                            // Note: Trigger shouldn't affect length
+                            // Note: Trigger should treat 0 length as maximum
+                            // regardless of Length Counter Enabled flag
+                            if (m_lengthCounter == 0)
                             {
-                                m_envelopeCounter = m_envelopeSteps;
-                                /*if (m_envelopeCounter == 0)
+                                m_lengthCounter = 64;
+                                // Note: Trigger that un-freezes enabled length should clock it
+                                if (m_lengthCounterEnabled && ((aFrameSequencerSteps & 0x01) != 0))
                                 {
-                                    m_envelopeCounter = 8;
-                                }*/
-
-                                if (m_envelopeMode > 0 && m_curVolume < 16)
-                                {
-                                    m_curVolume++;
-                                }
-
-                                else if (m_envelopeMode == 0 && m_curVolume > 0)
-                                {
-                                    m_curVolume--;
+                                    LengthStep();
                                 }
                             }
+
+                            // Reload frequency timer
+                            m_freqTimer = CalcFrequency();
+
+                            // Reloads evelope counter
+                            // Note: treats envelope period of 0 as 8
+                            m_envelopeCounter = m_envelopeSteps;
+                            if (m_envelopeCounter == 0)
+                            {
+                                m_envelopeCounter = 8;
+                            }
+
+                            // Reloads volume
+                            m_curVolume = m_defaultEnvelopeVolume;
+
+                            // Disabled DAC should prevent enable at trigger
+                            m_channelStatusOn &= m_dacEnabled;
                         }
 
 
-                        public void LengthStep()
+                        /// <summary>
+                        /// Routine when the APU NR52 is powered off
+                        /// All related registers should be reset
+                        /// </summary>
+                        public void OnPowerOff()
                         {
-                            if (m_lengthCounter > 0 && !IsContinuous)
-                            {
-                                m_lengthCounter--;
+                            // Related NR51
+                            LeftOutputEnabled = false;
+                            RightOutputEnabled = false;
 
-                                if (m_lengthCounter == 0)
-                                {
-                                    // Disable channel
-                                    //m_waveSamplePos = 0;
-                                }
-                            }
+                            // Related NR21
+                            SoundLengthData = 0;
+                            DutyCycle = 0;
+
+                            // Related NR22
+                            EnvelopeSteps = 0;
+                            EnvelopeMode = 0;
+                            DefaultEnvelope = 0;
+
+                            // Related NR23/NR34
+                            FrequencyData = 0;
+                            LengthCounterEnabled = false;
+
+                            // Related NR22 (top 5 bits)
+                            ChannelEnabled = false;
+                        }
+
+
+                        /// <summary>
+                        /// Routine when the APU NR52 is powered on
+                        /// </summary>
+                        public void OnPowerOn()
+                        {
+                            // Reset buffer pos
+                            m_waveSamplePos = 0;
                         }
                     }
                     

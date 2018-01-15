@@ -56,9 +56,9 @@ namespace xFF
                     {
                         
                         var conf = AudioSettings.GetConfiguration();
-                        conf.dspBufferSize = 734;
+                        conf.dspBufferSize = 1606;
                         conf.speakerMode = AudioSpeakerMode.Stereo;
-                        conf.sampleRate = 44100;
+                        conf.sampleRate = 96000;
 
                         m_samplesBufferSize = conf.dspBufferSize;
 
@@ -66,14 +66,14 @@ namespace xFF
                         m_stream.MaxBufferLength = (m_samplesBufferSize * 2) * 2;
                         m_audioBuffer = new byte[m_samplesBufferSize * 2];
 
-#if ENABLE_WIP_AUDIO
+#if !DISABLE_AUDIO
                         AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
                         AudioSettings.Reset(conf);
 #endif
                     }
 
 
-#if ENABLE_WIP_AUDIO
+#if !DISABLE_AUDIO
                     void OnAudioConfigurationChanged(bool deviceWasChanged)
                     {
                         Debug.Log(deviceWasChanged ? "Device was changed" : "Reset was called");
