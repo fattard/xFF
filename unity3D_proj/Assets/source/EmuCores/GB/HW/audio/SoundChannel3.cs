@@ -221,7 +221,7 @@ namespace xFF
                                 switch (value)
                                 {
                                     case 0:
-                                        m_volumeShift = 8; // Mute
+                                        m_volumeShift = 4; // Mute
                                         break;
 
                                     case 1:

@@ -276,20 +276,23 @@ namespace xFF
 
                                 if (m_envelopeCounter == 0)
                                 {
+                                    // Note: treats envelope period of 0 as 8
                                     m_envelopeCounter = m_envelopeSteps;
-                                    /*if (m_envelopeCounter == 0)
+                                    if (m_envelopeCounter == 0)
                                     {
                                         m_envelopeCounter = 8;
-                                    }*/
-
-                                    if (m_envelopeMode > 0 && m_curVolume < 15)
-                                    {
-                                        m_curVolume++;
                                     }
-
-                                    else if (m_envelopeMode == 0 && m_curVolume > 0)
+                                    else
                                     {
-                                        m_curVolume--;
+                                        if (m_envelopeMode > 0 && m_curVolume < 15)
+                                        {
+                                            m_curVolume++;
+                                        }
+
+                                        else if (m_envelopeMode == 0 && m_curVolume > 0)
+                                        {
+                                            m_curVolume--;
+                                        }
                                     }
                                 }
                             }
@@ -531,11 +534,12 @@ namespace xFF
                             m_freqTimer = CalcFrequency();
 
                             // Reloads evelope counter
+                            // Note: treats envelope period of 0 as 8
                             m_envelopeCounter = m_envelopeSteps;
-                            /*if (m_envelopeCounter == 0)
+                            if (m_envelopeCounter == 0)
                             {
                                 m_envelopeCounter = 8;
-                            }*/
+                            }
 
                             // Reloads volume
                             m_curVolume = m_defaultEnvelopeVolume;
