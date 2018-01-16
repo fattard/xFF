@@ -268,34 +268,26 @@ namespace xFF
 
 
                         m_cyclesElapsed += (uint)aElapsedCycles;
-                        m_scanlineTotalCyclesElapsed += (uint)aElapsedCycles;
+                        //m_scanlineTotalCyclesElapsed += (uint)aElapsedCycles;
 
                         switch (m_operationMode)
                         {
                             case 0: // H-Blank
                                 {
-                                    if (m_cyclesElapsed >= 201)
+                                    if (m_cyclesElapsed >= 204)
                                     {
-                                        m_cyclesElapsed = 0;
-                                        m_operationMode = 2;
+                                        m_cyclesElapsed -= 204;
 
-                                        if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                        CurScanline = (CurScanline + 1) % 153;
+                                        if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
                                         {
                                             RequestIRQ(RegsIO_Bits.IF_STAT);
                                         }
-                                    }
-                                    if (m_scanlineTotalCyclesElapsed >= 456)
-                                    {
-                                        DrawDisplayLine(this, CurScanline);
 
-                                        CurScanline = (CurScanline + 1) % 153;
-                                        m_scanlineTotalCyclesElapsed -= 456;
-
-                                        // Start VBLANK
                                         if (CurScanline == 144)
                                         {
                                             m_operationMode = 1;
-                                            m_cyclesElapsed = 0;
+
                                             RequestIRQ(RegsIO_Bits.IF_VBLANK);
 
                                             if ((m_stat & RegsIO_Bits.STAT_INTM1) > 0)
@@ -303,10 +295,14 @@ namespace xFF
                                                 RequestIRQ(RegsIO_Bits.IF_STAT);
                                             }
                                         }
-
-                                        if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
+                                        else
                                         {
-                                            RequestIRQ(RegsIO_Bits.IF_STAT);
+                                            m_operationMode = 2;
+
+                                            if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                            {
+                                                RequestIRQ(RegsIO_Bits.IF_STAT);
+                                            }
                                         }
                                     }
                                 }
@@ -316,18 +312,23 @@ namespace xFF
                                 {
                                     if (m_cyclesElapsed >= 456)
                                     {
-                                        CurScanline = (CurScanline + 1) % 153;
                                         m_cyclesElapsed -= 456;
-                                    }
-                                    if (m_scanlineTotalCyclesElapsed >= 4560)
-                                    {
-                                        m_scanlineTotalCyclesElapsed = 0;
-                                        m_cyclesElapsed = 0;
-                                        m_operationMode = 2;
 
-                                        if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                        CurScanline = (CurScanline + 1) % 153;
+                                        if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
                                         {
                                             RequestIRQ(RegsIO_Bits.IF_STAT);
+                                        }
+
+                                        //TODO: line 0 has special timing
+                                        if (CurScanline == 0)
+                                        {
+                                            m_operationMode = 2;
+
+                                            if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
+                                            {
+                                                RequestIRQ(RegsIO_Bits.IF_STAT);
+                                            }
                                         }
                                     }
                                 }
@@ -335,9 +336,9 @@ namespace xFF
 
                             case 2: // Accessing OAM
                                 {
-                                    if (m_cyclesElapsed >= 77)
+                                    if (m_cyclesElapsed >= 80)
                                     {
-                                        m_cyclesElapsed = 0;
+                                        m_cyclesElapsed -= 80;
                                         m_operationMode = 3;
                                     }
                                 }
@@ -345,15 +346,18 @@ namespace xFF
 
                             case 3: // Accessing VRAM
                                 {
-                                    if (m_cyclesElapsed >= 169)
+                                    if (m_cyclesElapsed >= 172)
                                     {
-                                        m_cyclesElapsed = 0;
+                                        m_cyclesElapsed -= 172;
                                         m_operationMode = 0;
 
                                         if ((m_stat & RegsIO_Bits.STAT_INTM0) > 0)
                                         {
                                             RequestIRQ(RegsIO_Bits.IF_STAT);
                                         }
+
+                                        // Draw before entering hblank
+                                        DrawDisplayLine(this, CurScanline);
                                     }
                                 }
                                 break;

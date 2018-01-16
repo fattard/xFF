@@ -244,7 +244,7 @@ namespace xFF
 
                         else if (aAddress >= 0x8000 && aAddress < 0xA000)
                         {
-                            m_ppu.VRAM[aAddress & 0x1FFF] = (byte)aValue;
+                            m_ppu.VRAM[aAddress & 0x1FFF] = (byte)(0xFF & aValue);
                         }
 
                         else if (aAddress >= 0xA000 && aAddress < 0xC000)
