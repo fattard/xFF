@@ -388,6 +388,21 @@ namespace xFF
                             }
                         }
                     }
+
+
+                    public void TakeScreenshot(string aFilePath)
+                    {
+                        try
+                        {
+                            byte[] png = gbDisplay.FrameBufferTexture.EncodeToPNG();
+
+                            System.IO.File.WriteAllBytes(aFilePath, png);
+                        }
+                        catch (System.Exception e)
+                        {
+                            EmuEnvironment.ShowErrorBox("Screenshot saving failed", e.Message);
+                        }
+                    }
                 }
 
 

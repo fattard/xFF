@@ -83,6 +83,12 @@ namespace xFF
                 }
 
 
+                public Texture2D FrameBufferTexture
+                {
+                    get { return m_fbTexture; }
+                }
+
+
                 void Awake()
                 {
                     switch (displayRotation)

@@ -217,6 +217,12 @@ namespace xFF
                         m_emuGB.EmulateFrame();
                         lcdDisplay.Render();
 
+                        // Chack for screenshot key
+                        /*if (Input.GetKeyDown(KeyCode.F12))
+                        {
+                            SaveScreenshot();
+                        }*/
+
 
                     #if UNITY_EDITOR
                         // Prevent DBG unresponsive loops
@@ -277,6 +283,29 @@ namespace xFF
                         {
                             EmuEnvironment.ShowErrorBox("GB Emu Error", e.Message);
                         }
+                    }
+
+
+                    void SaveScreenshot( )
+                    {
+                        string timestamp = "_" + System.DateTime.Now.ToFileTime() + ".png";
+
+                        if (EmuEnvironment.RomFilePath.EndsWith(".gbc"))
+                        {
+                            lcdDisplay.TakeScreenshot(EmuEnvironment.RomFilePath.Replace(".gbc", timestamp));
+                        }
+
+                        else if (EmuEnvironment.RomFilePath.EndsWith(".gb"))
+                        {
+                            lcdDisplay.TakeScreenshot(EmuEnvironment.RomFilePath.Replace(".gb", timestamp));
+                        }
+
+                        // Just append timestamp to whatever name is
+                        else
+                        {
+                            lcdDisplay.TakeScreenshot(EmuEnvironment.RomFilePath + timestamp);
+                        }
+                        
                     }
 
 
