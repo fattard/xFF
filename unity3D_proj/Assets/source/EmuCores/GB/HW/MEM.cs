@@ -314,8 +314,7 @@ namespace xFF
 
                         else if (aAddress == RegsIO.LY)
                         {
-                            // Reset Scanline counter
-                            m_ppu.CurScanline = 0;
+                            // Do nothing
                         }
 
                         else if (aAddress == RegsIO.LYC)
