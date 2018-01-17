@@ -183,7 +183,15 @@ namespace xFF
                     public int ScanlineComparer
                     {
                         get { return m_scanlineToCompare; }
-                        set { m_scanlineToCompare = (0xFF & value); }
+                        set
+                        {
+                            m_scanlineToCompare = (0xFF & value);
+
+                            if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
+                            {
+                                RequestIRQ(RegsIO_Bits.IF_STAT);
+                            }
+                        }
                     }
 
 
@@ -278,7 +286,7 @@ namespace xFF
                                     {
                                         m_cyclesElapsed -= 204;
 
-                                        CurScanline = (CurScanline + 1) % 153;
+                                        CurScanline = (CurScanline + 1) % 154;
                                         if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
                                         {
                                             RequestIRQ(RegsIO_Bits.IF_STAT);
@@ -314,7 +322,7 @@ namespace xFF
                                     {
                                         m_cyclesElapsed -= 456;
 
-                                        CurScanline = (CurScanline + 1) % 153;
+                                        CurScanline = (CurScanline + 1) % 154;
                                         if (CurScanline == ScanlineComparer && ((m_stat & RegsIO_Bits.STAT_INTLYC) > 0))
                                         {
                                             RequestIRQ(RegsIO_Bits.IF_STAT);
