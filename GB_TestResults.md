@@ -17,7 +17,7 @@ Symbols:
 | cpu instrs        | :+1:   |
 | dmg sound 2       | :x:    |
 | instr timing      | :+1:   |
-| halt bug          | :x:    |
+| halt bug          | :+1:   |
 | mem timing 2      | :x:    |
 | oam bug 2         | :x:    |
 | cgb sound 2       | :x:    |
@@ -35,56 +35,54 @@ Notes:
 
 | Test                    | Result |
 | ----------------------- | ------ |
-| add sp e timing         | :x:    |
+| add sp e timing         | :+1:   |
 | boot hwio dmg0          | :x:    |
 | boot hwio dmgABCXmgb    | :x:    |
 | boot hwio S             | :x:    |
-| boot regs dmg0          | :x:    |
-| boot regs dmgABCX       | :x:    |
-| boot regs mgb           | :x:    |
-| boot regs sgb           | :x:    |
-| boot regs sgb2          | :x:    |
+| boot regs dmg0          | :+1:   |
+| boot regs dmgABCX       | :+1:   |
+| boot regs mgb           | :+1:   |
+| boot regs sgb           | :+1:   |
+| boot regs sgb2          | :+1:   |
 | call timing             | :x:    |
 | call timing2            | :x:    |
 | call cc_timing          | :x:    |
 | call cc_timing2         | :x:    |
-| di timing GS            | :x:    |
-| div timing              | :x:    |
-| ei sequence             | :x:    |
-| ei timing               | :x:    |
-| halt ime0 ei            | :x:    |
-| halt ime0 nointr_timing | :x:    |
-| halt ime1 timing        | :x:    |
-| halt ime1 timing2 GS    | :x:    |
-| if ie registers         | :x:    |
-| intr timing             | :x:    |
+| di timing GS            | :+1:   |
+| div timing              | :+1:   |
+| ei sequence             | :+1:   |
+| ei timing               | :+1:   |
+| halt ime0 ei            | :+1:   |
+| halt ime0 nointr_timing | :+1:   |
+| halt ime1 timing        | :+1:   |
+| halt ime1 timing2 GS    | :+1:   |
+| if ie registers         | :+1:   |
+| intr timing             | :+1:   |
 | jp timing               | :x:    |
 | jp cc timing            | :x:    |
-| ld hl sp e timing       | :x:    |
-| oam dma_restart         | :x:    |
+| ld hl sp e timing       | :+1:   |
+| oam dma_restart         | :+1:   |
 | oam dma start           | :x:    |
-| oam dma timing          | :x:    |
+| oam dma timing          | :+1:   |
 | pop timing              | :x:    |
 | push timing             | :x:    |
-| rapid di ei             | :x:    |
+| rapid di ei             | :+1:   |
 | ret timing              | :x:    |
 | ret cc timing           | :x:    |
 | reti timing             | :x:    |
-| reti intr timing        | :x:    |
+| reti intr timing        | :+1:   |
 | rst timing              | :x:    |
 
 Notes:
 
 * Passes most boot tests only if you explicitly enable boot ROMs and give it the right one.
-  This makes sense for DMG0, MGB, and SGB2 because they are not selectable, but SGB should work
-  without boot ROMs out of the box.
 
 #### Bits (unusable bits in memory and registers)
 
 | Test           | Result |
 | -------------- | ------ |
-| mem oam        | :x:    |
-| reg f          | :x:    |
+| mem oam        | :+1:   |
+| reg f          | :+1:   |
 | unused_hwio GS | :x:    |
 
 #### GPU
@@ -92,8 +90,8 @@ Notes:
 | Test                        | Result |
 | --------------------------- | ------ |
 | hblank ly scx timing GS     | :x:    |
-| intr 1 2 timing GS          | :x:    |
-| intr 2 0 timing             | :x:    |
+| intr 1 2 timing GS          | :+1:   |
+| intr 2 0 timing             | :+1:   |
 | intr 2 mode0 timing         | :x:    |
 | intr 2 mode3 timing         | :x:    |
 | intr 2 oam ok timing        | :x:    |
@@ -119,17 +117,17 @@ Notes:
 
 | Test                 | Result |
 | -------------------- | ------ |
-| div write            | :x:    |
-| rapid toggle         | :x:    |
-| tim00 div trigger    | :x:    |
-| tim00                | :x:    |
-| tim01 div trigger    | :x:    |
-| tim01                | :x:    |
-| tim10 div trigger    | :x:    |
-| tim10                | :x:    |
-| tim11 div trigger    | :x:    |
-| tim11                | :x:    |
-| tima reload          | :x:    |
+| div write            | :+1:   |
+| rapid toggle         | :+1:   |
+| tim00 div trigger    | :+1:   |
+| tim00                | :+1:   |
+| tim01 div trigger    | :+1:   |
+| tim01                | :+1:   |
+| tim10 div trigger    | :+1:   |
+| tim10                | :+1:   |
+| tim11 div trigger    | :+1:   |
+| tim11                | :+1:   |
+| tima reload          | :+1:   |
 | tima write reloading | :x:    |
 | tma write reloading  | :x:    |
 
