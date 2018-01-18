@@ -90,6 +90,10 @@ namespace xFF
                         m_emuGB.DrawDisplayLine = lcdDisplay.DrawDisplayLine;
                         m_emuGB.PlayAudio = dsp.PlayAudio;
                         dsp.ConfigBuffers(m_emuGB.APU);
+                        dsp.channel1Enabled = configsGB.audio.soundChannel_1;
+                        dsp.channel2Enabled = configsGB.audio.soundChannel_2;
+                        dsp.channel3Enabled = configsGB.audio.soundChannel_3;
+                        dsp.channel4Enabled = configsGB.audio.soundChannel_4;
                         m_emuGB.GetKeysState = m_gbInput.GetKeysState;
                         //m_emuGB.PlayAudio = PlayAudio;
                         //m_emuGB.UpdateInputKeys = UpdateKeys;
@@ -321,6 +325,12 @@ namespace xFF
 
                         // DMG Colors
                         OverrideConfigsColors(aConf);
+
+                        // Audio
+                        aConf.audio.soundChannel_1 = dsp.channel1Enabled;
+                        aConf.audio.soundChannel_2 = dsp.channel2Enabled;
+                        aConf.audio.soundChannel_3 = dsp.channel3Enabled;
+                        aConf.audio.soundChannel_4 = dsp.channel4Enabled;
                     }
 
 

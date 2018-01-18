@@ -49,7 +49,7 @@ namespace xFF
                 {
                     public bool customEnabled = false;
                     public string path = string.Empty;
-                    public int internalAnimType = 0;
+                    public int internalAnimType = 3;
                 }
 
 
@@ -66,7 +66,7 @@ namespace xFF
                 [System.Serializable]
                 public class Graphics
                 {
-                    public int displayZoom = 1;
+                    public int displayZoom = 2;
                 }
 
 
@@ -99,11 +99,11 @@ namespace xFF
                         }
                     }
 
-                    public Color colorDisabledLCD = new Color(255, 255, 255);
-                    public Color color0 = new Color(255, 255, 255);
-                    public Color color1 = new Color(176, 176, 176);
-                    public Color color2 = new Color(104, 104, 104);
-                    public Color color3 = new Color(0, 0, 0);
+                    public Color colorDisabledLCD = new Color(224, 248, 208);
+                    public Color color0 = new Color(224, 248, 208);
+                    public Color color1 = new Color(136, 192, 112);
+                    public Color color2 = new Color(52, 104, 86);
+                    public Color color3 = new Color(8, 24, 32);
                 }
 
 
