@@ -90,6 +90,8 @@ namespace xFF
                     int m_scanlineToCompare;
                     int m_operationMode;
 
+                    bool m_pendingVblankRequest;
+
                     LCDControlInfo m_lcdControlInfo;
 
                     CPU.RequestIRQFunc RequestIRQ;
@@ -236,6 +238,11 @@ namespace xFF
                         set
                         {
                             m_stat = (0x7F & value);
+
+                            if (OperationMode < 2 && m_lcdControlInfo.IsLCDEnabled)
+                            {
+                                RequestIRQ(RegsIO_Bits.IF_STAT);
+                            }
                         }
                     }
 
@@ -295,8 +302,7 @@ namespace xFF
                                         if (CurScanline == 144)
                                         {
                                             m_operationMode = 1;
-
-                                            RequestIRQ(RegsIO_Bits.IF_VBLANK);
+                                            m_pendingVblankRequest = true;
 
                                             if ((m_stat & RegsIO_Bits.STAT_INTM1) > 0)
                                             {
@@ -338,6 +344,12 @@ namespace xFF
                                                 RequestIRQ(RegsIO_Bits.IF_STAT);
                                             }
                                         }
+                                    }
+                                    // Vblank IRQ request has a 4 cycles delay
+                                    else if (m_pendingVblankRequest && m_cyclesElapsed >= 4)
+                                    {
+                                        m_pendingVblankRequest = false;
+                                        RequestIRQ(RegsIO_Bits.IF_VBLANK);
                                     }
                                 }
                                 break;
