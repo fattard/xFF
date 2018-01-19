@@ -83,7 +83,7 @@ Notes:
 | -------------- | ------ |
 | mem oam        | :+1:   |
 | reg f          | :+1:   |
-| unused_hwio GS | :x:    |
+| unused_hwio GS | :+1:   |
 
 #### GPU
 

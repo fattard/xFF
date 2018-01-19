@@ -231,6 +231,12 @@ namespace xFF
                             return m_cpu.InterruptsEnables;
                         }
 
+                        else if (aAddress >= 0xFF00 && aAddress < 0xFF80)
+                        {
+                            // Unused
+                            return 0xFF;
+                        }
+
                         return m_dbg_FullRam[aAddress];
                     }
 
@@ -371,6 +377,11 @@ namespace xFF
                         else if (aAddress == RegsIO.IE)
                         {
                             m_cpu.InterruptsEnables = aValue;
+                        }
+
+                        else if (aAddress >= 0xFF00 && aAddress < 0xFF80)
+                        {
+                            // Ignore writing
                         }
 
                         else
