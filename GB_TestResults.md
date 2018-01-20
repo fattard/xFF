@@ -157,7 +157,7 @@ Notes:
 
 | Test            | Result |
 | --------------- | ------ |
-| sprite priority | :x:    |
+| sprite priority | :+1:   |
 
 ### Mooneye GB misc tests
 

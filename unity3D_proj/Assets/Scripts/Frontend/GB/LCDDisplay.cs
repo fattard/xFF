@@ -48,6 +48,8 @@ namespace xFF
                     Color[] m_LCDColor = new Color[4];
                     Color m_disabledLCDColor;
 
+                    int[] m_bgRowColors = new int[160];
+
 
                     public void SetConfigs(EmuCores.GB.ConfigsGB aConfigs)
                     {
@@ -184,11 +186,13 @@ namespace xFF
                                     color |= ((palData >> lo) & 0x1);
 
                                     displayPixels[(i * texWid) + j] = m_LCDColor[color];
+                                    m_bgRowColors[j] = color;
                                 }
 
                                 else
                                 {
                                     displayPixels[(i * texWid) + j] = m_LCDColor[0];
+                                    m_bgRowColors[j] = 0;
                                 }
                             }
 
@@ -213,11 +217,16 @@ namespace xFF
                         int i = aScanline;
                         int renderedObj = 0;
 
-                        aOAM.SortByPosX();
+                        aOAM.SortByPosX(i, objHeight);
 
-                        for (int objIdx = 0; objIdx < 40; ++objIdx)
+                        for (int objIdx = 10; objIdx >= 0; --objIdx)
                         {
                             OAM.ObjAttributes obj = aOAM.GetObjAttributesSorted(objIdx);
+
+                            if (obj == null)
+                            {
+                                continue;
+                            }
 
                             int yPos = obj.PosY - 16;
                             int xPos = obj.PosX - 8;
@@ -264,7 +273,7 @@ namespace xFF
                                         // Only appears above BG color0
                                         if (obj.BGPriority == 1)
                                         {
-                                            if (displayPixels[(i * texWid) + pixel] == m_LCDColor[aPPU.BackgroundPalette & 0x03])
+                                            if (m_bgRowColors[pixel] == 0)
                                             {
                                                 displayPixels[(i * texWid) + pixel] = m_LCDColor[color];
                                             }

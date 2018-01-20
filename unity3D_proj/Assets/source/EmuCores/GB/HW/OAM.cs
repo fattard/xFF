@@ -121,16 +121,16 @@ namespace xFF
                             int v = ((aObj as ObjAttributes).PosX - PosX);
                             if (v > 0)
                             {
-                                return 1;
+                                return -1;
                             }
                             
                             else if (v == 0)
                             {
                                 // Same pos, compares idx
-                                return ((aObj as ObjAttributes).ID > ID) ? 1 : -1;
+                                return ((aObj as ObjAttributes).ID > ID) ? -1 : 1;
                             }
 
-                            return -1;
+                            return 1;
                         }
                     }
 
@@ -160,12 +160,42 @@ namespace xFF
 
                     public ObjAttributes GetObjAttributesSorted(int aIdx)
                     {
-                        return m_objAttrsSorted[aIdx];
+                        if (aIdx < m_objAttrsSorted.Count)
+                        {
+                            return m_objAttrsSorted[aIdx];
+                        }
+
+                        return null;
                     }
 
 
-                    public void SortByPosX( )
+                    public void SortByPosX(int aScanline, int aObjHeight)
                     {
+                        int totalSelected = 0;
+                        int idx = 0;
+                        m_objAttrsSorted.Clear();
+
+                        // Select the first 10 visible sprites
+                        while (idx < 40)
+                        {
+                            ObjAttributes obj = GetObjAttributes(idx);
+                            int yPos = obj.PosY - 16;
+
+                            if (aScanline >= yPos && aScanline < (yPos + aObjHeight))
+                            {
+                                m_objAttrsSorted.Add(obj);
+                                ++totalSelected;
+
+                                if (totalSelected == 10)
+                                {
+                                    break;
+                                }
+                            }
+
+                            ++idx;
+                        }
+
+                        // Sort by pos X
                         m_objAttrsSorted.Sort();
                     }
 
