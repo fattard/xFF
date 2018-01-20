@@ -1,3 +1,24 @@
+Version 0.0.7 (Alpha) - JAN/20/2018
+===================================
+
+Supported Cores:
+----------------
+- Game Boy - Classic GB emulator. Please, check the emulation
+  status (https://github.com/fattard/xFF/blob/0.0.7/GB_Status.md)
+  with details of what is supported, and what is in progress and known issues.
+- BytePusher - A special test core to help me creating the foundations
+  that will allow running all real cores.
+  More info: https://esolangs.org/wiki/BytePusher
+
+[DMG] GB Core Updates:
+----------------------
+- Added audio support.
+- Minor changes to HALT instruction to include hardware bug emulation.
+- Fixed several graphical issues.
+
+
+
+
 Version 0.0.6 (Alpha) - JAN/05/2018
 ===================================
 

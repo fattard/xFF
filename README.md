@@ -3,8 +3,13 @@
 ## Core Status ##
 ## [GB Emulation Status](GB_Status.md) ##
 Game Boy core emulation. Initially, only the classic emulation will be supported.  
-The current release build (v0.0.6) is able to run TestROMS, such as [Blargg's Test Suite](http://gbdev.gg8.se/files/roms/blargg-gb-tests/), some
-[mooneye-gb tests](https://gekkio.fi/files/mooneye-gb/latest/), and also commercial games that uses mapper MBC1.   
+### Features
+- Audio support
+- Support for ROMs with mapper MBC1
+- Save support
+- Includes a custom bootROM with quick intro animation \([source code](https://github.com/fattard/xFF/blob/master/CutomBootROM/DMG/DMG_CustomBootRom.asm)\)   
+- Customizable screen color and display zoom size (currently only by editing config file)   
+
 Remember to check the [status page](GB_Status.md) for information on what is supported or not.
 <br>
 <br>
@@ -17,9 +22,11 @@ Below is the current montage of results from Blargg's tests:
 ![Test ROM result](sshots/GB/blarggs_test_suite.png)
 <br>
 The mem_timing test fails, as it requires cycle accurate emulation. It will take some time for this.    
-Both DMG and CGB sound tests fails, as there's not sound support yet.     
-The hardware bug tests also fails, as this kind of behaviour is not being emulated.
+DMG sound tests failed are 09, 10 and 12, all related to edge cases for accessing Wave pattern memory while Channel3 is On, that should not affect most games.
+The OAM hardware bug tests also fails, as this kind of behaviour is not being emulated.
 <br>
+<br>
+Check more accuracy test results: [GB Test Results](https://github.com/fattard/xFF/blob/master/GB_TestResults.md) page.
 <br>
 ### Joypad Controls ###
 Supports both Keyboard control and Xbox Controller (compatible with any XInput device).  

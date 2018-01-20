@@ -8,7 +8,7 @@
 
 Hardware Mode | Supported
 ------------- | ---------
-DMG (Game Boy) | :soon:
+DMG (Game Boy) | :heavy_check_mark: 
 MGB/MGL (Game Boy Pocket/Light)
 SGB (Super Game Boy)
 SGB2 (Super Game Boy 2)
@@ -152,9 +152,9 @@ CPL              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 NOP              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 CCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 SCF              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
-DI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: | :o: 
-EI               | :heavy_check_mark: | :o:                   | :heavy_check_mark: | :o: 
-HALT             | :o: | :o:                   | :heavy_check_mark: | :o: 
+DI               | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
+EI               | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
+HALT             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 STOP             | :o: | :x:                   |                    |                   
 
 
@@ -173,12 +173,12 @@ Backgrounds  | :o:
 Sprites      | :o:
 GBC Palettes
 
-Audio | Status
------ | ------
-Channel 1
-Channel 2
-Channel 3 | :soon:
-Channel 4
+Audio     | Status
+--------- | ------
+Channel 1 | :o:
+Channel 2 | :o:
+Channel 3 | :o:
+Channel 4 | :o:
 
 ROM Mappers | Status
 ----------- | ------
