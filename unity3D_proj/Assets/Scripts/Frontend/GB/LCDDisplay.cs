@@ -186,7 +186,7 @@ namespace xFF
                                     color |= ((palData >> lo) & 0x1);
 
                                     displayPixels[(i * texWid) + j] = m_LCDColor[color];
-                                    m_bgRowColors[j] = color;
+                                    m_bgRowColors[j] = palIdx;
                                 }
 
                                 else
