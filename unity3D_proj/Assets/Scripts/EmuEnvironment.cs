@@ -27,7 +27,7 @@
 using UnityEngine;
 using xFF.Frontend.Unity3D.BytePusher;
 using xFF.Frontend.Unity3D.GB;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 
 namespace xFF
 {
@@ -91,7 +91,8 @@ namespace xFF
 
             else
             {
-                MessageBox.Show(aMsg, aTitle, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                Debug.LogError(aMsg);
+                //MessageBox.Show(aMsg, aTitle, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
             }
         }
 
@@ -105,7 +106,8 @@ namespace xFF
 
             else
             {
-                MessageBox.Show(aMsg, aTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                Debug.LogWarning(aMsg);
+                //MessageBox.Show(aMsg, aTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
             }
         }
     }
