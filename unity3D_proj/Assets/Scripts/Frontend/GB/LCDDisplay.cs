@@ -75,7 +75,7 @@ namespace xFF
 
                     public void Render( )
                     {
-                        gbDisplay.DrawDisplay(gbDisplay.Pixels);
+                        gbDisplay.DrawDisplay(gbDisplay.ReadyPixels);
                     }
 
 
@@ -94,6 +94,11 @@ namespace xFF
                                 {
                                     displayPixels[(i * texWid) + j] = m_disabledLCDColor;
                                 }
+                            }
+
+                            if (aScanline == 143)
+                            {
+                                gbDisplay.SwapBuffers();
                             }
                             return;
                         }
@@ -200,6 +205,11 @@ namespace xFF
                             {
                                 RenderSprites(aPPU, aScanline);
                             }
+                        }
+
+                        if (aScanline == 143)
+                        {
+                            gbDisplay.SwapBuffers();
                         }
                     }
 

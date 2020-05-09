@@ -67,13 +67,20 @@ namespace xFF
                 Vector3 anchorBottomRight;
 
                 Texture2D m_fbTexture;
-                Color[] m_fbPixels;
+                Color[][] m_fbPixels;
                 int m_fbTextureWidth;
+                int m_fbPixelsBufferIdx;
 
 
                 public Color[] Pixels
                 {
-                    get { return m_fbPixels; }
+                    get { return m_fbPixels[m_fbPixelsBufferIdx]; }
+                }
+
+
+                public Color[] ReadyPixels
+                {
+                    get { return m_fbPixels[m_fbPixelsBufferIdx ^ 1]; }
                 }
 
 
@@ -118,8 +125,17 @@ namespace xFF
 
                     screenRenderer.material = displayMaterial;
                     m_fbTexture = displayTexture;
-                    m_fbPixels = m_fbTexture.GetPixels();
+                    m_fbPixels = new Color[2][];
                     m_fbTextureWidth = displayTexture.width;
+
+                    m_fbPixels[0] = m_fbTexture.GetPixels();
+                    m_fbPixels[1] = m_fbTexture.GetPixels();
+                }
+
+
+                public void SwapBuffers( )
+                {
+                    m_fbPixelsBufferIdx ^= 1;
                 }
 
 
