@@ -102,7 +102,7 @@ namespace xFF
 
                         LoadBootRom();
 
-                        if (!string.IsNullOrEmpty(EmuEnvironment.RomFilePath))
+                        //if (!string.IsNullOrEmpty(EmuEnvironment.RomFilePath))
                         {
                             LoadROM();
                         }
