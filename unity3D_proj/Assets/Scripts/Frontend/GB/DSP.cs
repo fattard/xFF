@@ -73,6 +73,12 @@ namespace xFF
                     }
 
 
+                    void OnDestroy()
+                    {
+                        AudioSettings.OnAudioConfigurationChanged -= OnAudioConfigurationChanged;
+                    }
+
+
 #if !DISABLE_AUDIO
                     void OnAudioConfigurationChanged(bool deviceWasChanged)
                     {

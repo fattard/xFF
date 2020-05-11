@@ -68,7 +68,13 @@ namespace xFF
 
                         Gain = 1;
                     }
-    
+
+
+                    void OnDestroy()
+                    {
+                        AudioSettings.OnAudioConfigurationChanged -= OnAudioConfigurationChanged;
+                    }
+
 
                     void OnAudioConfigurationChanged(bool deviceWasChanged)
                     {
