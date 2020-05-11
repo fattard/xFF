@@ -1,6 +1,6 @@
 ﻿/*
 *   This file is part of xFF
-*   Copyright (C) 2017 Fabio Attard
+*   Copyright (C) 2017-2020 Fabio Attard
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -32,20 +32,79 @@ namespace xFF
     public class Launch : MonoBehaviour
     {
         public string[] editorArgs;
+        public static string s_draggedROMPath;
+        public static bool s_firstLaunch = true;
 
         bool invalidArgs;
 
         void Awake( )
         {
-            QualitySettings.vSyncCount = 1;
-            Application.targetFrameRate = 60;
+            if (s_firstLaunch)
+            {
+                //QualitySettings.vSyncCount = 1;
+                Application.targetFrameRate = 60;
 
-            Screen.SetResolution(640, 480, false);
+                Screen.SetResolution(640, 480, false);
+            }
         }
 
 
         void Start( )
         {
+            if (s_firstLaunch)
+            {
+                CheckCommandLineArgs();
+            }
+        }
+
+
+        void Update( )
+        {
+            if (invalidArgs)
+            {
+                EmuEnvironment.ShowErrorBox("xFF", "File: " + EmuEnvironment.RomFilePath + "\nNot a valid ROM.");
+                //Application.Quit();
+            }
+
+            if (s_draggedROMPath != null)
+            {
+                EmuEnvironment.RomFilePath = s_draggedROMPath;
+
+                if (EmuEnvironment.EmuCore == EmuEnvironment.Cores._Unknown)
+                {
+                    if (EmuCores.GB.EmuGB.IsValidROM(EmuEnvironment.RomFilePath))
+                    {
+                        EmuEnvironment.EmuCore = EmuEnvironment.Cores.GB;
+                    }
+
+                    if (EmuCores.BytePusher.EmuBytePusher.IsValidROM(EmuEnvironment.RomFilePath))
+                    {
+                        EmuEnvironment.EmuCore = EmuEnvironment.Cores.BytePusher;
+                    }
+                }
+
+                if (EmuEnvironment.EmuCore != EmuEnvironment.Cores._Unknown)
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene("EmuRuntime");
+                }
+                else
+                {
+                    // Ensures we have a DragAndDrop installed
+                    if (gameObject.GetComponent<xFF.Frontend.Unity3D.ROMDragAndDrop>() == null)
+                    {
+                        gameObject.AddComponent<xFF.Frontend.Unity3D.ROMDragAndDrop>();
+                    }
+                }
+
+                s_draggedROMPath = null;
+            }
+        }
+
+
+        void CheckCommandLineArgs()
+        {
+            s_firstLaunch = false;
+
             string[] args = System.Environment.GetCommandLineArgs();
 
             if (Application.isEditor)
@@ -111,16 +170,9 @@ namespace xFF
             else
             {
                 invalidArgs = true;
-            }
-        }
 
-
-        void Update( )
-        {
-            if (invalidArgs)
-            {
-                EmuEnvironment.ShowErrorBox("xFF", "File: " + EmuEnvironment.RomFilePath + "\nNot a valid ROM.");
-                Application.Quit();
+                // Install DragAndDrop listener
+                gameObject.AddComponent<xFF.Frontend.Unity3D.ROMDragAndDrop>();
             }
         }
     }

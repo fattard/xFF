@@ -122,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1425639229}
   - component: {fileID: 1425639230}
+  - component: {fileID: 1425639231}
   m_Layer: 0
   m_Name: EmuRuntime
   m_TagString: Untagged
@@ -153,5 +154,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48e5e834be62b8b4e905b0265e2865eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1425639231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425639228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f629822555b953d4aa1d9ebd92f2a23d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
