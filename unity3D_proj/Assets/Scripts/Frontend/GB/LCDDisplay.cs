@@ -108,6 +108,7 @@ namespace xFF
                         int scrollX = aPPU.BGScrollX;
                         int wStartX = aPPU.WindowPosX - 7;
                         int wStartY = aPPU.WindowPosY;
+                        int wLine = aPPU.WindowLineCounter;
 
                         int auxBG = 0;
                         int auxWnd = 0;
@@ -120,6 +121,7 @@ namespace xFF
                         bool isWindowEnabled = aPPU.LCDControlInfo.IsWindowEnabled;
                         bool isBGEnabled = aPPU.LCDControlInfo.IsBGEnabled;
                         bool isObjsEnabled = aPPU.LCDControlInfo.IsSpritesEnabled;
+                        bool shouldIncrementWindowLineCounter = false;
 
 
 
@@ -132,7 +134,7 @@ namespace xFF
                                 
                                 
                                 auxBG = mapDataOffset + ((yPos / 8) * 32) + (xPos / 8);
-                                auxWnd = windowDataOffset + (((i - wStartY) / 8) * 32) + ((j - wStartX) / 8);
+                                auxWnd = windowDataOffset + (((wLine) / 8) * 32) + ((j - wStartX) / 8);
 
                                 int tileIdx = 0;
                                 if (isWindowEnabled && (j >= wStartX && i >= wStartY))
@@ -150,6 +152,8 @@ namespace xFF
                                     // Fix pos for window overlay space
                                     yPos = (i - wStartY);
                                     xPos = (j - wStartX);
+
+                                    shouldIncrementWindowLineCounter = true;
                                 }
 
                                 else if (isBGEnabled)
@@ -205,6 +209,11 @@ namespace xFF
                             {
                                 RenderSprites(aPPU, aScanline);
                             }
+
+                            if (shouldIncrementWindowLineCounter)
+                            {
+                                aPPU.WindowLineCounter++;
+                            }
                         }
 
                         if (aScanline == 143)
@@ -242,6 +251,12 @@ namespace xFF
                             int xPos = obj.PosX - 8;
                             int tileIdx = obj.TileIdx;
                             int palData = (obj.ObjPalIdx == 1) ? aPPU.ObjectPalette1 : aPPU.ObjectPalette0;
+
+                            if (objHeight == 16)
+                            {
+                                // Bit 0 of tile index for 8x16 objects should be ignored
+                                tileIdx &= 0xFFFE;
+                            }
 
                             if (i >= yPos && i < (yPos + objHeight))
                             {

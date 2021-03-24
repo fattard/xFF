@@ -158,6 +158,12 @@ namespace xFF
                         set;
                     }
 
+                    public int WindowLineCounter
+                    {
+                        get;
+                        set;
+                    }
+
 
                     /// <summary>
                     /// Accessor for Reg LY (0xFF44)
@@ -283,7 +289,7 @@ namespace xFF
 
 
                         m_cyclesElapsed += (uint)aElapsedCycles;
-                        //m_scanlineTotalCyclesElapsed += (uint)aElapsedCycles;
+                        m_scanlineTotalCyclesElapsed += (uint)aElapsedCycles;
 
                         switch (m_operationMode)
                         {
@@ -338,6 +344,8 @@ namespace xFF
                                         if (CurScanline == 0)
                                         {
                                             m_operationMode = 2;
+
+                                            WindowLineCounter = 0;
 
                                             if ((m_stat & RegsIO_Bits.STAT_INTM2) > 0)
                                             {
