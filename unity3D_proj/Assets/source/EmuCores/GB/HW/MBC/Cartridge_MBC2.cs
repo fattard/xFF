@@ -1,6 +1,6 @@
 ﻿/*
 *   This file is part of xFF
-*   Copyright (C) 2017 Fabio Attard
+*   Copyright (C) 2017-2021 Fabio Attard
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -87,6 +87,7 @@ namespace xFF
                                 m_ramBanks[m_ramBanks.Count - 1][i] = 0xF0;
                             }
 
+
                             m_curBank = 1;
                             m_isRAMEnabled = false;
                         }
@@ -109,10 +110,12 @@ namespace xFF
                                 // SRAM
                                 else if (aOffset >= 0xA000 && aOffset <= 0xBFFF)
                                 {
-                                    //TODO: check aOffset > 0xA1FF is wrapped around
-                                    if (!m_isRAMEnabled || m_ramBanks.Count == 0 || aOffset > 0xA1FF)
+                                    // Wrap around at 0xA1FF
+                                    aOffset = 0xA000 | (0x1FF & aOffset);
+
+                                    if (!m_isRAMEnabled || m_ramBanks.Count == 0)
                                     {
-                                        return 0xF0;
+                                        return 0xFF;
                                     }
 
 
@@ -125,23 +128,32 @@ namespace xFF
 
                             set
                             {
-                                // The LSB of the high-byte must be 0 to trigger
-                                if (aOffset <= 0x1FFF && ((0x0100 & aOffset) == 0))
+                                if (aOffset < 0x4000)
                                 {
-                                    m_isRAMEnabled = (0x0F & value) == 0x0A ? true : false;
+                                    // The LSB of the high-byte must be 0 to trigger
+                                    if ((0x100 & aOffset) == 0)
+                                    {
+                                        m_isRAMEnabled = (0x0F & value) == 0x0A ? true : false;
+                                    }
+
+                                    // The LSB of the high-byte must be 1 to trigger
+                                    else
+                                    {
+                                        m_curBank = (0x0F & value);
+                                        if (m_curBank == 0)
+                                        {
+                                            m_curBank = 1;
+                                        }
+                                    }
                                 }
 
-                                // The LSB of the high-byte must be 1 to trigger
-                                else if (aOffset >= 0x2000 && aOffset <= 0x3FFF && ((0x0100 & aOffset) != 0))
-                                {
-                                    m_curBank = (0x0F & value);
-                                }
-                                
                                 // SRAM
                                 else if (aOffset >= 0xA000 && aOffset <= 0xBFFF)
                                 {
-                                    //TODO: check aOffset > 0xA1FF is wrapped around
-                                    if (!m_isRAMEnabled || m_ramBanks.Count == 0 || aOffset > 0xA1FF)
+                                    // Wrap around at 0xA1FF
+                                    aOffset = 0xA000 | (0x1FF & aOffset);
+
+                                    if (!m_isRAMEnabled || m_ramBanks.Count == 0)
                                     {
                                         // Ignore writes
                                         return;

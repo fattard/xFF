@@ -1,6 +1,6 @@
 ﻿/*
 *   This file is part of xFF
-*   Copyright (C) 2017 Fabio Attard
+*   Copyright (C) 2017-2021 Fabio Attard
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -98,12 +98,8 @@ namespace xFF
                             switch (m_cartHeader.RAMSize)
                             {
                                 case 0:
+                                case 1: // value $01 was supposed to have 2KB RAM, but never proved
                                     totalRAMBanks = 0;
-                                    break;
-
-                                case 1:
-                                    totalRAMBanks = 1;
-                                    m_ramBanks.Add(new byte[2 * 1024]);
                                     break;
 
                                 case 2:

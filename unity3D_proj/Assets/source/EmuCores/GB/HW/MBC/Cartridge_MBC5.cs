@@ -106,12 +106,8 @@ namespace xFF
                             switch (m_cartHeader.RAMSize)
                             {
                                 case 0:
+                                case 1: // value $01 was supposed to have 2KB RAM, but never proved
                                     totalRAMBanks = 0;
-                                    break;
-
-                                case 1:
-                                    totalRAMBanks = 1;
-                                    m_ramBanks.Add(new byte[2 * 1024]);
                                     break;
 
                                 case 2:
@@ -145,6 +141,12 @@ namespace xFF
                                     m_ramBanks[m_ramBanks.Count - 1][i] = 0xFF;
                                 }
                             }
+
+
+                            m_curBank_lowBits = 1;
+                            m_curBank_highBits = 0;
+                            m_curBank_sram = 0;
+                            m_isRAMEnabled = false;
                         }
 
 
@@ -184,7 +186,7 @@ namespace xFF
                             {
                                 if (aOffset <= 0x1FFF)
                                 {
-                                    m_isRAMEnabled = (0x0F & value) == 0x0A ? true : false;
+                                    m_isRAMEnabled = (0xFF & value) == 0x0A ? true : false;
                                 }
 
                                 else if (aOffset >= 0x2000 && aOffset <= 0x2FFF)

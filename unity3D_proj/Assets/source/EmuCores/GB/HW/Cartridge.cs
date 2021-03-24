@@ -205,13 +205,14 @@ namespace xFF
                             // MBC3
                             else if (Cartridge_MBC3.Validate(aCartridgeHeader))
                             {
-                                if (aRomData == null || aRomData.Length > (128 * 0x4000))
+                                if (aRomData == null || aRomData.Length > (256 * 0x4000))
                                 {
                                     throw new System.ArgumentException("Invalid MBC3 ROM header info");
                                 }
 
                                 cart = new Cartridge_MBC3(aCartridgeHeader);
                             }
+                    #endif
 
                             // MBC2
                             else if (Cartridge_MBC2.Validate(aCartridgeHeader))
@@ -235,7 +236,6 @@ namespace xFF
 
                                 cart = new Cartridge_MBC5(aCartridgeHeader);
                             }
-                    #endif
 
 
                             // Unsupported, yet
