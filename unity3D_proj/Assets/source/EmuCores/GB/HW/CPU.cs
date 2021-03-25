@@ -44,7 +44,6 @@ namespace xFF
 
                     public delegate void RequestIRQFunc(int aIRQ_flag);
 
-
                     LR35902 m_gb_core;
                     MEM m_mem;
 
@@ -56,6 +55,7 @@ namespace xFF
 
                     bool m_haltBugActivated;
 
+                    public LR35902 core => m_gb_core;
 
                     public int InterruptsRequests
                     {
@@ -102,7 +102,7 @@ namespace xFF
                         m_gb_core.BindBUS(aMem.Read8, aMem.Write8);
                     }
 
-
+                    //public static System.Text.StringBuilder outDbg = new System.Text.StringBuilder(160 * 1024 * 1024);
                     public void Run( )
                     {
                         while (m_cyclesElapsed < m_userCyclesRate)
@@ -132,6 +132,14 @@ namespace xFF
 
                             else
                             {
+                                //outDbg.Append(m_gb_core.ToString() + string.Format(" DIV={0:x2} LY={1:x2} STAT={2:x2} LCDC={3:x2} IE={4:x2} IF={5:x2} IME={6}\n", m_mem.Read8(RegsIO.DIV), m_mem.Read8(RegsIO.LY), m_mem.Read8(RegsIO.STAT), m_mem.Read8(RegsIO.LCDC), m_mem.Read8(RegsIO.IE), m_mem.Read8(RegsIO.IF), m_gb_core.IsInterruptsMasterFlagEnabled ? 1 : 0));
+                                /*if (m_gb_core.Regs.PC == 0xcaa2)
+                                {
+                                    System.IO.File.WriteAllText("debug_log.txt", outDbg.ToString());
+                                    UnityEditor.EditorApplication.isPlaying = false;
+                                    return;
+                                }*/
+
                                 m_gb_core.Fetch();
                                 m_gb_core.DecodeAndExecute();
                             }

@@ -43,6 +43,8 @@ namespace xFF
                 public delegate int GetKeysStateFunc( );
                 public delegate void MsgHandler(object aMsg);
 
+                static EmuGB _instance;
+                public static EmuGB Instance => _instance;
 
                 ConfigsGB m_configs;
 
@@ -185,6 +187,8 @@ namespace xFF
                     m_joypad.BindRequestIRQ(m_cpu.RequestIRQ);
                     m_serialIO.BindRequestIRQ(m_cpu.RequestIRQ);
                     //m_ppu.BindDrawDisplayLine(DrawDisplayLine);
+
+                    _instance = this;
                 }
 
 

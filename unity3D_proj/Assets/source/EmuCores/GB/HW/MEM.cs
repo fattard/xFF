@@ -367,6 +367,11 @@ namespace xFF
                         else if (aAddress == RegsIO.SC)
                         {
                             m_serialIO.SerialControlData = aValue;
+
+                            /*if (aValue == 0x81)
+                            {
+                                UnityEngine.Debug.Log((char)Read8(RegsIO.SB));
+                            }*/
                         }
 
                         else if (aAddress == RegsIO.IF)
