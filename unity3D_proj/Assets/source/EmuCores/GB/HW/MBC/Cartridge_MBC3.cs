@@ -1,6 +1,6 @@
 ﻿/*
 *   This file is part of xFF
-*   Copyright (C) 2017 Fabio Attard
+*   Copyright (C) 2017-2021 Fabio Attard
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -41,11 +41,107 @@ namespace xFF
 
                     public class Cartridge_MBC3 : Cartridge
                     {
+                        public struct RTCData
+                        {
+                            public int sec;
+                            public int min;
+                            public int hour;
+                            public int dayL;
+                            public int miscData;
+
+                            /// <summary>
+                            /// Misc data - bit 0
+                            /// </summary>
+                            public int dayH
+                            {
+                                get => (miscData & 0x1);
+                                set => miscData = (0xC0 & miscData) | (0x1 & value);
+                            }
+
+                            /// <summary>
+                            /// Misc data - bit 6
+                            /// </summary>
+                            public int halt
+                            {
+                                get => ((miscData >> 6) & 0x1);
+                                set => miscData = (0x81 & miscData) | ((0x1 & value) << 6);
+                            }
+
+                            /// <summary>
+                            /// Misc data - bit 7
+                            /// </summary>
+                            public int day_carry
+                            {
+                                get => ((miscData >> 7) & 0x1);
+                                set => miscData = (0x41 & miscData) | ((0x1 & value) << 7);
+                            }
+
+
+                            public void Tick()
+                            {
+                                if (halt == 0)
+                                {
+                                    ++sec;
+
+                                    if (sec == 60)
+                                    {
+                                        sec = 0;
+                                        ++min;
+
+                                        if (min == 60)
+                                        {
+                                            min = 0;
+                                            ++hour;
+
+                                            if (hour == 24)
+                                            {
+                                                hour = 0;
+                                                int day = dayL + 1;
+                                                ++dayL;
+
+                                                if (day > 0xFF)
+                                                {
+                                                    dayL = 0;
+
+                                                    if (dayH == 1)
+                                                    {
+                                                        // day carry sticks to on, until explicitely reset manually
+                                                        day_carry = 1;
+                                                        dayH = 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        dayH = 1;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Rollover bit range
+                                    sec &= 0x3F;
+                                    min &= 0x3F;
+                                    hour &= 0x1F;
+
+                                    UnityEngine.Debug.Log(string.Format("isOn={0} carry={1} day={2} {3:d2}:{4:d2}:{5:d2}\n", halt, day_carry, (dayH << 8) | (dayL), hour, min, sec));
+                                }
+                            }
+                        }
+
+
                         int m_curBank_rom;
                         int m_curBank_sram;
                         bool m_isRAMEnabled;
+                        int m_clockRegH;
                         int m_clockLatch;
                         int m_mask;
+                        RTCData m_rtcData = new RTCData();
+                        RTCData m_rtcData_latched = new RTCData();
+
+                        int m_elapsedCycles;
+
+                        bool m_usesSystemSyncedTime;
+                        long m_lastRealtime;
 
 
                         public Cartridge_MBC3(CartridgeHeader aHeader)
@@ -80,6 +176,10 @@ namespace xFF
                                     totalROMBanks = 128;
                                     break;
 
+                                case 0x07: // 4MB (256 banks) - MBC30
+                                    totalROMBanks = 256;
+                                    break;
+
                                 default:
                                     totalROMBanks = 2; // 32KB (2 banks)
                                     break;
@@ -98,12 +198,8 @@ namespace xFF
                             switch (m_cartHeader.RAMSize)
                             {
                                 case 0:
+                                case 1: // value $01 was supposed to have 2KB RAM, but never proved
                                     totalRAMBanks = 0;
-                                    break;
-
-                                case 1:
-                                    totalRAMBanks = 1;
-                                    m_ramBanks.Add(new byte[2 * 1024]);
                                     break;
 
                                 case 2:
@@ -112,6 +208,10 @@ namespace xFF
 
                                 case 3:
                                     totalRAMBanks = 4;
+                                    break;
+
+                                case 5:
+                                    totalRAMBanks = 8; // MBC30
                                     break;
 
                                 default:
@@ -134,6 +234,17 @@ namespace xFF
                             m_curBank_sram = 0;
                             m_isRAMEnabled = false;
                             m_clockLatch = 0;
+                            m_clockRegH = 0;
+
+                            m_elapsedCycles = 0;
+                            m_usesSystemSyncedTime = true;
+                            m_lastRealtime = System.DateTimeOffset.Now.ToUnixTimeSeconds();
+
+                            // RTC Support
+                            if ((m_cartHeader.CartType == 0x0F) || (m_cartHeader.CartType == 0x10))
+                            {
+                                EmuGB.Instance.CPU.core.BindCyclesStep(CyclesStep);
+                            }
                         }
 
 
@@ -154,12 +265,36 @@ namespace xFF
                                 // SRAM
                                 else if (aOffset >= 0xA000 && aOffset <= 0xBFFF)
                                 {
-                                    if (!m_isRAMEnabled || m_ramBanks.Count == 0)
+                                    if (!m_isRAMEnabled || (m_ramBanks.Count == 0 && m_clockRegH == 0))
                                     {
                                         return 0xFF;
                                     }
 
-                                    return m_ramBanks[m_curBank_sram][aOffset - 0xA000];
+                                    if (m_clockRegH == 0)
+                                    {
+                                        return m_ramBanks[m_curBank_sram][aOffset - 0xA000];
+                                    }
+
+                                    switch (m_clockRegH | m_curBank_sram)
+                                    {
+                                        case 0x08:
+                                            return m_rtcData_latched.sec;
+
+                                        case 0x09:
+                                            return m_rtcData_latched.min;
+
+                                        case 0x0A:
+                                            return m_rtcData_latched.hour;
+
+                                        case 0x0B:
+                                            return m_rtcData_latched.dayL;
+
+                                        case 0x0C:
+                                            return m_rtcData_latched.miscData;
+
+                                        default:
+                                            break;
+                                    }
                                 }
 
                                 // Invalid offset
@@ -175,7 +310,7 @@ namespace xFF
 
                                 else if (aOffset >= 0x2000 && aOffset <= 0x3FFF)
                                 {
-                                    m_curBank_rom = (0x7F & value);
+                                    m_curBank_rom = (m_mask & value);
                                     if (m_curBank_rom == 0)
                                     {
                                         m_curBank_rom = 1;
@@ -185,23 +320,65 @@ namespace xFF
                                 else if (aOffset >= 0x4000 && aOffset <= 0x5FFF)
                                 {
                                     m_curBank_sram = (0x3 & value);
+                                    m_clockRegH = (0xC & value);
                                 }
 
                                 else if (aOffset >= 0x6000 && aOffset <= 0x7FFF)
                                 {
-                                    m_clockLatch = (0x1 & value);
+                                    if ((m_clockLatch == 1) && (value == 0))
+                                    {
+                                        m_clockLatch = 0;
+                                    }
+
+                                    else if ((m_clockLatch == 0) && (value == 1))
+                                    {
+                                        m_clockLatch = 1;
+                                        LatchRTC();
+                                    }
                                 }
 
                                 // SRAM
                                 else if (aOffset >= 0xA000 && aOffset <= 0xBFFF)
                                 {
-                                    if (!m_isRAMEnabled || m_ramBanks.Count == 0)
+                                    if (!m_isRAMEnabled || (m_ramBanks.Count == 0 && m_clockRegH == 0))
                                     {
                                         // Ignore writes
                                         return;
                                     }
 
-                                    m_ramBanks[m_curBank_sram][aOffset - 0xA000] = (byte)(0xFF & value);
+                                    if (m_clockRegH == 0)
+                                    {
+                                        m_ramBanks[m_curBank_sram][aOffset - 0xA000] = (byte)(0xFF & value);
+                                    }
+
+                                    else
+                                    {
+                                        switch (m_clockRegH | m_curBank_sram)
+                                        {
+                                            case 0x08:
+                                                m_rtcData.sec = (0x3F & value);
+                                                break;
+
+                                            case 0x09:
+                                                m_rtcData.min = (0x3F & value);
+                                                break;
+
+                                            case 0x0A:
+                                                m_rtcData.hour = (0x1F & value);
+                                                break;
+
+                                            case 0x0B:
+                                                m_rtcData.dayL = value;
+                                                break;
+
+                                            case 0x0C:
+                                                m_rtcData.miscData = (0xC1 & value);
+                                                break;
+
+                                            default:
+                                                break;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -221,6 +398,27 @@ namespace xFF
                                     ms.Write(m_ramBanks[i], 0, m_ramBanks[i].Length);
                                 }
 
+                                // Append RTC data
+                                if ((m_cartHeader.CartType == 0x0F) || (m_cartHeader.CartType == 0x10))
+                                {
+                                    using (System.IO.BinaryWriter bw = new System.IO.BinaryWriter(ms))
+                                    {
+                                        bw.Write(m_rtcData.sec);
+                                        bw.Write(m_rtcData.min);
+                                        bw.Write(m_rtcData.hour);
+                                        bw.Write(m_rtcData.dayL);
+                                        bw.Write(m_rtcData.miscData);
+
+                                        bw.Write(m_rtcData_latched.sec);
+                                        bw.Write(m_rtcData_latched.min);
+                                        bw.Write(m_rtcData_latched.hour);
+                                        bw.Write(m_rtcData_latched.dayL);
+                                        bw.Write(m_rtcData_latched.miscData);
+
+                                        bw.Write(m_lastRealtime);
+                                    }
+                                }
+
                                 System.IO.File.WriteAllBytes(filePath, ms.ToArray());
                             }
                         }
@@ -235,11 +433,43 @@ namespace xFF
 
                             byte[] sav = System.IO.File.ReadAllBytes(filePath);
 
+                            var size = m_ramBanks.Count * m_ramBanks[0].Length;
+
                             using (System.IO.MemoryStream ms = new System.IO.MemoryStream(sav))
                             {
                                 for (int i = 0; i < m_ramBanks.Count; ++i)
                                 {
                                     ms.Read(m_ramBanks[i], 0, m_ramBanks[i].Length);
+                                }
+
+                                // Checks if RTC data is expected appended at file footer
+                                if ((m_cartHeader.CartType == 0x0F) || (m_cartHeader.CartType == 0x10))
+                                {
+                                    int rtcFooterSize = (sav.Length - size);
+                                    if (rtcFooterSize == 0x30 || rtcFooterSize == 0x2C)
+                                    {
+                                        using (System.IO.BinaryReader br = new System.IO.BinaryReader(ms))
+                                        {
+                                            m_rtcData.sec = br.ReadInt32();
+                                            m_rtcData.min = br.ReadInt32();
+                                            m_rtcData.hour = br.ReadInt32();
+                                            m_rtcData.dayL = br.ReadInt32();
+                                            m_rtcData.miscData = br.ReadInt32();
+
+                                            m_rtcData_latched.sec = br.ReadInt32();
+                                            m_rtcData_latched.min = br.ReadInt32();
+                                            m_rtcData_latched.hour = br.ReadInt32();
+                                            m_rtcData_latched.dayL = br.ReadInt32();
+                                            m_rtcData_latched.miscData = br.ReadInt32();
+
+                                            m_lastRealtime = br.ReadInt32();
+
+                                            if (rtcFooterSize == 0x30)
+                                            {
+                                                m_lastRealtime |= ((long)br.ReadInt32() << 32);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -253,17 +483,53 @@ namespace xFF
                                 return false;
                             }
 
-                            if (aHeader.ROMSize > 0x06) // Limited to 128 banks of 32KB
+                            if (aHeader.ROMSize > 0x07) // Limited to 128 banks of 32KB (256 banks of 32KB in MBC30)
                             {
                                 return false;
                             }
 
-                            if (aHeader.RAMSize > 0x04) // Limited to 4 banks of 8KB
+                            if ((aHeader.RAMSize > 0x04)
+                                && (aHeader.RAMSize != 0x05)) // Limited to 4 banks of 8KB (8 banks of 8KB in MBC30)
                             {
                                 return false;
                             }
 
                             return true;
+                        }
+
+
+                        void LatchRTC()
+                        {
+                            m_rtcData_latched = m_rtcData;
+                        }
+
+
+                        void CyclesStep(int aElapsedCycles)
+                        {
+                            if (m_usesSystemSyncedTime)
+                            {
+                                var now = System.DateTimeOffset.Now.ToUnixTimeSeconds();
+                                var elapsedSecs = (now - m_lastRealtime);
+
+                                while ((m_rtcData.halt == 0) && (elapsedSecs > 0))
+                                {
+                                    m_rtcData.Tick();
+                                    elapsedSecs--;
+                                }
+
+                                m_lastRealtime = now;
+                            }
+
+                            else if (!m_usesSystemSyncedTime && (m_rtcData.halt == 0))
+                            {
+                                m_elapsedCycles += aElapsedCycles;
+
+                                if (m_elapsedCycles >= 4194304)
+                                {
+                                    m_rtcData.Tick();
+                                    m_elapsedCycles -= 4194304;
+                                }
+                            }
                         }
                     }
 
